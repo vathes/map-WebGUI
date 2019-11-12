@@ -15,7 +15,7 @@ api_endpoint = 'http://localhost:5000/v' + API_VERSION
 
 def mkvmod(mod):
     return dj.create_virtual_module(
-        mod, dj.config.get('database.prefix', '') + 'ibl_{}'.format(mod))
+        mod, dj.config.get('database.prefix', '') + 'map_v1_{}'.format(mod))
 
 
 def postdbg(subpath='/', data={}):
