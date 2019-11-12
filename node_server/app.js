@@ -166,7 +166,7 @@ app.get('/sessions', checkAuth, (req, res) => {
         // hostname: '127.0.0.1/',
         hostname: flask_backend.split(':')[1].split('//')[1],
         port: parseInt(flask_backend.split(':')[2]),
-        path: 'v0/_q/sessionpage/?__order=session_start_time', //'v0/session',
+        path: 'v0/_q/sessionpage/?__order=session_date', //'v0/session',
         method: req.method,
         headers: req.headers
     };
@@ -178,17 +178,23 @@ app.get('/sessions', checkAuth, (req, res) => {
         });
     });
 
+    // console.log(res)
+
     req.pipe(proxy, {
         end: true
     });
 })
 
 app.post('/sessions', checkAuth, (req, res) => {
-    // console.log('posting to filter session page');
-    
+    console.log('posting to filter session page');
+    console.log('This is the guy!!!')
+    console.log('requesting with - ', req.body)
+    // request.post(flask_backend + '/v0/_q/sessionpage', { form: req.body }, function (error, httpResponse, body) {
+
     request.post(flask_backend + '/v0/_q/sessionpage', { form: req.body }, function (error, httpResponse, body) {
         if (error) {
             console.error('error: ', error);
+            console.log('httpResponse:', httpResponse)
         }
         // console.log(body);
         res.send(body);
