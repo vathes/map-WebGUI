@@ -1,0 +1,69 @@
+# docker-compose up -d --build
+version: '2.4'
+services:     
+  mapapi:
+    build: ./backend
+    image: mapapi:v1.0
+    environment:
+    - DJ_USER=thinh
+    - DJ_HOST=mesoscale-activity.datajoint.io
+    - WORKER_COUNT=4
+    - MAP_API_PORT
+    env_file: ./.env
+    ports:
+      - "${MAP_API_PORT}:5000"
+    healthcheck:
+      test: curl --fail http://localhost:5000/v0/subject || exit 1
+      timeout: 3s
+      retries: 20
+    entrypoint: ["/src/mapapi/run-map-api.prod.sh"]
+#    entrypoint: ["/src/mapapi/run-map-api.dev.sh", "development"]
+    networks:
+      - main
+  map-navigator:
+    build:
+      context: map-frontend
+      dockerfile: Dockerfile.dev
+    image: map-navigator:v1.0
+    environment:
+      - MAP_NAV_PORT
+    volumes:
+      - ./map-frontend/frontend-content/src:/frontend/src
+      - ./map-frontend/frontend-content/angular.json:/frontend/angular.json
+    healthcheck:
+      test: curl --fail http://localhost:9000 || exit 1
+      timeout: 3s
+      retries: 20
+    ports:
+      - "${MAP_NAV_PORT}:9000"
+    networks:
+      - main
+    depends_on:
+      map-node-server:
+        condition: service_healthy
+      mapapi:
+        condition: service_healthy
+  map-node-server:
+    build: ./node_server
+    image: map-node-server:v1.0
+    # command: nodemon /src/server.js
+    volumes:
+      - ./node_server/app.js:/src/app.js
+    environment:
+      - NODE_ENV=development
+      - DEMO_USERNAME=mapuser
+      - PY_BACKEND=http://mapapi:5000
+      - MAP_NODE_PORT
+    env_file: .env
+    healthcheck:
+      test: curl --fail http://localhost:3333/version || exit 1
+      timeout: 3s
+      retries: 20
+    ports:
+      - "${MAP_NODE_PORT}:3333"
+    networks:
+      - main
+networks:
+    main:
+        ipam:
+            driver: default
