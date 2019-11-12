@@ -1,0 +1,10 @@
+div.summary-plots {
+    display: flex;
+    flex-direction: row;
+}
+
+div.dailyplot {
+    float: left;
+    width: 355px;
+    overflow-x: auto;
+}
