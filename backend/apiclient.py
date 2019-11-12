@@ -33,5 +33,5 @@ if __name__ == '__main__':
 
     print("apiclient")
     print("  - use 'post('/subpath', data={})' to test get requests")
-    print("  - use 'vmod('dbmodule')' to return ibl pipeline virtual modules")
+    print("  - use 'vmod('dbmodule')' to return MAP pipeline virtual modules")
     interact('apiclient', local=locals())
