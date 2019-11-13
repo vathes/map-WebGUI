@@ -160,85 +160,12 @@ def handle_q(subpath, args, proj, **kwargs):
     ret = []
     post_process = None
     if subpath == 'sessionpage':
-        sess_proj = acquisition.Session().aggr(
-            acquisition.SessionProject().proj('session_project', dummy2='"x"') * dj.U('dummy2'),
-            session_project='IFNULL(session_project, "unassigned")',
-            keep_all_rows=True
-        )
-        psych_curve = acquisition.Session().aggr(
-            # plotting_behavior.SessionPsychCurve(),
-            plotting_behavior.SessionPsychCurve().proj(dummy='"x"') * dj.U('dummy'),
-            #  nplot='count(distinct(concat(subject_uuid, session_start_time)))',
-            nplot='count(dummy)',
-            keep_all_rows=True)
-        q = (acquisition.Session() * sess_proj * psych_curve * subject.Subject() * subject.SubjectLab() * subject.SubjectUser()
-             & ((reference.Lab() * reference.LabMember())
-                & reference.LabMembership().proj('lab_name', 'user_name'))
-            & args)
-
-
-
-    elif subpath == 'subjpage':
-        print('Args are:', args)
-        proj_restr = None
-        for e in args:
-            if 'projects' in e and e['projects'] != 'unassigned':
-                proj_restr = {'subject_project': e.pop('projects')}
-
-        projects = subject.Subject.aggr(subject.SubjectProject, projects='GROUP_CONCAT(DISTINCT subject_project'
-                                        ' ORDER BY subject_project SEPARATOR ",")', keep_all_rows=True).proj(projects='IFNULL(projects, "unassigned")')
-
-        if proj_restr is not None:
-            proj_restr = (subject.SubjectProject & proj_restr).proj()
-        else:
-            proj_restr = {}
-
-        lab_name = subject.Subject.aggr(subject.SubjectLab(), lab_name='IFNULL(lab_name, "missing")', keep_all_rows=True)
-        user_name = subject.Subject.aggr(subject.SubjectUser(), responsible_user='IFNULL(responsible_user, "unassigned")')
-
-        q = subject.Subject() * lab_name * user_name * projects & args & proj_restr
-    elif subpath == 'dailysummary':
-        # find the latest summary geneartion for each lab
-        latest_summary = plotting_behavior.DailyLabSummary * dj.U('lab_name').aggr(
-            plotting_behavior.DailyLabSummary, latest_summary_date='max(last_session_time)') & 'last_session_time = latest_summary_date'
-        # identify mouse summary corresponding to the latest lab summary
-        mouse_we_care = plotting_behavior.DailyLabSummary.SubjectSummary & latest_summary
-
-        proj_restr = None
-        for e in args:
-            if 'projects' in e and e['projects'] != 'unassigned':
-                proj_restr = {'subject_project': e.pop('projects')}
-        if proj_restr is not None:
-            proj_restr = (subject.SubjectProject & proj_restr).proj()
-        else:
-            proj_restr = {}
-
-        projects = mouse_we_care.aggr(subject.SubjectProject, projects='GROUP_CONCAT(DISTINCT subject_project'
-                                    ' ORDER BY subject_project SEPARATOR ",")', keep_all_rows=True).proj(projects='IFNULL(projects, "unassigned")')
-
-        # get the latest plots
-        plots = plotting_behavior.CumulativeSummary.WaterWeight * plotting_behavior.CumulativeSummary.ContrastHeatmap * \
-            plotting_behavior.CumulativeSummary.TrialCountsSessionDuration * \
-            plotting_behavior.CumulativeSummary.PerformanceReactionTime & plotting_behavior.SubjectLatestDate
-        # find latest plots for mouse with summary
-        q = plots * mouse_we_care * projects & args & proj_restr
-    elif subpath == 'clusternavplot':
-        print('fetching cluster plot info...')
-        
-        # specify attributes to exclude from the fetch to save bandwidth (in case no "proj" specified)
-        exclude_attrs = ('-cluster_mean_waveform', '-cluster_template_waveform', '-cluster_waveform_duration',
-                         '-cluster_spike_times', '-cluster_spike_depth', '-cluster_spike_amps')
-        q = (ephys.Cluster * ephys.ChannelGroup.Channel * ephys.Probe.Channel
-             & args).proj(..., *exclude_attrs)
-        print(q)
-    elif subpath == 'rasterlight':
-        q = plotting_ephys.RasterLinkS3 & args
-        def post_process(ret):
-            return [{k: s3_client.generate_presigned_url(
-                    'get_object', 
-                    Params={'Bucket': 'map-dj-external', 'Key': v},
-                    ExpiresIn=3*60*60) if k == 'plotting_data_link' else v for k,v in i.items()}
-                    for i in ret]
+        sessions = (experiment.Session * lab.WaterRestriction).aggr(
+          ephys.ProbeInsertion, 'session_date', 'water_restriction_number', 'username',
+          probe_count='count(insertion_number)', keep_all_rows=True).aggr(
+          ephys.ProbeInsertion.InsertionLocation, ...,
+          insert_locations='GROUP_CONCAT(brain_location_name)', keep_all_rows=True)
+        q = sessions & args
     else:
         abort(404)
 
