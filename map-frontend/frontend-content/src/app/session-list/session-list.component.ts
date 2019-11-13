@@ -17,46 +17,48 @@ import * as moment from 'moment';
 })
 export class SessionListComponent implements OnInit, OnDestroy {
   session_filter_form = new FormGroup({
-    task_protocol_control : new FormControl(),
-    session_uuid_control : new FormControl(),
-    session_start_time_control : new FormControl(),
+    // task_protocol_control : new FormControl(),
+    session_control : new FormControl(),
+    session_date_control : new FormControl(),
     session_range_filter: new FormGroup({
       session_range_start_control: new FormControl(),
       session_range_end_control: new FormControl()
     }),
-    lab_name_control: new FormControl(),
-    subject_nickname_control: new FormControl(),
-    session_project_control: new FormControl(),
-    subject_uuid_control: new FormControl(),
-    sex_control: new FormArray([new FormControl(), new FormControl(), new FormControl()]),
-    subject_birth_date_control: new FormControl(),
-    subject_line_control: new FormControl(),
-    responsible_user_control: new FormControl(),
-    nplot_control: new FormControl()
+    // lab_name_control: new FormControl(),
+    subject_id_control: new FormControl(),
+    // session_project_control: new FormControl(),
+    // sex_control: new FormArray([new FormControl(), new FormControl(), new FormControl()]),
+    // subject_birth_date_control: new FormControl(),
+    water_restriction_number_control: new FormControl(),
+    username_control: new FormControl(),
+    // nplot_control: new FormControl()
   });
   loading = true;
   filterExpanded;
   sessions;
   allSessions;
   sessionDateFilter: Function;
-  miceBirthdayFilter: Function;
+  // miceBirthdayFilter: Function;
   sessionMinDate: Date;
   sessionMaxDate: Date;
   dateRangeToggle: boolean;
-  filteredTaskProtocolOptions: Observable<string[]>;
-  filteredSessionUuidOptions: Observable<string[]>;
-  filteredLabNameOptions: Observable<string[]>;
-  filteredSubjectNicknameOptions: Observable<string[]>;
-  filteredSessionProjectOptions: Observable<string[]>;
-  filteredSubjectUuidOptions: Observable<string[]>;
-  filteredSubjectLineOptions: Observable<string[]>;
-  filteredResponsibleUserOptions: Observable<string[]>;
+  // filteredTaskProtocolOptions: Observable<string[]>;
+  filteredSessionOptions: Observable<string[]>;
+  // filteredLabNameOptions: Observable<string[]>;
+  filteredSubjectIdOptions: Observable<string[]>;
+  // filteredSessionProjectOptions: Observable<string[]>;
+  filteredWaterRestrictionNumberOptions: Observable<string[]>;
+  filteredUsernameOptions: Observable<string[]>;
+  // nplotMap: any = { '0': '', '1': '\u2714' };
   session_menu: any;
   // setup for the table columns
-  displayedColumns: string[] = ['lab_name', 'subject_nickname', 'subject_birth_date', 'session_start_time',
-                              'task_protocol', 'subject_line', 'responsible_user',
-                              'session_uuid', 'sex', 'subject_uuid', 'nplot', 'session_project'];
-  nplotMap: any = { '0': '', '1': '\u2714' };
+  // displayedColumns: string[] = ['lab_name', 'subject_id', 'subject_birth_date', 'session_date',
+  //                             'task_protocol', 'water_restriction_number', 'username',
+  //                             'session', 'sex', 'nplot', 'session_project'];
+  displayedColumns: string[] = ['subject_id', 'session', 'session_date',
+    'username', 'water_restriction_number' ];
+  
+  
   // setup for the paginator
   dataSource;
   pageSize = 25;
@@ -64,10 +66,10 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
   // queryValues = {
   //   'task_protocol': '_iblrig_tasks_habituationChoiceWorld3.7.6',
-  //   // '__order': 'session_start_time'
+  //   // '__order': 'session_date'
   // };
 
-  genderForm2MenuMap = { F: 0, M: 1, U: 2 };
+  // genderForm2MenuMap = { F: 0, M: 1, U: 2 };
 
   selectedSession = {};
 
@@ -109,7 +111,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
             const dateRange = ['', ''];
             for (const item of JSONcontent) {
               if (typeof item === 'string') {
-                 // item = "session_start_time>'2019-04-24T00:00:00'"
+                 // item = "session_date>'2019-04-24T00:00:00'"
                 if (item.split('>')[1]) {
                   dateRange[0] = item.split('>')[1].split('T')[0].split('\'')[1];
                 }
@@ -118,16 +120,15 @@ export class SessionListComponent implements OnInit, OnDestroy {
                 }
 
               } else {
-                for (const gender of item) {
-                  // console.log(gender); // gender = { sex: "F"}
-                  this.session_filter_form.controls.sex_control['controls'][this.genderForm2MenuMap[gender['sex']]].patchValue(true);
-                }
+                // for (const gender of item) {
+                //   this.session_filter_form.controls.sex_control['controls'][this.genderForm2MenuMap[gender['sex']]].patchValue(true);
+                // }
               }
             }
             if (dateRange[0] !== '' && dateRange[0] === dateRange[1]) {
               this.dateRangeToggle = false;
               console.log('loggin date range[0]- ', dateRange[0]);
-              this.session_filter_form.controls.session_start_time_control.patchValue(moment.utc(dateRange[0]));
+              this.session_filter_form.controls.session_date_control.patchValue(moment.utc(dateRange[0]));
             } else if (dateRange[0] !== '') {
               this.dateRangeToggle = true;
               console.log('loggin date range[1]- ', dateRange[1]);
@@ -135,10 +136,10 @@ export class SessionListComponent implements OnInit, OnDestroy {
               this.session_filter_form.controls.session_range_filter['controls'].session_range_end_control.patchValue(moment.utc(dateRange[1]));
             }
           } else if (key === 'sex') {
-            this.session_filter_form.controls.sex_control['controls'][this.genderForm2MenuMap[params[key]]].patchValue(true);
+            // this.session_filter_form.controls.sex_control['controls'][this.genderForm2MenuMap[params[key]]].patchValue(true);
           } else if (key === 'subject_birth_date') {
-            this.session_filter_form.controls.subject_birth_date_control.patchValue(moment.utc(params[key]));
-          } else if ( key !== 'session_start_time' && key !== '__json' && key !== '__order') {
+            // this.session_filter_form.controls.subject_birth_date_control.patchValue(moment.utc(params[key]));
+          } else if ( key !== 'session_date' && key !== '__json' && key !== '__order') {
             const controlName = key + '_control';
             if (this.session_filter_form.controls[controlName]) {
               const toPatch = {};
@@ -159,7 +160,8 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
       });
     // TODO: create menu content using separate api designated for menu instead of getting all session info
-    this.allSessionsService.getAllSessionMenu({'__order': 'subject_id'});
+    // this.allSessionsService.getAllSessionMenu({'__order': 'subject_id'});
+    this.allSessionsService.getAllSessionMenu({});
     this.allSessionMenuSubscription = this.allSessionsService.getAllSessionMenuLoadedListener()
       .subscribe((sessions_all: any) => {
         this.allSessions = sessions_all;
@@ -184,16 +186,19 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
   private createMenu(sessions) {
     this.session_menu = {};
-    const keys = ['task_protocol', 'session_start_time',
-    'session_uuid', 'lab_name', 'subject_birth_date', 'subject_line',
-    'subject_uuid', 'sex', 'subject_nickname', 'responsible_user', 'session_project'];
-    for (const key of keys) {
-      if (key !== 'sex') {
-        this.session_menu[key] = [];
-      } else {
-        this.session_menu[key] = { F: false, M: false, U: false };
-      }
-    }
+    // const keys = ['task_protocol', 'session_date',
+    // 'session', 'lab_name', 'subject_birth_date', 'water_restriction_number',
+    // 'sex', 'subject_id', 'username', 'session_project'];
+    const keys = ['session_date',
+      'session', 'water_restriction_number',
+      'subject_id', 'username'];
+    // for (const key of keys) {
+    //   if (key !== 'sex') {
+    //     this.session_menu[key] = [];
+    //   } else {
+    //     this.session_menu[key] = { F: false, M: false, U: false };
+    //   }
+    // }
     for (const session of sessions) {
       for (const key of keys) {
         if (key !== 'sex' && !this.session_menu[key].includes(session[key])) {
@@ -207,18 +212,15 @@ export class SessionListComponent implements OnInit, OnDestroy {
       }
     }
 
-    // create formcontrol for item in menus
-    // const sex_control_array = <FormArray>this.session_filter_form.controls['sex_control'];
 
-
-    for (const item in this.session_menu['sex']) {
-      if (!this.session_menu['sex'][item]) {
-        this.session_filter_form.controls.sex_control['controls'][this.genderForm2MenuMap[item]].patchValue(false);
-        this.session_filter_form.controls.sex_control['controls'][this.genderForm2MenuMap[item]].disable();
-      } else {
-        this.session_filter_form.controls.sex_control['controls'][this.genderForm2MenuMap[item]].enable();
-      }
-    }
+    // for (const item in this.session_menu['sex']) {
+    //   if (!this.session_menu['sex'][item]) {
+    //     this.session_filter_form.controls.sex_control['controls'][this.genderForm2MenuMap[item]].patchValue(false);
+    //     this.session_filter_form.controls.sex_control['controls'][this.genderForm2MenuMap[item]].disable();
+    //   } else {
+    //     this.session_filter_form.controls.sex_control['controls'][this.genderForm2MenuMap[item]].enable();
+    //   }
+    // }
 
     const sessionSeconds = [];
     for (const date of this.session_menu['session_date']) {
@@ -227,70 +229,70 @@ export class SessionListComponent implements OnInit, OnDestroy {
     this.sessionMinDate = new Date(Math.min(...sessionSeconds));
     this.sessionMaxDate = new Date(Math.max(...sessionSeconds));
 
-    this.filteredLabNameOptions = this.session_filter_form.controls.lab_name_control.valueChanges
+    // this.filteredLabNameOptions = this.session_filter_form.controls.lab_name_control.valueChanges
+    //   .pipe(
+    //     startWith(''),
+    //     map(value => this._filter(value, 'lab_name'))
+    //   );
+
+    this.filteredSubjectIdOptions = this.session_filter_form.controls.subject_id_control.valueChanges
       .pipe(
         startWith(''),
-        map(value => this._filter(value, 'lab_name'))
+        map(value => this._filter(value, 'subject_id'))
       );
 
-    this.filteredSubjectNicknameOptions = this.session_filter_form.controls.subject_nickname_control.valueChanges
+    // this.filteredSessionProjectOptions = this.session_filter_form.controls.session_project_control.valueChanges
+    //   .pipe(
+    //     startWith(''),
+    //     map(value => this._filter(value, 'session_project'))
+    //   );
+
+    // this.filteredSubjectUuidOptions = this.session_filter_form.controls.subject_uuid_control.valueChanges
+    //   .pipe(
+    //     startWith(''),
+    //     map(value => this._filter(value, 'subject_uuid'))
+    //   );
+
+    this.filteredSessionOptions = this.session_filter_form.controls.session_control.valueChanges
       .pipe(
         startWith(''),
-        map(value => this._filter(value, 'subject_nickname'))
+        map(value => this._filter(value, 'session'))
       );
 
-    this.filteredSessionProjectOptions = this.session_filter_form.controls.session_project_control.valueChanges
+    // this.filteredTaskProtocolOptions = this.session_filter_form.controls.task_protocol_control.valueChanges
+    //   .pipe(
+    //     startWith(''),
+    //     map(value => this._filter(value, 'task_protocol'))
+    //   );
+
+    this.filteredWaterRestrictionNumberOptions = this.session_filter_form.controls.water_restriction_number_control.valueChanges
       .pipe(
         startWith(''),
-        map(value => this._filter(value, 'session_project'))
+        map(value => this._filter(value, 'water_restriction_number'))
       );
 
-    this.filteredSubjectUuidOptions = this.session_filter_form.controls.subject_uuid_control.valueChanges
+    this.filteredUsernameOptions = this.session_filter_form.controls.username_control.valueChanges
       .pipe(
         startWith(''),
-        map(value => this._filter(value, 'subject_uuid'))
-      );
-
-    this.filteredSessionUuidOptions = this.session_filter_form.controls.session_uuid_control.valueChanges
-      .pipe(
-        startWith(''),
-        map(value => this._filter(value, 'session_uuid'))
-      );
-
-    this.filteredTaskProtocolOptions = this.session_filter_form.controls.task_protocol_control.valueChanges
-      .pipe(
-        startWith(''),
-        map(value => this._filter(value, 'task_protocol'))
-      );
-
-    this.filteredSubjectLineOptions = this.session_filter_form.controls.subject_line_control.valueChanges
-      .pipe(
-        startWith(''),
-        map(value => this._filter(value, 'subject_line'))
-      );
-
-    this.filteredResponsibleUserOptions = this.session_filter_form.controls.responsible_user_control.valueChanges
-      .pipe(
-        startWith(''),
-        map(value => this._filter(value, 'responsible_user'))
+        map(value => this._filter(value, 'username'))
       );
 
     this.sessionDateFilter = (d: Date): boolean => {
       const sessionDates = [];
-      for (const date of this.session_menu['session_start_time']) {
+      for (const date of this.session_menu['session_date']) {
         sessionDates.push(date.split('T')[0]);
       }
 
       // filter out dates without any session
       return sessionDates.includes(d.toISOString().split('T')[0]);
     };
-    this.miceBirthdayFilter = (d: Date): boolean => {
-      const birthDates = [];
-      for (const date of this.session_menu['subject_birth_date']) {
-        birthDates.push(date);
-      }
-      return birthDates.includes(d.toISOString().split('T')[0]);
-    };
+    // this.miceBirthdayFilter = (d: Date): boolean => {
+    //   const birthDates = [];
+    //   for (const date of this.session_menu['subject_birth_date']) {
+    //     birthDates.push(date);
+    //   }
+    //   return birthDates.includes(d.toISOString().split('T')[0]);
+    // };
 
 
   }
@@ -310,7 +312,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
     const menuRequest = this.filterRequests();
     if (Object.entries(menuRequest).length > 1) {
-      menuRequest['order__'] = 'subject_id';
+      // menuRequest['order__'] = 'subject_id';
       this.allSessionsService.getSessionMenu(menuRequest);
       this.allSessionsService.getSessionMenuLoadedListener()
         .subscribe((sessions: any) => {
@@ -328,7 +330,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
     }
     const referenceMenuReq = this.filterRequests(focusOn);
     if (Object.entries(referenceMenuReq) && Object.entries(referenceMenuReq).length > 0) {
-      referenceMenuReq['order__'] = 'subject_id';
+      // referenceMenuReq['order__'] = 'subject_id';
       this.allSessionsService.getSessionMenu(referenceMenuReq);
       this.allSessionsService.getSessionMenuLoadedListener()
         .subscribe((sessions: any) => {
@@ -339,59 +341,56 @@ export class SessionListComponent implements OnInit, OnDestroy {
     }
 
   }
-  genderSelected(genderForm) {
-    return genderForm.includes(true);
-  }
+  // genderSelected(genderForm) {
+  //   return genderForm.includes(true);
+  // }
 
   filterRequests(focusedField?: string) {
     const filterList = Object.entries(this.session_filter_form.getRawValue());
     const requestFilter = {};
     let requestJSONstring = '';
     filterList.forEach(filter => {
-      // filter is [["lab_name_control", "somelab"], ["subject_nickname_control", null]...]
+      // filter is [["lab_name_control", "somelab"], ["subject_id_control", null]...]
       const filterKey = filter[0].split('_control')[0]; // filter[0] is control name like 'lab_name_control'
       if (filter[1] && filterKey !== focusedField) {
-        if (filterKey === 'sex' && this.genderSelected(filter[1])) {
-          // only accepts single selection - this case the last selection.
-          // TODO:coordinate with API for multi-selection
-          let requestedGender: string;
-          const requestGenderArray = [];
-          for (const index in filter[1]) {
-            if (filter[1][index]) {
-              requestedGender = Object.keys(this.session_menu['sex'])[index];
-              // console.log('type of JSON.stringify({sex: requestedGender}) is: ', typeof JSON.stringify({ 'sex': requestedGender}));
-              requestGenderArray.push(JSON.stringify({ 'sex': requestedGender}));
-              // requestedGender = this.session_menu['sex'][index];
-            }
-          }
-          if (requestJSONstring.length > 0) {
-            requestJSONstring += ',' + '[' + requestGenderArray + ']';
-          } else {
-            requestJSONstring += '[' + requestGenderArray + ']';
-          }
+        // if (filterKey === 'sex' && this.genderSelected(filter[1])) {
+        //   let requestedGender: string;
+        //   const requestGenderArray = [];
+        //   for (const index in filter[1]) {
+        //     if (filter[1][index]) {
+        //       requestedGender = Object.keys(this.session_menu['sex'])[index];
+        //       // console.log('type of JSON.stringify({sex: requestedGender}) is: ', typeof JSON.stringify({ 'sex': requestedGender}));
+        //       requestGenderArray.push(JSON.stringify({ 'sex': requestedGender}));
+        //       // requestedGender = this.session_menu['sex'][index];
+        //     }
+        //   }
+        //   if (requestJSONstring.length > 0) {
+        //     requestJSONstring += ',' + '[' + requestGenderArray + ']';
+        //   } else {
+        //     requestJSONstring += '[' + requestGenderArray + ']';
+        //   }
 
-          // requestFilter['__json'] = '[' + requestGenderArray + ']';
+        //   // requestFilter['__json'] = '[' + requestGenderArray + ']';
+        if (filterKey === 'sex') {
+          //
         } else if (filterKey !== 'sex') {
           // making sure gender filter gets removed from the request
 
           if (filterKey === 'subject_birth_date') {
-            // Tue Dec 11 2018 00:00:00 GMT-0600 (Central Standard Time) => 2018-12-11T06:00:00.000Z => 2018-12-11
-            const mouseDOB = moment.utc(filter[1]);
-            // console.log('printing mouse DOB in filter: ', filter[1]);
-            // console.log('printing date created from filter date: ', mouseDOB);
-            // console.log(mouseDOB.toISOString());
-            if (mouseDOB.toISOString()) {
-              requestFilter[filterKey] = mouseDOB.toISOString().split('T')[0];
-            } 
-          } else if (filterKey === 'session_start_time') {
+            // // Tue Dec 11 2018 00:00:00 GMT-0600 (Central Standard Time) => 2018-12-11T06:00:00.000Z => 2018-12-11
+            // const mouseDOB = moment.utc(filter[1]);
+            // if (mouseDOB.toISOString()) {
+            //   requestFilter[filterKey] = mouseDOB.toISOString().split('T')[0];
+            // } 
+          } else if (filterKey === 'session_date') {
               if (!this.dateRangeToggle) {
                 const sessionST = moment.utc(filter[1].toString());
                 const rangeStartTime = '00:00:00';
                 const rangeEndTime = '23:59:59';
                 const startString = sessionST.toISOString().split('T')[0] + 'T' + rangeStartTime;
                 const endString = sessionST.toISOString().split('T')[0] + 'T' + rangeEndTime;
-                const rangeStart = '"' + 'session_start_time>' + '\'' + startString + '\'' + '"';
-                const rangeEnd = '"' + 'session_start_time<' + '\'' + endString + '\'' + '"';
+                const rangeStart = '"' + 'session_date>' + '\'' + startString + '\'' + '"';
+                const rangeEnd = '"' + 'session_date<' + '\'' + endString + '\'' + '"';
                 if (requestJSONstring.length > 0) {
                   requestJSONstring += ',' + rangeStart + ',' + rangeEnd;
                 } else {
@@ -409,8 +408,8 @@ export class SessionListComponent implements OnInit, OnDestroy {
                 const rangeEndTime = '23:59:59';
                 const startString = sessionStart.toISOString().split('T')[0] + 'T' + rangeStartTime;
                 const endString = sessionEnd.toISOString().split('T')[0] + 'T' + rangeEndTime;
-                const rangeStart = '"' + 'session_start_time>' + '\'' + startString + '\'' + '"';
-                const rangeEnd = '"' + 'session_start_time<' + '\'' + endString + '\'' + '"';
+                const rangeStart = '"' + 'session_date>' + '\'' + startString + '\'' + '"';
+                const rangeEnd = '"' + 'session_date<' + '\'' + endString + '\'' + '"';
                 if (requestJSONstring.length > 0) {
                   requestJSONstring += ',' + rangeStart + ',' + rangeEnd;
                 } else {
@@ -421,7 +420,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
               const sessionStart = moment.utc(filter[1]['session_range_start_control'].toString());
                 const rangeStartTime = '00:00:00';
                 const startString = sessionStart.toISOString().split('T')[0] + 'T' + rangeStartTime;
-                const rangeStart = '"' + 'session_start_time>' + '\'' + startString + '\'' + '"';
+                const rangeStart = '"' + 'session_date>' + '\'' + startString + '\'' + '"';
                 if (requestJSONstring.length > 0) {
                   requestJSONstring += ',' + rangeStart;
                 } else {
@@ -432,7 +431,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
               const sessionEnd = moment.utc(filter[1]['session_range_end_control'].toString());
                 const rangeEndTime = '23:59:59';
                 const endString = sessionEnd.toISOString().split('T')[0] + 'T' + rangeEndTime;
-                const rangeEnd = '"' + 'session_start_time<' + '\'' + endString + '\'' + '"';
+                const rangeEnd = '"' + 'session_date<' + '\'' + endString + '\'' + '"';
                 if (requestJSONstring.length > 0) {
                   requestJSONstring += ',' + rangeEnd;
                 } else {
@@ -440,15 +439,11 @@ export class SessionListComponent implements OnInit, OnDestroy {
                 }
             }
           } else if (filterKey === 'nplot') {
-              filter[1] ? requestFilter[filterKey] = 1 : requestFilter[filterKey] = 0;
+              // filter[1] ? requestFilter[filterKey] = 1 : requestFilter[filterKey] = 0;
           } else {
             requestFilter[filterKey] = filter[1];
           }
         }
-        // if ((requestGenderArray && requestGenderArray.length > 0) || (rangeStart && rangeStart.length > 0)) {
-        //   console.log('gender or session start time restricted');
-        //   requestFilter['__json'] = '[' + requestGenderArray + rangeStart + ',' + rangeEnd + ']';
-        // }
 
         if (requestJSONstring.length > 0) {
           requestFilter['__json'] = '[' + requestJSONstring + ']';
@@ -463,7 +458,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.sessions = [];
     const request = this.filterRequests();
-    request['__order'] = 'session_date DESC';
+    // request['__order'] = 'session_date DESC';
     if (Object.entries(request) && Object.entries(request).length > 1) {
       this.filterStoreService.storeSessionFilter(request);
       this.allSessionsService.retrieveSessions2(request);
@@ -484,7 +479,8 @@ export class SessionListComponent implements OnInit, OnDestroy {
   resetFilter() {
     // console.log('resetting filter');
     this.loading = true;
-    this.allSessionsService.retrieveSessions({ '__order': 'session_date DESC'});
+    // this.allSessionsService.retrieveSessions({ '__order': 'session_date DESC'});
+    this.allSessionsService.retrieveSessions({});
     this.filterStoreService.clearSessionFilter();
     this.allSessionsService.getNewSessionsLoadedListener()
       .subscribe((sessionsAll: any) => {

@@ -11,7 +11,7 @@
 <form [formGroup]="session_filter_form">
   <div [class]="filterExpanded ? 'filters col-12 filterExpand':'filters col-12 filterCollapse'">
     <div class="session-field-filters form-section">
-      <mat-form-field class="long">
+      <!-- <mat-form-field class="long">
         <label for="">Task Protocol</label>
         <input matInput type="text" name="task_protocol" formControlName="task_protocol_control" [matAutocomplete]="auto"
           (focus)="stepBackMenu($event)">
@@ -19,15 +19,15 @@
           <mat-option *ngFor="let tp of filteredTaskProtocolOptions | async" [value]="tp" (click)="updateMenu()">{{ tp }}
           </mat-option>
         </mat-autocomplete>
-      </mat-form-field>
+      </mat-form-field> -->
 
       <mat-form-field class="long">
-        <label for="">Session UUID</label>
-        <input matInput type="text" name="session_uuid" formControlName="session_uuid_control" [matAutocomplete]="auto2"
+        <label for="">Session #</label>
+        <input matInput type="text" name="session" formControlName="session_control" [matAutocomplete]="auto2"
           (focus)="stepBackMenu($event)">
         <mat-autocomplete #auto2="matAutocomplete">
-          <mat-option *ngFor="let sessionUuid of filteredSessionUuidOptions | async" [value]="sessionUuid"
-            (click)="updateMenu()">{{ sessionUuid }}</mat-option>
+          <mat-option *ngFor="let sessionId of filteredSessionOptions | async" [value]="sessionId"
+            (click)="updateMenu()">{{ sessionId }}</mat-option>
         </mat-autocomplete>
       </mat-form-field>
 
@@ -41,7 +41,7 @@
         </div>
         <mat-form-field class="short" *ngIf="!dateRangeToggle">
           <label for="">Sessions On</label>
-          <input matInput formControlName="session_start_time_control" [matDatepicker]="datePicker" [min]="sessionMinDate" [max]="sessionMaxDate" [matDatepickerFilter]="sessionDateFilter" (blur)="updateMenu()" (focus)="stepBackMenu($event)">
+          <input matInput formControlName="session_date_control" [matDatepicker]="datePicker" [min]="sessionMinDate" [max]="sessionMaxDate" [matDatepickerFilter]="sessionDateFilter" (blur)="updateMenu()" (focus)="stepBackMenu($event)">
           <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
           <mat-datepicker #datePicker></mat-datepicker>
         </mat-form-field>
@@ -67,7 +67,7 @@
        
     </div>
     <div class="mouse-field-filters form-section">
-      <mat-form-field>
+      <!-- <mat-form-field>
         <label>Lab</label>
         <input matInput type="text" name="lab_name" formControlName="lab_name_control" [matAutocomplete]="autoCompLN"
           (focus)="stepBackMenu($event)">
@@ -75,20 +75,20 @@
           <mat-option *ngFor="let lab of filteredLabNameOptions | async" [value]="lab" (click)="updateMenu()">
             {{ lab }}</mat-option>
         </mat-autocomplete>
-      </mat-form-field>
+      </mat-form-field> -->
       
       <mat-form-field>
-        <label>Mouse Nickname</label>
-        <input matInput type="text" name="subject_nickname" formControlName="subject_nickname_control"
+        <label>Mouse ID</label>
+        <input matInput type="text" name="subject_id" formControlName="subject_id_control"
           [matAutocomplete]="autoCompSN" (focus)="stepBackMenu($event)">
         <mat-autocomplete #autoCompSN="matAutocomplete">
-          <mat-option *ngFor="let nickname of filteredSubjectNicknameOptions | async" [value]="nickname"
+          <mat-option *ngFor="let subjectId of filteredSubjectIdOptions | async" [value]="subjectId"
             (click)="updateMenu()">
-            {{ nickname }}</mat-option>
+            {{ subjectId }}</mat-option>
         </mat-autocomplete>
       </mat-form-field>
 
-      <mat-form-field class="long">
+      <!-- <mat-form-field class="long">
         <label>Project</label>
         <input matInput type="text" name="session_project" formControlName="session_project_control"
           [matAutocomplete]="autoCompSProj" (focus)="stepBackMenu($event)">
@@ -96,28 +96,18 @@
           <mat-option *ngFor="let project of filteredSessionProjectOptions | async" [value]="project" (click)="updateMenu()">
             {{ project }}</mat-option>
         </mat-autocomplete>
-      </mat-form-field>
+      </mat-form-field> -->
       
-      <mat-form-field class="long">
-        <label>Mouse UUID</label>
-        <input matInput type="text" name="subject_uuid" formControlName="subject_uuid_control"
-          [matAutocomplete]="autoCompSUUID" (focus)="stepBackMenu($event)">
-        <mat-autocomplete #autoCompSUUID="matAutocomplete">
-          <mat-option *ngFor="let uuid of filteredSubjectUuidOptions | async" [value]="uuid" (click)="updateMenu()">
-            {{ uuid }}</mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
-      
-      <mat-form-field class="short">
+      <!-- <mat-form-field class="short">
         <label>DOB</label>
         <input matInput formControlName="subject_birth_date_control" [matDatepicker]="DOBPicker"
           [matDatepickerFilter]="miceBirthdayFilter" (blur)="updateMenu()" (focus)="stepBackMenu($event)"
           placeholder="DOB - i.e. 10/23/2018">
         <mat-datepicker-toggle matSuffix [for]="DOBPicker"></mat-datepicker-toggle>
         <mat-datepicker #DOBPicker></mat-datepicker>
-      </mat-form-field>
+      </mat-form-field> -->
 
-
+<!-- 
       <div class="mouse_gender_filter">
         <label>Gender</label>
         <div class="mouse_gender_menu" formArrayName="sex_control"> 
@@ -126,32 +116,32 @@
             {{ sex.key }}
           </mat-checkbox>
         </div>
-      </div>
+      </div> -->
       <div class="cleardivider"></div>
       <mat-form-field>
-        <label>Line</label>
-        <input matInput type="text" name="subject_line" formControlName="subject_line_control" [matAutocomplete]="autoCompSL"
+        <label>Water Restriction #</label>
+        <input matInput type="text" name="water_restriction_number" formControlName="water_restriction_number_control" [matAutocomplete]="autoCompSL"
           (focus)="stepBackMenu($event)">
         <mat-autocomplete #autoCompSL="matAutocomplete">
-          <mat-option *ngFor="let line of filteredSubjectLineOptions | async" [value]="line" (click)="updateMenu()">
-            {{ line }}</mat-option>
+          <mat-option *ngFor="let wrNum of filteredWaterRestrictionNumberOptions | async" [value]="wrNum" (click)="updateMenu()">
+            {{ wrNum }}</mat-option>
         </mat-autocomplete>
       </mat-form-field>
       
       <mat-form-field>
         <label>User</label>
-        <input matInput type="text" name="responsible_user" formControlName="responsible_user_control"
+        <input matInput type="text" name="username" formControlName="username_control"
           [matAutocomplete]="autoCompRU" (focus)="stepBackMenu($event)">
         <mat-autocomplete #autoCompRU="matAutocomplete">
-          <mat-option *ngFor="let responsible_user of filteredResponsibleUserOptions | async" [value]="responsible_user"
-            (click)="updateMenu()">{{ responsible_user }}</mat-option>
+          <mat-option *ngFor="let username of filteredUsernameOptions | async" [value]="username"
+            (click)="updateMenu()">{{ username }}</mat-option>
         </mat-autocomplete>
       </mat-form-field>
-      <div class="nplot_filter">
+      <!-- <div class="nplot_filter">
         <mat-checkbox class="nplot_chbox" name="nplot" formControlName="nplot_control" (change)="updateMenu()">
           Limit search to sessions with plots available
         </mat-checkbox>
-      </div>
+      </div> -->
       
 
     </div>
@@ -193,6 +183,11 @@
     <td mat-cell *matCellDef="let session"> {{session.username}} </td>
   </ng-container>
 
+  <ng-container matColumnDef="session">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Session # </th>
+    <td mat-cell *matCellDef="let session"> {{session.session}} </td>
+  </ng-container>
+
   <ng-container matColumnDef="probe_count">
     <th mat-header-cell *matHeaderCellDef mat-sort-header> Probe Count </th>
     <td mat-cell *matCellDef="let session"> {{session.probe_count}} </td>
@@ -204,7 +199,7 @@
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns; let session" routerLink="/session/{{session?.session_uuid}}"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns; let session" routerLink="/session/{{session?.session}}"></tr>
 </table>
 </div>
 
