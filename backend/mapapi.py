@@ -36,13 +36,14 @@ psth = mkvmod('psth')
 report = mkvmod('report')
 tracking = mkvmod('tracking')
 
+map_s3_bucket = os.environ.get('MAP_S3_BUCKET')
 dj.config['stores'] = {
     'report_store': dict(
       protocol='s3',
       endpoint='s3.amazonaws.com',
       access_key=os.environ.get('AWS_ACCESS_KEY_ID'),
       secret_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
-      bucket='map-report',
+      bucket=map_s3_bucket,
       location='/data/report',
       stage='/data/report'
     )
@@ -158,13 +159,18 @@ def handle_q(subpath, args, proj, **kwargs):
     app.logger.info("handle_q: subpath: '{}', args: {}".format(subpath, args))
 
     ret = []
-    post_process = None
+    contain_s3fp = False
     if subpath == 'sessionpage':
         sessions = (experiment.Session * lab.WaterRestriction).aggr(
           ephys.ProbeInsertion, 'session_date', 'water_restriction_number', 'username',
           probe_count='count(insertion_number)', keep_all_rows=True).aggr(
           ephys.ProbeInsertion.InsertionLocation, ...,
           insert_locations='GROUP_CONCAT(brain_location_name)', keep_all_rows=True)
+        sessions = sessions.aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
+        sessions = sessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
+        sessions = sessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction', keep_all_rows=True)
+
+        contain_s3fp = True
         q = sessions & args
     elif subpath == 'units':
         exclude_attrs = ['-spike_times', '-waveform', '-unit_uid', '-probe', '-electrode_config_name', '-electrode_group']
@@ -187,7 +193,20 @@ def handle_q(subpath, args, proj, **kwargs):
     # print('D type', ret.dtype)
     # print(ret)
     print('About to return ', len(ret), 'entries')
-    return dumps(post_process(ret)) if post_process else dumps(ret)
+    app.logger.info("About to return {} entries".format(len(ret)))
+    return dumps(post_process(ret)) if contain_s3fp else dumps(ret)
+
+
+def make_presign_url(data_link):
+    s3_client.generate_presigned_url(
+      'get_object',
+      Params = {'Bucket': map_s3_bucket, 'Key': data_link},
+      ExpiresIn = 3 * 60 * 60)
+
+
+def post_process(ret):
+    return [{k.replace('_s3fp', ''): make_presign_url(v) if '_s3fp' in k else v
+             for k, v in i.items()} for i in ret]
 
 
 if is_gunicorn:
