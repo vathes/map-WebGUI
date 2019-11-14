@@ -158,7 +158,6 @@ def handle_q(subpath, args, proj, **kwargs):
     '''
     app.logger.info("handle_q: subpath: '{}', args: {}".format(subpath, args))
 
-    ret = []
     contain_s3fp = False
     if subpath == 'sessionpage':
         sessions = (experiment.Session * lab.WaterRestriction).aggr(
@@ -172,16 +171,27 @@ def handle_q(subpath, args, proj, **kwargs):
 
         contain_s3fp = True
         q = sessions & args
+    elif subpath == 'probe_insertions':
+        exclude_attrs = ['-probe', '-electrode_config_name']
+        probe_insertions = (ephys.ProbeInsertion * ephys.ProbeInsertion.InsertionLocation).proj(..., *exclude_attrs)
+        probe_insertions = probe_insertions.aggr(
+          report.ProbeLevelReport, ..., clustering_quality_s3fp='clustering_quality',
+          unit_characteristic_s3fp = 'unit_characteristic', group_psth_s3fp = 'group_psth', keep_all_rows=True)
+        probe_insertions = probe_insertions.aggr(report.ProbeLevelPhotostimEffectReport, ...,
+                                                 group_photostim_s3fp='group_photostim', keep_all_rows=True)
+
+        contain_s3fp = True
+        q = probe_insertions & args
     elif subpath == 'units':
         exclude_attrs = ['-spike_times', '-waveform', '-unit_uid', '-probe', '-electrode_config_name', '-electrode_group']
         units = (ephys.Unit * ephys.UnitStat
                  * ephys.ProbeInsertion.InsertionLocation.proj('brain_location_name', 'dv_location')).proj(
           ..., unit_depth='unit_posy - dv_location', *exclude_attrs)
+        units = units.aggr(report.UnitLevelReport, ..., unit_psth_s3fp='unit_psth',
+                           unit_behavior_s3fp='unit_behavior', keep_all_rows=True)
+
+        contain_s3fp = True
         q = units & args
-    elif subpath == 'probe_insertions':
-        exclude_attrs = ['-probe', '-electrode_config_name']
-        probe_insertions = (ephys.ProbeInsertion * ephys.ProbeInsertion.InsertionLocation).proj(..., *exclude_attrs)
-        q = probe_insertions & args
     else:
         abort(404)
 
