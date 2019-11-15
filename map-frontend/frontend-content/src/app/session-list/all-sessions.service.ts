@@ -33,13 +33,13 @@ export class AllSessionsService {
       });
   }
   getAllSessionMenu(sessionsFilter) {
-    console.log('POSTing for:', sessionsFilter);
+    console.log('creating initial menu - POSTing for:', sessionsFilter);
     this.http.post(BACKEND_API_URL + `/sessions/`, sessionsFilter, { responseType: 'json' })
       .subscribe(
         (filteredSessionsData) => {
           this.allSessionMenu = filteredSessionsData;
           console.log('retrieved session menu data are: ');
-          console.log(this.sessionMenu);
+          console.log(this.allSessionMenu);
           this.allSessionMenuLoaded.next(this.allSessionMenu);
         },
         (err: any) => {
@@ -67,7 +67,7 @@ export class AllSessionsService {
   }
 
   retrieveSessions(sessionsFilter) {
-    console.log('POSTing for:', sessionsFilter);
+    console.log('retrieving sessions POSTing for:', sessionsFilter);
     this.http.post(BACKEND_API_URL + `/sessions/`, sessionsFilter, { responseType: 'json' })
       .subscribe(
         (filteredSessionsData) => {

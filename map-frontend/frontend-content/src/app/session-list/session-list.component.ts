@@ -160,6 +160,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
       });
     // TODO: create menu content using separate api designated for menu instead of getting all session info
+    console.log('creating menu...');
     // this.allSessionsService.getAllSessionMenu({'__order': 'subject_id'});
     this.allSessionsService.getAllSessionMenu({});
     this.allSessionMenuSubscription = this.allSessionsService.getAllSessionMenuLoadedListener()
@@ -192,13 +193,13 @@ export class SessionListComponent implements OnInit, OnDestroy {
     const keys = ['session_date',
       'session', 'water_restriction_number',
       'subject_id', 'username'];
-    // for (const key of keys) {
-    //   if (key !== 'sex') {
-    //     this.session_menu[key] = [];
-    //   } else {
-    //     this.session_menu[key] = { F: false, M: false, U: false };
-    //   }
-    // }
+    for (const key of keys) {
+      if (key !== 'sex') {
+        this.session_menu[key] = [];
+      } else {
+        this.session_menu[key] = { F: false, M: false, U: false };
+      }
+    }
     for (const session of sessions) {
       for (const key of keys) {
         if (key !== 'sex' && !this.session_menu[key].includes(session[key])) {
@@ -454,11 +455,11 @@ export class SessionListComponent implements OnInit, OnDestroy {
   }
 
   applyFilter() {
-
+    console.log('applying filter...');
     this.loading = true;
     this.sessions = [];
     const request = this.filterRequests();
-    // request['__order'] = 'session_date DESC';
+    request['__order'] = 'session_date DESC';
     if (Object.entries(request) && Object.entries(request).length > 1) {
       this.filterStoreService.storeSessionFilter(request);
       this.allSessionsService.retrieveSessions2(request);
