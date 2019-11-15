@@ -160,9 +160,14 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
       });
     // TODO: create menu content using separate api designated for menu instead of getting all session info
+<<<<<<< HEAD
     console.log('creating menu...');
     // this.allSessionsService.getAllSessionMenu({'__order': 'subject_id'});
     this.allSessionsService.getAllSessionMenu({});
+=======
+    this.allSessionsService.getAllSessionMenu({'__order': 'subject_id'});
+    // this.allSessionsService.getAllSessionMenu({});
+>>>>>>> 1252a0d6d3a5d2b380b25f4a29cebc318c35b100
     this.allSessionMenuSubscription = this.allSessionsService.getAllSessionMenuLoadedListener()
       .subscribe((sessions_all: any) => {
         this.allSessions = sessions_all;
@@ -313,7 +318,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
     const menuRequest = this.filterRequests();
     if (Object.entries(menuRequest).length > 1) {
-      // menuRequest['order__'] = 'subject_id';
+      menuRequest['order__'] = 'subject_id';
       this.allSessionsService.getSessionMenu(menuRequest);
       this.allSessionsService.getSessionMenuLoadedListener()
         .subscribe((sessions: any) => {
@@ -331,7 +336,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
     }
     const referenceMenuReq = this.filterRequests(focusOn);
     if (Object.entries(referenceMenuReq) && Object.entries(referenceMenuReq).length > 0) {
-      // referenceMenuReq['order__'] = 'subject_id';
+      referenceMenuReq['order__'] = 'subject_id';
       this.allSessionsService.getSessionMenu(referenceMenuReq);
       this.allSessionsService.getSessionMenuLoadedListener()
         .subscribe((sessions: any) => {
@@ -480,8 +485,8 @@ export class SessionListComponent implements OnInit, OnDestroy {
   resetFilter() {
     // console.log('resetting filter');
     this.loading = true;
-    // this.allSessionsService.retrieveSessions({ '__order': 'session_date DESC'});
-    this.allSessionsService.retrieveSessions({});
+    this.allSessionsService.retrieveSessions({ '__order': 'session_date DESC'});
+    // this.allSessionsService.retrieveSessions({});
     this.filterStoreService.clearSessionFilter();
     this.allSessionsService.getNewSessionsLoadedListener()
       .subscribe((sessionsAll: any) => {
