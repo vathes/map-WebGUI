@@ -5,7 +5,6 @@ services:
     build: ./backend
     image: mapapi:v1.0
     environment:
-    - DJ_USER=mahos
     - DJ_HOST=mesoscale-activity.datajoint.io
     - WORKER_COUNT=4
     - MAP_API_PORT
@@ -16,8 +15,8 @@ services:
       test: curl --fail http://localhost:5000/v0/subject || exit 1
       timeout: 3s
       retries: 20
-#    entrypoint: ["/src/mapapi/run-map-api.prod.sh"]
-    entrypoint: ["/src/mapapi/run-map-api.dev.sh", "development"]
+    entrypoint: ["/src/mapapi/run-map-api.prod.sh", "development"]
+#    entrypoint: ["/src/mapapi/run-map-api.dev.sh", "development"]
     networks:
       - main
   map-navigator:

@@ -11,6 +11,7 @@ from datetime import datetime
 
 import numpy as np
 import datajoint as dj
+import pathlib
 
 from flask import Flask
 from flask import request
@@ -24,6 +25,8 @@ app = Flask(__name__)
 API_PREFIX = '/v{}'.format(API_VERSION)
 is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
 
+os.environ['DJ_SUPPORT_FILEPATH_MANAGEMENT'] = "TRUE"
+
 
 def mkvmod(mod):
     return dj.create_virtual_module(mod, 'map_v1_{}'.format(mod))
@@ -36,15 +39,18 @@ psth = mkvmod('psth')
 report = mkvmod('report')
 tracking = mkvmod('tracking')
 
+map_s3_bucket = os.environ.get('MAP_S3_BUCKET')
+map_store_location = os.environ.get('MAP_REPORT_STORE_LOCATION')
+map_store_stage = os.environ.get('MAP_REPORT_STORE_STAGE')
 dj.config['stores'] = {
     'report_store': dict(
       protocol='s3',
       endpoint='s3.amazonaws.com',
       access_key=os.environ.get('AWS_ACCESS_KEY_ID'),
       secret_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
-      bucket='map-report',
-      location='/data/report',
-      stage='/data/report'
+      bucket=map_s3_bucket,
+      location=map_store_location,
+      stage=map_store_stage
     )
 }
 
@@ -157,15 +163,41 @@ def handle_q(subpath, args, proj, **kwargs):
     '''
     app.logger.info("handle_q: subpath: '{}', args: {}".format(subpath, args))
 
-    ret = []
-    post_process = None
+    contain_s3fp = False
     if subpath == 'sessionpage':
         sessions = (experiment.Session * lab.WaterRestriction).aggr(
           ephys.ProbeInsertion, 'session_date', 'water_restriction_number', 'username',
           probe_count='count(insertion_number)', keep_all_rows=True).aggr(
           ephys.ProbeInsertion.InsertionLocation, ...,
           insert_locations='GROUP_CONCAT(brain_location_name)', keep_all_rows=True)
+        sessions = sessions.aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
+        sessions = sessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
+        sessions = sessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction', keep_all_rows=True)
+
+        contain_s3fp = True
         q = sessions & args
+    elif subpath == 'probe_insertions':
+        exclude_attrs = ['-electrode_config_name']
+        probe_insertions = (ephys.ProbeInsertion * ephys.ProbeInsertion.InsertionLocation
+                            * experiment.BrainLocation).proj(..., *exclude_attrs)
+        probe_insertions = probe_insertions.aggr(
+          report.ProbeLevelReport, ..., clustering_quality_s3fp='clustering_quality',
+          unit_characteristic_s3fp = 'unit_characteristic', group_psth_s3fp = 'group_psth', keep_all_rows=True)
+        probe_insertions = probe_insertions.aggr(report.ProbeLevelPhotostimEffectReport, ...,
+                                                 group_photostim_s3fp='group_photostim', keep_all_rows=True)
+
+        contain_s3fp = True
+        q = probe_insertions & args
+    elif subpath == 'units':
+        exclude_attrs = ['-spike_times', '-waveform', '-unit_uid', '-probe', '-electrode_config_name', '-electrode_group']
+        units = (ephys.Unit * ephys.UnitStat
+                 * ephys.ProbeInsertion.InsertionLocation.proj('brain_location_name', 'dv_location')).proj(
+          ..., unit_depth='unit_posy - dv_location', *exclude_attrs)
+        units = units.aggr(report.UnitLevelReport, ..., unit_psth_s3fp='unit_psth',
+                           unit_behavior_s3fp='unit_behavior', keep_all_rows=True)
+
+        contain_s3fp = True
+        q = units & args
     else:
         abort(404)
 
@@ -177,7 +209,26 @@ def handle_q(subpath, args, proj, **kwargs):
     # print('D type', ret.dtype)
     # print(ret)
     print('About to return ', len(ret), 'entries')
-    return dumps(post_process(ret)) if post_process else dumps(ret)
+    app.logger.info("About to return {} entries".format(len(ret)))
+    return dumps(post_process(ret)) if contain_s3fp else dumps(ret)
+
+
+def make_presign_url(data_link):
+    return s3_client.generate_presigned_url(
+      'get_object',
+      Params={'Bucket': map_s3_bucket, 'Key': data_link},
+      ExpiresIn=3 * 60 * 60)
+
+
+def convert_to_s3_path(local_path):
+    local_path = pathlib.Path(local_path)
+    rel_path = local_path.relative_to(pathlib.Path(map_store_stage))
+    return (pathlib.Path(map_store_location) / rel_path).as_posix()
+
+
+def post_process(ret):
+    return [{k.replace('_s3fp', ''): make_presign_url(convert_to_s3_path(v)) if '_s3fp' in k and v else v
+             for k, v in i.items()} for i in ret]
 
 
 if is_gunicorn:
