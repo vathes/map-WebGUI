@@ -6,7 +6,7 @@ services:
     image: mapapi:v1.0
     environment:
     - DJ_HOST=mesoscale-activity.datajoint.io
-    - WORKER_COUNT=1
+    - WORKER_COUNT=4
     - MAP_API_PORT
     env_file: ./.env
     ports:
