@@ -11,6 +11,7 @@ from datetime import datetime
 
 import numpy as np
 import datajoint as dj
+import pathlib
 
 from flask import Flask
 from flask import request
@@ -23,6 +24,8 @@ API_VERSION = '0'
 app = Flask(__name__)
 API_PREFIX = '/v{}'.format(API_VERSION)
 is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
+
+os.environ['DJ_SUPPORT_FILEPATH_MANAGEMENT'] = "TRUE"
 
 
 def mkvmod(mod):
@@ -37,6 +40,8 @@ report = mkvmod('report')
 tracking = mkvmod('tracking')
 
 map_s3_bucket = os.environ.get('MAP_S3_BUCKET')
+map_store_location = os.environ.get('MAP_REPORT_STORE_LOCATION')
+map_store_stage = os.environ.get('MAP_REPORT_STORE_STAGE')
 dj.config['stores'] = {
     'report_store': dict(
       protocol='s3',
@@ -44,8 +49,8 @@ dj.config['stores'] = {
       access_key=os.environ.get('AWS_ACCESS_KEY_ID'),
       secret_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
       bucket=map_s3_bucket,
-      location='/data/report',
-      stage='/data/report'
+      location=map_store_location,
+      stage=map_store_stage
     )
 }
 
@@ -172,8 +177,9 @@ def handle_q(subpath, args, proj, **kwargs):
         contain_s3fp = True
         q = sessions & args
     elif subpath == 'probe_insertions':
-        exclude_attrs = ['-probe', '-electrode_config_name']
-        probe_insertions = (ephys.ProbeInsertion * ephys.ProbeInsertion.InsertionLocation).proj(..., *exclude_attrs)
+        exclude_attrs = ['-electrode_config_name']
+        probe_insertions = (ephys.ProbeInsertion * ephys.ProbeInsertion.InsertionLocation
+                            * experiment.BrainLocation).proj(..., *exclude_attrs)
         probe_insertions = probe_insertions.aggr(
           report.ProbeLevelReport, ..., clustering_quality_s3fp='clustering_quality',
           unit_characteristic_s3fp = 'unit_characteristic', group_psth_s3fp = 'group_psth', keep_all_rows=True)
@@ -208,14 +214,20 @@ def handle_q(subpath, args, proj, **kwargs):
 
 
 def make_presign_url(data_link):
-    s3_client.generate_presigned_url(
+    return s3_client.generate_presigned_url(
       'get_object',
-      Params = {'Bucket': map_s3_bucket, 'Key': data_link},
-      ExpiresIn = 3 * 60 * 60)
+      Params={'Bucket': map_s3_bucket, 'Key': data_link},
+      ExpiresIn=3 * 60 * 60)
+
+
+def convert_to_s3_path(local_path):
+    local_path = pathlib.Path(local_path)
+    rel_path = local_path.relative_to(pathlib.Path(map_store_stage))
+    return (pathlib.Path(map_store_location) / rel_path).as_posix()
 
 
 def post_process(ret):
-    return [{k.replace('_s3fp', ''): make_presign_url(v) if '_s3fp' in k else v
+    return [{k.replace('_s3fp', ''): make_presign_url(convert_to_s3_path(v)) if '_s3fp' in k and v else v
              for k, v in i.items()} for i in ret]
 
 
