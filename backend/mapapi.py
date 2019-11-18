@@ -216,7 +216,9 @@ def handle_q(subpath, args, proj, **kwargs):
 def make_presign_url(data_link):
     return s3_client.generate_presigned_url(
       'get_object',
-      Params={'Bucket': map_s3_bucket, 'Key': data_link},
+      Params={'Bucket': map_s3_bucket,
+              'Key': data_link,
+              'ResponseContentType': 'image/png'},
       ExpiresIn=3 * 60 * 60)
 
 
