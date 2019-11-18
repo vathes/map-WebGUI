@@ -199,7 +199,7 @@
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns; let session" routerLink="/session/{{session?.session}}"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns; let session" routerLink="/session/{{session?.subject_id}}/{{session?.session}}"></tr>
 </table>
 </div>
 

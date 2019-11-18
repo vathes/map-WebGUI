@@ -30,41 +30,25 @@
   <hr>
   <h5>Session Plots</h5>
   <div class="sessionBehaviorPlotSection">
-    <table *ngIf="PCplotFitParameter" class="table table-bordered table-sm col-3 fitParTable">
-      <tr>
-        <th>prob_left</th>
-        <th>threshold (&sigma;)</th>
-        <th>bias (&mu;)</th>
-        <th>lapse_low (&gamma;)</th>
-        <th>lapse_high (&lambda;)</th>
-      </tr>
-      <tr>
-        <td>{{ PCplotFitParameter[0]?.prob_left}}</td>
-        <td>{{ PCplotFitParameter[0]?.threshold}}</td>
-        <td>{{ PCplotFitParameter[0]?.bias}}</td>
-        <td>{{ PCplotFitParameter[0]?.lapse_low}}</td>
-        <td>{{ PCplotFitParameter[0]?.lapse_high}}</td>
-      </tr>
-      <tr>
-        <td>{{ PCplotFitParameter[1]?.prob_left}}</td>
-        <td>{{ PCplotFitParameter[1]?.threshold}}</td>
-        <td>{{ PCplotFitParameter[1]?.bias}}</td>
-        <td>{{ PCplotFitParameter[1]?.lapse_low}}</td>
-        <td>{{ PCplotFitParameter[1]?.lapse_high}}</td>
-      </tr>
-      <tr>
-        <td>{{ PCplotFitParameter[2]?.prob_left}}</td>
-        <td>{{ PCplotFitParameter[2]?.threshold}}</td>
-        <td>{{ PCplotFitParameter[2]?.bias}}</td>
-        <td>{{ PCplotFitParameter[2]?.lapse_low}}</td>
-        <td>{{ PCplotFitParameter[2]?.lapse_high}}</td>
-      </tr>
-    </table>
-  
     <div class="behavior-plots" *ngIf="session">
-      <app-session-psych-plot [sessionData]="session" [dialogClosed]="dialogClosedSPC" (openSPCplot)="openDialog($event)" (psychCurveFitPars)="fitParsReady($event)"></app-session-psych-plot>
+      <div style="display: block">
+        <label>Session Tracks Plot</label>
+        <img src="session.session_tracks_plot">
+        <p>src: {{session.session_tracks_plot}}</p>
+      </div>
+      <div style="display: block">
+        <label>Behavior Performance</label>
+        <img src="session.behavior_performance">
+        <p>src: {{session.behavior_performance}}</p>
+      </div>
+      <div style="display: block">
+        <label>Coding Direction</label>
+        <img src="session.coding_direction">
+        <p>src: {{session.coding_direction}}</p>
+      </div>
+      <!-- <app-session-psych-plot [sessionData]="session" [dialogClosed]="dialogClosedSPC" (openSPCplot)="openDialog($event)" (psychCurveFitPars)="fitParsReady($event)"></app-session-psych-plot>
       <app-session-rtc-plot [sessionData]="session" [dialogClosed]="dialogClosedSRTC" (openSRTCplot)="openDialog($event)"></app-session-rtc-plot>
-      <app-session-rttn-plot [sessionData]="session" [dialogClosed]="dialogClosedSRTTN" (openSRTTNplot)="openDialog($event)"></app-session-rttn-plot>
+      <app-session-rttn-plot [sessionData]="session" [dialogClosed]="dialogClosedSRTTN" (openSRTTNplot)="openDialog($event)"></app-session-rttn-plot> -->
     </div>
   </div>
   <br>
