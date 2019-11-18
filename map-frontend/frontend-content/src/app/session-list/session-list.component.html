@@ -11,15 +11,6 @@
 <form [formGroup]="session_filter_form">
   <div [class]="filterExpanded ? 'filters col-12 filterExpand':'filters col-12 filterCollapse'">
     <div class="session-field-filters form-section">
-      <!-- <mat-form-field class="long">
-        <label for="">Task Protocol</label>
-        <input matInput type="text" name="task_protocol" formControlName="task_protocol_control" [matAutocomplete]="auto"
-          (focus)="stepBackMenu($event)">
-        <mat-autocomplete #auto="matAutocomplete">
-          <mat-option *ngFor="let tp of filteredTaskProtocolOptions | async" [value]="tp" (click)="updateMenu()">{{ tp }}
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field> -->
 
       <mat-form-field class="long">
         <label for="">Session #</label>
@@ -67,15 +58,15 @@
        
     </div>
     <div class="mouse-field-filters form-section">
-      <!-- <mat-form-field>
-        <label>Lab</label>
-        <input matInput type="text" name="lab_name" formControlName="lab_name_control" [matAutocomplete]="autoCompLN"
+      <mat-form-field>
+        <label>Probe Count</label>
+        <input matInput type="text" name="probe_count" formControlName="probe_count_control" [matAutocomplete]="autoCompLN"
           (focus)="stepBackMenu($event)">
         <mat-autocomplete #autoCompLN="matAutocomplete">
-          <mat-option *ngFor="let lab of filteredLabNameOptions | async" [value]="lab" (click)="updateMenu()">
-            {{ lab }}</mat-option>
+          <mat-option *ngFor="let probeC of filteredProbeCountOptions | async" [value]="probeC" (click)="updateMenu()">
+            {{ probeC }}</mat-option>
         </mat-autocomplete>
-      </mat-form-field> -->
+      </mat-form-field>
       
       <mat-form-field>
         <label>Mouse ID</label>
@@ -88,15 +79,25 @@
         </mat-autocomplete>
       </mat-form-field>
 
-      <!-- <mat-form-field class="long">
-        <label>Project</label>
-        <input matInput type="text" name="session_project" formControlName="session_project_control"
+      <mat-form-field class="long">
+        <label>Insertion Location</label>
+        <input matInput type="text" name="insert_locations" formControlName="insert_locations_control"
           [matAutocomplete]="autoCompSProj" (focus)="stepBackMenu($event)">
         <mat-autocomplete #autoCompSProj="matAutocomplete">
-          <mat-option *ngFor="let project of filteredSessionProjectOptions | async" [value]="project" (click)="updateMenu()">
-            {{ project }}</mat-option>
+          <mat-option *ngFor="let insLoc of filteredInsertLocationsOptions | async" [value]="insLoc" (click)="updateMenu()">
+            {{ insLoc }}</mat-option>
         </mat-autocomplete>
-      </mat-form-field> -->
+      </mat-form-field>
+
+      <mat-form-field class="long">
+        <label for="">Clustering Methods</label>
+        <input matInput type="text" name="clustering_methods" formControlName="clustering_methods_control" [matAutocomplete]="auto"
+          (focus)="stepBackMenu($event)">
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option *ngFor="let tp of filteredClusteringMethodsOptions | async" [value]="tp" (click)="updateMenu()">{{ tp }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
       
       <!-- <mat-form-field class="short">
         <label>DOB</label>
@@ -198,8 +199,13 @@
     <td mat-cell *matCellDef="let session"> {{session.insert_locations}} </td>
   </ng-container>
 
+  <ng-container matColumnDef="clustering_methods">
+    <th mat-header-cell *matHeaderCellDef> Clustering Method(s) </th>
+    <td mat-cell *matCellDef="let session"> {{session.clustering_methods}} </td>
+  </ng-container>
+
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns; let session" routerLink="/session/{{session?.session}}"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns; let session" routerLink="/session/{{session?.subject_id}}/{{session?.session}}"></tr>
 </table>
 </div>
 

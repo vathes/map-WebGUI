@@ -96,7 +96,7 @@ const appRoutes: Routes = [
     }]
   },
   {
-    path: 'session/:sessionID',
+    path: 'session/:mouseID/:sessionID',
     canActivate: [AuthGuard],
     canActivateChild: [AuthGuard],
     component: SessionComponent
