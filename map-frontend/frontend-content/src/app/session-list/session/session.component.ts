@@ -13,8 +13,8 @@ import { SessionRTTNPlotComponent } from './session-rttn-plot/session-rttn-plot.
   styleUrls: ['./session.component.css']
 })
 export class SessionComponent implements OnInit, OnDestroy {
-  public session_id: number;
-  public mouse_id: number;
+  public session_id;
+  public mouse_id;
   private sessionSubscription: Subscription;
   session: any;
   sessionPlotInfo: any;
@@ -34,7 +34,7 @@ export class SessionComponent implements OnInit, OnDestroy {
     this.session_id = this.route.snapshot.paramMap.get('sessionID');
     this.mouse_id = this.route.snapshot.paramMap.get('mouseID');
     // console.log('uuid: ' + this.session_id);
-    this.allSessionsService.retrieveSessions({'session': this.session_id, 'subject_id': this.mouse_id});
+    this.allSessionsService.retrieveSessions({'session': parseInt(this.session_id), 'subject_id': parseInt(this.mouse_id)});
     this.sessionSubscription = this.allSessionsService.getNewSessionsLoadedListener()
     .subscribe((session: any) => {
       this.session = session[0];

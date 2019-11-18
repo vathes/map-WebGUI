@@ -32,19 +32,16 @@
   <div class="sessionBehaviorPlotSection">
     <div class="behavior-plots" *ngIf="session">
       <div style="display: block">
-        <label>Session Tracks Plot</label>
+        <p *ngIf="!session.session_tracks_plot">Session Tracks Plot Not Available</p>
         <img src="session.session_tracks_plot">
-        <p>src: {{session.session_tracks_plot}}</p>
       </div>
       <div style="display: block">
-        <label>Behavior Performance</label>
-        <img src="session.behavior_performance">
-        <p>src: {{session.behavior_performance}}</p>
+        <p *ngIf="!session.behavior_performance">Behavior Performance Plot Not Available</p>
+        <img width="600px" [src]="session.behavior_performance">
       </div>
       <div style="display: block">
-        <label>Coding Direction</label>
+        <p *ngIf="!session.coding_direction">Coding Direction Plot Not Available</p>
         <img src="session.coding_direction">
-        <p>src: {{session.coding_direction}}</p>
       </div>
       <!-- <app-session-psych-plot [sessionData]="session" [dialogClosed]="dialogClosedSPC" (openSPCplot)="openDialog($event)" (psychCurveFitPars)="fitParsReady($event)"></app-session-psych-plot>
       <app-session-rtc-plot [sessionData]="session" [dialogClosed]="dialogClosedSRTC" (openSRTCplot)="openDialog($event)"></app-session-rtc-plot>

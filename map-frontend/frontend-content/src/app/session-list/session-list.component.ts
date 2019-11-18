@@ -17,7 +17,7 @@ import * as moment from 'moment';
 })
 export class SessionListComponent implements OnInit, OnDestroy {
   session_filter_form = new FormGroup({
-    // task_protocol_control : new FormControl(),
+    clustering_methods_control : new FormControl(),
     session_control : new FormControl(),
     session_date_control : new FormControl(),
     session_range_filter: new FormGroup({
@@ -42,7 +42,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
   sessionMinDate: Date;
   sessionMaxDate: Date;
   dateRangeToggle: boolean;
-  // filteredTaskProtocolOptions: Observable<string[]>;
+  filteredClusteringMethodsOptions: Observable<string[]>;
   filteredSessionOptions: Observable<string[]>;
   filteredProbeCountOptions: Observable<string[]>;
   filteredSubjectIdOptions: Observable<string[]>;
@@ -53,10 +53,10 @@ export class SessionListComponent implements OnInit, OnDestroy {
   session_menu: any;
   // setup for the table columns
   // displayedColumns: string[] = ['probe_count', 'subject_id', 'subject_birth_date', 'session_date',
-  //                             'task_protocol', 'water_restriction_number', 'username',
+  //                             'clustering_methods', 'water_restriction_number', 'username',
   //                             'session', 'sex', 'nplot', 'insert_locations'];
   displayedColumns: string[] = ['subject_id', 'session', 'session_date',
-    'username', 'water_restriction_number', 'probe_count', 'insert_locations' ];
+    'username', 'water_restriction_number', 'probe_count', 'insert_locations', 'clustering_methodss' ];
   
   
   // setup for the paginator
@@ -65,7 +65,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
   pageSizeOptions: number[] = [10, 25, 50, 100];
 
   // queryValues = {
-  //   'task_protocol': '_iblrig_tasks_habituationChoiceWorld3.7.6',
+  //   'clustering_methods': '_iblrig_tasks_habituationChoiceWorld3.7.6',
   //   // '__order': 'session_date'
   // };
 
@@ -127,11 +127,9 @@ export class SessionListComponent implements OnInit, OnDestroy {
             }
             if (dateRange[0] !== '' && dateRange[0] === dateRange[1]) {
               this.dateRangeToggle = false;
-              console.log('loggin date range[0]- ', dateRange[0]);
               this.session_filter_form.controls.session_date_control.patchValue(moment.utc(dateRange[0]));
             } else if (dateRange[0] !== '') {
               this.dateRangeToggle = true;
-              console.log('loggin date range[1]- ', dateRange[1]);
               this.session_filter_form.controls.session_range_filter['controls'].session_range_start_control.patchValue(moment.utc(dateRange[0]));
               this.session_filter_form.controls.session_range_filter['controls'].session_range_end_control.patchValue(moment.utc(dateRange[1]));
             }
@@ -186,12 +184,12 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
   private createMenu(sessions) {
     this.session_menu = {};
-    // const keys = ['task_protocol', 'session_date',
+    // const keys = ['clustering_methods', 'session_date',
     // 'session', 'probe_count', 'subject_birth_date', 'water_restriction_number',
     // 'sex', 'subject_id', 'username', 'insert_locations'];
     const keys = ['session_date',
       'session', 'water_restriction_number',
-      'subject_id', 'username', 'probe_count', 'insert_locations'];
+      'subject_id', 'username', 'probe_count', 'insert_locations', 'clustering_methods'];
     for (const key of keys) {
       if (key !== 'sex') {
         this.session_menu[key] = [];
@@ -201,7 +199,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
     }
     for (const session of sessions) {
       for (const key of keys) {
-        if (key !== 'sex' && key !== 'insert_locations' && (session[key] || session[key] === 0) && !this.session_menu[key].includes(session[key].toString())) {
+        if (key !== 'sex' && key !== 'insert_locations' && key !== 'clustering_methods' && (session[key] || session[key] === 0) && !this.session_menu[key].includes(session[key].toString())) {
           this.session_menu[key].push(session[key].toString());
           
         } else if (key === 'sex') {
@@ -209,13 +207,13 @@ export class SessionListComponent implements OnInit, OnDestroy {
           if (Object.keys(this.session_menu[key]).includes(session[key]) && !this.session_menu[key][session[key]]) {
             this.session_menu[key][session[key]] = true;
           }
-        } else if (key === 'insert_locations') {
+        } else if (key === 'insert_locations' || key === 'clustering_methods') {
           if (session[key] && session[key].split(',').length === 1 && !this.session_menu[key].includes(session[key])) {
             this.session_menu[key].push(session[key]);
           } else if (session[key] && session[key].split(',').length > 1) {
-            for (const LocOpt of session[key].split(',')) {
-              if (!this.session_menu[key].includes(LocOpt)) {
-                this.session_menu[key].push(LocOpt);
+            for (const itemOption of session[key].split(',')) {
+              if (!this.session_menu[key].includes(itemOption)) {
+                this.session_menu[key].push(itemOption);
               }
             }
           }
@@ -265,11 +263,11 @@ export class SessionListComponent implements OnInit, OnDestroy {
         map(value => this._filter(value, 'session'))
       );
 
-    // this.filteredTaskProtocolOptions = this.session_filter_form.controls.task_protocol_control.valueChanges
-    //   .pipe(
-    //     startWith(''),
-    //     map(value => this._filter(value, 'task_protocol'))
-    //   );
+    this.filteredClusteringMethodsOptions = this.session_filter_form.controls.clustering_methods_control.valueChanges
+      .pipe(
+        startWith(''),
+        map(value => this._filter(value, 'clustering_methods'))
+      );
 
     this.filteredWaterRestrictionNumberOptions = this.session_filter_form.controls.water_restriction_number_control.valueChanges
       .pipe(
