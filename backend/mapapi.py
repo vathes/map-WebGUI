@@ -170,12 +170,26 @@ def handle_q(subpath, args, proj, **kwargs):
           probe_count='count(insertion_number)', keep_all_rows=True).aggr(
           ephys.ProbeInsertion.InsertionLocation, ...,
           insert_locations='GROUP_CONCAT(brain_location_name)', keep_all_rows=True)
+        sessions = sessions.aggr(ephys.Unit, ..., clustering_methods='GROUP_CONCAT(DISTINCT clustering_method)', keep_all_rows=True)
         sessions = sessions.aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
         sessions = sessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
         sessions = sessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction', keep_all_rows=True)
 
+        # handling `insert_locations` and `clustering_methods` in args
+        if 'insert_locations' in args:
+            insert_locations = args.pop('insert_locations')
+            insert_locations_restr = f'insert_locations LIKE "%{insert_locations}%"'
+        else:
+            insert_locations_restr = {}
+
+        if 'clustering_methods' in args:
+            clustering_methods = args.pop('clustering_methods')
+            clustering_methods_restr = f'clustering_methods LIKE "%{clustering_methods}%"'
+        else:
+            clustering_methods_restr = {}
+
         contain_s3fp = True
-        q = sessions & args
+        q = sessions & args & insert_locations_restr & clustering_methods_restr
     elif subpath == 'probe_insertions':
         exclude_attrs = ['-electrode_config_name']
         probe_insertions = (ephys.ProbeInsertion * ephys.ProbeInsertion.InsertionLocation
