@@ -67,15 +67,15 @@
        
     </div>
     <div class="mouse-field-filters form-section">
-      <!-- <mat-form-field>
-        <label>Lab</label>
-        <input matInput type="text" name="lab_name" formControlName="lab_name_control" [matAutocomplete]="autoCompLN"
+      <mat-form-field>
+        <label>Probe Count</label>
+        <input matInput type="text" name="probe_count" formControlName="probe_count_control" [matAutocomplete]="autoCompLN"
           (focus)="stepBackMenu($event)">
         <mat-autocomplete #autoCompLN="matAutocomplete">
-          <mat-option *ngFor="let lab of filteredLabNameOptions | async" [value]="lab" (click)="updateMenu()">
-            {{ lab }}</mat-option>
+          <mat-option *ngFor="let probeC of filteredProbeCountOptions | async" [value]="probeC" (click)="updateMenu()">
+            {{ probeC }}</mat-option>
         </mat-autocomplete>
-      </mat-form-field> -->
+      </mat-form-field>
       
       <mat-form-field>
         <label>Mouse ID</label>
@@ -88,15 +88,15 @@
         </mat-autocomplete>
       </mat-form-field>
 
-      <!-- <mat-form-field class="long">
-        <label>Project</label>
-        <input matInput type="text" name="session_project" formControlName="session_project_control"
+      <mat-form-field class="long">
+        <label>Insertion Location</label>
+        <input matInput type="text" name="insert_locations" formControlName="insert_locations_control"
           [matAutocomplete]="autoCompSProj" (focus)="stepBackMenu($event)">
         <mat-autocomplete #autoCompSProj="matAutocomplete">
-          <mat-option *ngFor="let project of filteredSessionProjectOptions | async" [value]="project" (click)="updateMenu()">
-            {{ project }}</mat-option>
+          <mat-option *ngFor="let insLoc of filteredInsertLocationsOptions | async" [value]="insLoc" (click)="updateMenu()">
+            {{ insLoc }}</mat-option>
         </mat-autocomplete>
-      </mat-form-field> -->
+      </mat-form-field>
       
       <!-- <mat-form-field class="short">
         <label>DOB</label>

@@ -24,9 +24,9 @@ export class SessionListComponent implements OnInit, OnDestroy {
       session_range_start_control: new FormControl(),
       session_range_end_control: new FormControl()
     }),
-    // lab_name_control: new FormControl(),
+    probe_count_control: new FormControl(),
     subject_id_control: new FormControl(),
-    // session_project_control: new FormControl(),
+    insert_locations_control: new FormControl(),
     // sex_control: new FormArray([new FormControl(), new FormControl(), new FormControl()]),
     // subject_birth_date_control: new FormControl(),
     water_restriction_number_control: new FormControl(),
@@ -44,19 +44,19 @@ export class SessionListComponent implements OnInit, OnDestroy {
   dateRangeToggle: boolean;
   // filteredTaskProtocolOptions: Observable<string[]>;
   filteredSessionOptions: Observable<string[]>;
-  // filteredLabNameOptions: Observable<string[]>;
+  filteredProbeCountOptions: Observable<string[]>;
   filteredSubjectIdOptions: Observable<string[]>;
-  // filteredSessionProjectOptions: Observable<string[]>;
+  filteredInsertLocationsOptions: Observable<string[]>;
   filteredWaterRestrictionNumberOptions: Observable<string[]>;
   filteredUsernameOptions: Observable<string[]>;
   // nplotMap: any = { '0': '', '1': '\u2714' };
   session_menu: any;
   // setup for the table columns
-  // displayedColumns: string[] = ['lab_name', 'subject_id', 'subject_birth_date', 'session_date',
+  // displayedColumns: string[] = ['probe_count', 'subject_id', 'subject_birth_date', 'session_date',
   //                             'task_protocol', 'water_restriction_number', 'username',
-  //                             'session', 'sex', 'nplot', 'session_project'];
+  //                             'session', 'sex', 'nplot', 'insert_locations'];
   displayedColumns: string[] = ['subject_id', 'session', 'session_date',
-    'username', 'water_restriction_number' ];
+    'username', 'water_restriction_number', 'probe_count', 'insert_locations' ];
   
   
   // setup for the paginator
@@ -160,14 +160,8 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
       });
     // TODO: create menu content using separate api designated for menu instead of getting all session info
-<<<<<<< HEAD
-    console.log('creating menu...');
-    // this.allSessionsService.getAllSessionMenu({'__order': 'subject_id'});
-    this.allSessionsService.getAllSessionMenu({});
-=======
     this.allSessionsService.getAllSessionMenu({'__order': 'subject_id'});
     // this.allSessionsService.getAllSessionMenu({});
->>>>>>> 1252a0d6d3a5d2b380b25f4a29cebc318c35b100
     this.allSessionMenuSubscription = this.allSessionsService.getAllSessionMenuLoadedListener()
       .subscribe((sessions_all: any) => {
         this.allSessions = sessions_all;
@@ -193,11 +187,11 @@ export class SessionListComponent implements OnInit, OnDestroy {
   private createMenu(sessions) {
     this.session_menu = {};
     // const keys = ['task_protocol', 'session_date',
-    // 'session', 'lab_name', 'subject_birth_date', 'water_restriction_number',
-    // 'sex', 'subject_id', 'username', 'session_project'];
+    // 'session', 'probe_count', 'subject_birth_date', 'water_restriction_number',
+    // 'sex', 'subject_id', 'username', 'insert_locations'];
     const keys = ['session_date',
       'session', 'water_restriction_number',
-      'subject_id', 'username'];
+      'subject_id', 'username', 'probe_count', 'insert_locations'];
     for (const key of keys) {
       if (key !== 'sex') {
         this.session_menu[key] = [];
@@ -207,16 +201,28 @@ export class SessionListComponent implements OnInit, OnDestroy {
     }
     for (const session of sessions) {
       for (const key of keys) {
-        if (key !== 'sex' && !this.session_menu[key].includes(session[key])) {
-          this.session_menu[key].push(session[key]);
+        if (key !== 'sex' && key !== 'insert_locations' && (session[key] || session[key] === 0) && !this.session_menu[key].includes(session[key].toString())) {
+          this.session_menu[key].push(session[key].toString());
+          
         } else if (key === 'sex') {
           // console.log('creating sex menu - looking at ', this.session_menu[key], ' and ', session[key]);
           if (Object.keys(this.session_menu[key]).includes(session[key]) && !this.session_menu[key][session[key]]) {
             this.session_menu[key][session[key]] = true;
           }
+        } else if (key === 'insert_locations') {
+          if (session[key] && session[key].split(',').length === 1 && !this.session_menu[key].includes(session[key])) {
+            this.session_menu[key].push(session[key]);
+          } else if (session[key] && session[key].split(',').length > 1) {
+            for (const LocOpt of session[key].split(',')) {
+              if (!this.session_menu[key].includes(LocOpt)) {
+                this.session_menu[key].push(LocOpt);
+              }
+            }
+          }
         }
       }
     }
+    console.log('printing session_menu: ', this.session_menu);
 
 
     // for (const item in this.session_menu['sex']) {
@@ -235,11 +241,11 @@ export class SessionListComponent implements OnInit, OnDestroy {
     this.sessionMinDate = new Date(Math.min(...sessionSeconds));
     this.sessionMaxDate = new Date(Math.max(...sessionSeconds));
 
-    // this.filteredLabNameOptions = this.session_filter_form.controls.lab_name_control.valueChanges
-    //   .pipe(
-    //     startWith(''),
-    //     map(value => this._filter(value, 'lab_name'))
-    //   );
+    this.filteredProbeCountOptions = this.session_filter_form.controls.probe_count_control.valueChanges
+      .pipe(
+        startWith(''),
+        map(value => this._filter(value, 'probe_count'))
+      );
 
     this.filteredSubjectIdOptions = this.session_filter_form.controls.subject_id_control.valueChanges
       .pipe(
@@ -247,17 +253,11 @@ export class SessionListComponent implements OnInit, OnDestroy {
         map(value => this._filter(value, 'subject_id'))
       );
 
-    // this.filteredSessionProjectOptions = this.session_filter_form.controls.session_project_control.valueChanges
-    //   .pipe(
-    //     startWith(''),
-    //     map(value => this._filter(value, 'session_project'))
-    //   );
-
-    // this.filteredSubjectUuidOptions = this.session_filter_form.controls.subject_uuid_control.valueChanges
-    //   .pipe(
-    //     startWith(''),
-    //     map(value => this._filter(value, 'subject_uuid'))
-    //   );
+    this.filteredInsertLocationsOptions = this.session_filter_form.controls.insert_locations_control.valueChanges
+      .pipe(
+        startWith(''),
+        map(value => this._filter(value, 'insert_locations'))
+      );
 
     this.filteredSessionOptions = this.session_filter_form.controls.session_control.valueChanges
       .pipe(
@@ -304,7 +304,8 @@ export class SessionListComponent implements OnInit, OnDestroy {
   }
 
   private _filter(value: string, menuType: string): string[] {
-    const filterValue = value.toLowerCase();
+    const filterValue = value.toString().toLowerCase();
+    console.log('logging filterValue:', filterValue);
     const result =  this.session_menu[menuType].filter(menu_items => {
       if (menu_items && menu_items.toLowerCase().includes(filterValue)) {
         return true;
@@ -356,8 +357,8 @@ export class SessionListComponent implements OnInit, OnDestroy {
     const requestFilter = {};
     let requestJSONstring = '';
     filterList.forEach(filter => {
-      // filter is [["lab_name_control", "somelab"], ["subject_id_control", null]...]
-      const filterKey = filter[0].split('_control')[0]; // filter[0] is control name like 'lab_name_control'
+      // filter is [["probe_count_control", "somelab"], ["subject_id_control", null]...]
+      const filterKey = filter[0].split('_control')[0]; // filter[0] is control name like 'probe_count_control'
       if (filter[1] && filterKey !== focusedField) {
         // if (filterKey === 'sex' && this.genderSelected(filter[1])) {
         //   let requestedGender: string;
