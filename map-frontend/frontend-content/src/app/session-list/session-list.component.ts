@@ -56,7 +56,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
   //                             'clustering_methods', 'water_restriction_number', 'username',
   //                             'session', 'sex', 'nplot', 'insert_locations'];
   displayedColumns: string[] = ['subject_id', 'session', 'session_date',
-    'username', 'water_restriction_number', 'probe_count', 'insert_locations', 'clustering_methodss' ];
+    'username', 'water_restriction_number', 'probe_count', 'insert_locations', 'clustering_methods' ];
   
   
   // setup for the paginator
