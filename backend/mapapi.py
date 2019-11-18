@@ -176,17 +176,11 @@ def handle_q(subpath, args, proj, **kwargs):
         sessions = sessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction', keep_all_rows=True)
 
         # handling `insert_locations` and `clustering_methods` in args
-        if 'insert_locations' in args:
-            insert_locations = args.pop('insert_locations')
-            insert_locations_restr = f'insert_locations LIKE "%{insert_locations}%"'
-        else:
-            insert_locations_restr = {}
-
-        if 'clustering_methods' in args:
-            clustering_methods = args.pop('clustering_methods')
-            clustering_methods_restr = f'clustering_methods LIKE "%{clustering_methods}%"'
-        else:
-            clustering_methods_restr = {}
+        insert_locations_restr = make_LIKE_restrictor('insert_locations', args,
+                                                      (experiment.BrainLocation, 'brain_location_name'))
+        clustering_methods_restr = make_LIKE_restrictor('clustering_methods', args,
+                                                        (ephys.ClusteringMethod, 'clustering_method'))
+        [args.pop(v) for v in ('insert_locations', 'clustering_methods') if v in args]
 
         contain_s3fp = True
         q = sessions & args & insert_locations_restr & clustering_methods_restr
@@ -226,6 +220,8 @@ def handle_q(subpath, args, proj, **kwargs):
     app.logger.info("About to return {} entries".format(len(ret)))
     return dumps(post_process(ret)) if contain_s3fp else dumps(ret)
 
+# ----------- HELPER METHODS -------------------
+
 
 def make_presign_url(data_link):
     return s3_client.generate_presigned_url(
@@ -245,6 +241,21 @@ def convert_to_s3_path(local_path):
 def post_process(ret):
     return [{k.replace('_s3fp', ''): make_presign_url(convert_to_s3_path(v)) if '_s3fp' in k and v else v
              for k, v in i.items()} for i in ret]
+
+
+def make_LIKE_restrictor(attr_name, restriction_dict, lookup_table=None):
+    if attr_name in restriction_dict:
+        attr_value = restriction_dict[attr_name]
+        if lookup_table is not None:
+            tbl, lookup_attr = lookup_table
+            if not (tbl & {lookup_attr: attr_value}):
+                return {}
+
+            return f'{attr_name} LIKE "%{attr_value}%"'
+
+    return {}
+
+# --------------------------------
 
 
 if is_gunicorn:
