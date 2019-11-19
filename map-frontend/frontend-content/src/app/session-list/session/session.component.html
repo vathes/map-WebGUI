@@ -25,46 +25,30 @@
       <tr>
         <th>Probe Insertion Location(s)</th><td>{{ session?.insert_locations }}</td>
       </tr>
+      <tr>
+        <th>Clustering Method(s)</th><td>{{ session?.clustering_methods }}</td>
+      </tr>
     </table>
   </div>
   <hr>
   <h5>Session Plots</h5>
   <div class="sessionBehaviorPlotSection">
-    <table *ngIf="PCplotFitParameter" class="table table-bordered table-sm col-3 fitParTable">
-      <tr>
-        <th>prob_left</th>
-        <th>threshold (&sigma;)</th>
-        <th>bias (&mu;)</th>
-        <th>lapse_low (&gamma;)</th>
-        <th>lapse_high (&lambda;)</th>
-      </tr>
-      <tr>
-        <td>{{ PCplotFitParameter[0]?.prob_left}}</td>
-        <td>{{ PCplotFitParameter[0]?.threshold}}</td>
-        <td>{{ PCplotFitParameter[0]?.bias}}</td>
-        <td>{{ PCplotFitParameter[0]?.lapse_low}}</td>
-        <td>{{ PCplotFitParameter[0]?.lapse_high}}</td>
-      </tr>
-      <tr>
-        <td>{{ PCplotFitParameter[1]?.prob_left}}</td>
-        <td>{{ PCplotFitParameter[1]?.threshold}}</td>
-        <td>{{ PCplotFitParameter[1]?.bias}}</td>
-        <td>{{ PCplotFitParameter[1]?.lapse_low}}</td>
-        <td>{{ PCplotFitParameter[1]?.lapse_high}}</td>
-      </tr>
-      <tr>
-        <td>{{ PCplotFitParameter[2]?.prob_left}}</td>
-        <td>{{ PCplotFitParameter[2]?.threshold}}</td>
-        <td>{{ PCplotFitParameter[2]?.bias}}</td>
-        <td>{{ PCplotFitParameter[2]?.lapse_low}}</td>
-        <td>{{ PCplotFitParameter[2]?.lapse_high}}</td>
-      </tr>
-    </table>
-  
     <div class="behavior-plots" *ngIf="session">
-      <app-session-psych-plot [sessionData]="session" [dialogClosed]="dialogClosedSPC" (openSPCplot)="openDialog($event)" (psychCurveFitPars)="fitParsReady($event)"></app-session-psych-plot>
+      <div style="display: block">
+        <p *ngIf="!session.session_tracks_plot">Session Tracks Plot Not Available</p>
+        <img src="session.session_tracks_plot">
+      </div>
+      <div style="display: block">
+        <p *ngIf="!session.behavior_performance">Behavior Performance Plot Not Available</p>
+        <img width="600px" [src]="session.behavior_performance">
+      </div>
+      <div style="display: block">
+        <p *ngIf="!session.coding_direction">Coding Direction Plot Not Available</p>
+        <img src="session.coding_direction">
+      </div>
+      <!-- <app-session-psych-plot [sessionData]="session" [dialogClosed]="dialogClosedSPC" (openSPCplot)="openDialog($event)" (psychCurveFitPars)="fitParsReady($event)"></app-session-psych-plot>
       <app-session-rtc-plot [sessionData]="session" [dialogClosed]="dialogClosedSRTC" (openSRTCplot)="openDialog($event)"></app-session-rtc-plot>
-      <app-session-rttn-plot [sessionData]="session" [dialogClosed]="dialogClosedSRTTN" (openSRTTNplot)="openDialog($event)"></app-session-rttn-plot>
+      <app-session-rttn-plot [sessionData]="session" [dialogClosed]="dialogClosedSRTTN" (openSRTTNplot)="openDialog($event)"></app-session-rttn-plot> -->
     </div>
   </div>
   <br>
