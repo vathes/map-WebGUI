@@ -20,11 +20,13 @@ a.logolink * {
 }
 
 .title-container img {
-    height: 100px;
+    /* height: 100px; */
+    margin-top:24px;
+    height: 51px;
 }
 
 .navigator-head {
-    border-left: 1.5px solid rgb(151, 151, 151); 
+    /* border-left: 1.5px solid rgb(151, 151, 151);  */
     height: 71px; 
     margin-top:14px;
 }
@@ -95,7 +97,9 @@ a.logolink * {
         padding-left: 2px;
     }
     .title-container img {
-        height: 80px;
+        /* height: 80px; */
+        height: 36px;
+        margin-top: 22px;
     }
 
     .navigator-head {
@@ -121,7 +125,9 @@ a.logolink * {
     }
 
     .title-container img {
-        height: 70px;
+        /* height: 70px; */
+        height: 31px;
+        margin-top: 29.5px;
     }
 
     .navigator-head {
