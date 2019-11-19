@@ -1,0 +1,7 @@
+<div *ngIf="probeInsertions">
+<h5>Probe Insertions</h5>
+<div *ngFor="let probeIns of probeInsertions">
+  <app-probe-insertion [probeInsertionInfo]="probeIns"></app-probe-insertion>
+</div>
+
+</div>

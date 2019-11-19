@@ -459,16 +459,17 @@ export class SessionListComponent implements OnInit, OnDestroy {
   }
 
   applyFilter() {
-    console.log('applying filter...');
     this.loading = true;
     this.sessions = [];
     const request = this.filterRequests();
+    console.log('applying filter with...', request);
     request['__order'] = 'session_date DESC';
     if (Object.entries(request) && Object.entries(request).length > 1) {
       this.filterStoreService.storeSessionFilter(request);
       this.allSessionsService.retrieveSessions2(request);
       this.reqSessionsSubscription = this.allSessionsService.getNewSessionsLoadedListener2()
         .subscribe((newSessions: any) => {
+          console.log('response: ', newSessions);
           this.loading = false;
           this.sessions = newSessions;
           this.dataSource = new MatTableDataSource(newSessions);

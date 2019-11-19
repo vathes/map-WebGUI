@@ -63,8 +63,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   constructor(public cellListService: CellListService) { }
   @HostListener('window:keyup', ['$event']) keyEvent(event) {
-    console.log('listening to key event');
-    console.log(event.key);
     if (event.key === 'ArrowUp') {
       this.navigate_cell_plots({}, 'up');
     } else if (event.key === 'ArrowDown') {
@@ -72,9 +70,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     }
   }
   @HostListener('window:scroll', ['$event']) onWindowScroll(event) {
-    console.log('listening to scroll event');
-    console.log(window.pageYOffset);
-    console.log(event);
     if (window.pageYOffset > 640) {
       this.showController = true;
     } else {

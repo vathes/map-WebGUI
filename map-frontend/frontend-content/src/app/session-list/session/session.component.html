@@ -33,23 +33,28 @@
   <hr>
   <h5>Session Plots</h5>
   <div class="sessionBehaviorPlotSection">
-    <div class="behavior-plots" *ngIf="session">
-      <div style="display: block">
+    <div class="session-plots" *ngIf="session">
+      <div class="session-plot-container">
         <p *ngIf="!session.session_tracks_plot">Session Tracks Plot Not Available</p>
-        <img src="session.session_tracks_plot">
+        <img *ngIf="session.session_tracks_plot" class="session-plot" [src]="session.session_tracks_plot">
       </div>
-      <div style="display: block">
+      <div class="session-plot-container">
         <p *ngIf="!session.behavior_performance">Behavior Performance Plot Not Available</p>
-        <img width="600px" [src]="session.behavior_performance">
+        <img *ngIf="session.behavior_performance" class="session-plot" [src]="session.behavior_performance">
       </div>
-      <div style="display: block">
+      <div class="session-plot-container">
         <p *ngIf="!session.coding_direction">Coding Direction Plot Not Available</p>
-        <img src="session.coding_direction">
+        <img *ngIf="session.coding_direction" class="session-plot" [src]="session.coding_direction">
       </div>
       <!-- <app-session-psych-plot [sessionData]="session" [dialogClosed]="dialogClosedSPC" (openSPCplot)="openDialog($event)" (psychCurveFitPars)="fitParsReady($event)"></app-session-psych-plot>
       <app-session-rtc-plot [sessionData]="session" [dialogClosed]="dialogClosedSRTC" (openSRTCplot)="openDialog($event)"></app-session-rtc-plot>
       <app-session-rttn-plot [sessionData]="session" [dialogClosed]="dialogClosedSRTTN" (openSRTTNplot)="openDialog($event)"></app-session-rttn-plot> -->
     </div>
+  </div>
+  <br>
+  <hr>
+  <div class="probe-insertion-list-section" *ngIf="session">
+    <app-probe-insertion-list [sessionInfo]="session"></app-probe-insertion-list>
   </div>
   <br>
   <hr>

@@ -54,6 +54,8 @@ import { SessionRTCPlotComponent } from './session-list/session/session-rtc-plot
 import { SessionRTTNPlotComponent } from './session-list/session/session-rttn-plot/session-rttn-plot.component';
 import { RasterPlotsComponent } from './cell-list/cell/raster-plots/raster-plots.component';
 import { PsthPlotsComponent } from './cell-list/cell/psth-plots/psth-plots.component';
+import { ProbeInsertionListComponent } from './probe-insertion-list/probe-insertion-list.component';
+import { ProbeInsertionComponent } from './probe-insertion-list/probe-insertion/probe-insertion.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -137,7 +139,9 @@ const appRoutes: Routes = [
     SessionRTTNPlotComponent,
     SessionPlotDialog,
     RasterPlotsComponent,
-    PsthPlotsComponent
+    PsthPlotsComponent,
+    ProbeInsertionListComponent,
+    ProbeInsertionComponent
   ],
   imports: [
     CommonModule, PlotlyModule,
