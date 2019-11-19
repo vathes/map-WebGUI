@@ -30,13 +30,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AuthGuard } from './auth/auth-guard.service';
 import { AppComponent } from './app.component';
-import { EachBatchComponent } from './each-batch/each-batch.component';
 import { LoginComponent } from './auth/login/login.component';
 import { AuthService } from './auth/auth.service';
-import { SamplePlotComponent } from './plots/view-sample-plots/sample-plot/sample-plot.component';
-import { PlotsService } from './plots.service';
-import { ViewSamplePlotsComponent } from './plots/view-sample-plots/view-sample-plots.component';
-import { PlotMenuToggleComponent } from './plots/view-sample-plots/plot-menu-toggle/plot-menu-toggle.component';
 import { SessionListComponent } from './session-list/session-list.component';
 import { SessionComponent, SessionPlotDialog } from './session-list/session/session.component';
 import { MouseListComponent } from './mouse-list/mouse-list.component';
@@ -65,7 +60,6 @@ PlotlyModule.plotlyjs = PlotlyJS;
 const appRoutes: Routes = [
   { path: '', component: OverviewComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
-  { path: 'plot', component: ViewSamplePlotsComponent },
   { path: 'cells', component: CellListComponent },
   { path: 'water-weight', component: WaterWeightPlotComponent},
   {
@@ -111,10 +105,6 @@ const appRoutes: Routes = [
     path: 'summary',
     canActivate: [AuthGuard],
     component: DailySummaryComponent
-  },
-  {
-    path: 'testRaster',
-    component: ViewSamplePlotsComponent
   }
   // { path: 'not-found', component: ErrorPageComponent, data: { message: '404 - Page not found!' } },
   // { path: '**', redirectTo: '/not-found' }
@@ -125,11 +115,7 @@ const appRoutes: Routes = [
   entryComponents: [SessionComponent, SessionPlotDialog],
   declarations: [
     AppComponent,
-    EachBatchComponent,
     LoginComponent,
-    SamplePlotComponent,
-    ViewSamplePlotsComponent,
-    PlotMenuToggleComponent,
     SessionListComponent,
     SessionComponent,
     MouseListComponent,
