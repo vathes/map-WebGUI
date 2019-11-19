@@ -151,7 +151,7 @@ const appRoutes: Routes = [
     MatCardModule, MatButtonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatSliderModule, MatExpansionModule,
     MatDialogModule, ReactiveFormsModule, FlexLayoutModule
   ],
-  providers: [AuthService, AuthGuard, PlotsService,
+  providers: [AuthService, AuthGuard,
               { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
               { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
              ],
