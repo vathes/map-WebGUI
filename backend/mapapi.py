@@ -165,6 +165,7 @@ def handle_q(subpath, args, proj, **kwargs):
 
     contain_s3fp = False
     if subpath == 'sessionpage':
+
         sessions = (experiment.Session * lab.WaterRestriction).aggr(
           ephys.ProbeInsertion, 'session_date', 'water_restriction_number', 'username',
           probe_count='count(insertion_number)', keep_all_rows=True).aggr(
@@ -175,17 +176,22 @@ def handle_q(subpath, args, proj, **kwargs):
         sessions = sessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
         sessions = sessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction', keep_all_rows=True)
 
-        # handling special GROUPCONCAT attributes: `insert_locations` and `clustering_methods` in args
-        insert_locations_restr, args = make_GROUPCONCAT_restrictor(
-          'insert_locations', args, experiment.Session * ephys.ProbeInsertion.InsertionLocation, 'brain_location_name')
-        insert_locations_restr = experiment.Session & insert_locations_restr
+        # ---------- process the "args" ----------
+        if isinstance(args, list):
+            if len(args) == 1:
+                args = args[0]
+            else:
+                raise ValueError(f'args is a list of multiple dicts: {args}')
 
-        clustering_methods_restr, args = make_GROUPCONCAT_restrictor(
-          'clustering_methods', args, experiment.Session * ephys.Unit, 'clustering_method')
-        clustering_methods_restr = experiment.Session & clustering_methods_restr
+        # handling special GROUPCONCAT attributes: `insert_locations` and `clustering_methods` in args
+        insert_locations_restr = make_LIKE_restrictor('insert_locations', args,
+                                                      (experiment.BrainLocation, 'brain_location_name'))
+        clustering_methods_restr = make_LIKE_restrictor('clustering_methods', args,
+                                                        (ephys.ClusteringMethod, 'clustering_method'))
+        [args.pop(v) for v in ('insert_locations', 'clustering_methods') if v in args]
 
         contain_s3fp = True
-        q = sessions & args & insert_locations_restr.proj() & clustering_methods_restr.proj()
+        q = sessions & args & insert_locations_restr & clustering_methods_restr
     elif subpath == 'probe_insertions':
         exclude_attrs = ['-electrode_config_name']
         probe_insertions = (ephys.ProbeInsertion * ephys.ProbeInsertion.InsertionLocation
@@ -245,17 +251,15 @@ def post_process(ret):
              for k, v in i.items()} for i in ret]
 
 
-def make_GROUPCONCAT_restrictor(key2search, restriction_dicts, base_query, attr_name):
-    new_restriction_dicts = []
-    restrictions = []
-
-    for restriction_dict in restriction_dicts:
-        if key2search in restriction_dict:
-            attr_value = restriction_dict.pop(key2search)
-            restrictions.append({attr_name: attr_value})
-        new_restriction_dicts.append(restriction_dict)
-
-    return (base_query & restrictions).proj(), new_restriction_dicts
+def make_LIKE_restrictor(attr_name, restriction_dict, lookup_table=None):
+    if attr_name in restriction_dict:
+        attr_value = restriction_dict[attr_name]
+        if lookup_table is not None:
+            tbl, lookup_attr = lookup_table
+            if not (tbl & {lookup_attr: attr_value}):
+                return {}
+            return f'{attr_name} LIKE "%{attr_value}%"'
+    return {}
 
 # --------------------------------
 
