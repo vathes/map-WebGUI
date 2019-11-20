@@ -53,6 +53,8 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   showController = false;
 
+  color_data_adjusted;
+
   private cellListSubscription: Subscription;
   private rasterListSubscription: Subscription;
   private psthListSubscription: Subscription;
@@ -82,6 +84,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     this.cellListService.retrieveCellList(this.sessionInfo);
     this.cellListSubscription = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
+        console.log('logging retrieved cell list data: ', cellListData);
         if (Object.entries(cellListData).length > 0) {
           this.cells = cellListData;
           this.cellOnFocus = this.cells[2];
@@ -91,16 +94,26 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           const size_data = [];
           const color_data = [];
           for (let entry of Object.values(cellListData)) {
-            id_data.push(entry['cluster_id']);
-            size_data.push(entry['channel_id']);
-            y_data.push(entry['cluster_depth']);
-            x_data.push(entry['cluster_amp']);
-            color_data.push(entry['cluster_id']);
+            id_data.push(entry['unit']);
+            size_data.push(entry['unit_amp']);
+            y_data.push(entry['unit_posy']);
+            x_data.push(entry['unit_posx']);
+            color_data.push(entry['unit_depth']);
           }
-          // console.log('x_data is: ', x_data);
-          // console.log('y_data is: ', y_data);
-          // console.log('color_data is: ', color_data);
-          // console.log('size_data is: ', size_data);
+          console.log('x_data is: ', x_data);
+          console.log('y_data is: ', y_data);
+          console.log('color_data is: ', color_data);
+          console.log('size_data is: ', size_data);
+          console.log('max of color is: ', Math.max(...color_data));
+          console.log('min of color is: ', Math.min(...color_data));
+          let size_data_adjusted = size_data.map(function(el) {
+            return 5 + 15 * el/Math.max(...size_data)
+          });
+
+          this.color_data_adjusted = color_data.map(function(elem) {
+            return `rgba(${255 * Math.abs(elem)/Math.abs(Math.min(...color_data))}, 125, ${255 * Math.abs(Math.max(...color_data))/Math.abs(elem)}, 0.5)`
+          });
+          console.log('adjusted color data:', this.color_data_adjusted);
           this.plot_data = [{
             x: x_data,
             y: y_data,
@@ -108,21 +121,23 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             text: id_data,
             mode: 'markers',
             marker: {
-              size: 15,
-              color: 'rgba(255, 255, 255, 0.2',
+              size: size_data_adjusted,
+              color: 'rgba(255, 255, 255, 0.2)',
               line: {
-                color: 'rgba(132, 0, 0, 0.5)',
+                color: this.color_data_adjusted,
+                // color: 'rgb(124, 252, 0)',
                 width: 2
-              }
+              },
+              // colorscale: 'Bluered',
             }
           }];
 
           this.plot_layout = {
             yaxis: {
-              title: 'cluster depth (µm)'
+              title: 'Unit y position'
             },
             xaxis: {
-              title: 'cluster amp (µV)'
+              title: 'Unit x position'
             },
             hovermode: 'closest'
           };
@@ -297,12 +312,12 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           if (this.clickedClusterId === i) {
             markerColors.push('rgba(0, 0, 0, 1)'); // black
           } else {
-            markerColors.push('rgba(132, 0, 0, 0.5)'); // regular red
+            markerColors.push(this.color_data_adjusted[i]); 
           }
         }
       } else {
         for (let i = 0; i < this.plot_data[0]['x'].length; i++) {
-          markerColors.push('rgba(132, 0, 0, 0.5)'); // regular red
+          markerColors.push(this.color_data_adjusted[i]);
         }
       }
       this.plot_data[0]['marker']['line']['color'] = markerColors;

@@ -24,14 +24,14 @@ export class CellListService {
   constructor(private http: HttpClient) { }
 
   retrieveCellList(sessionInfo) {
-    const mouse_id = sessionInfo['subject_uuid'];
-    const session_time = sessionInfo['session_start_time'];
+    const mouse_id = sessionInfo['subject_id'];
+    const session_id = sessionInfo['session'];
     console.log('retrieving for..');
-    console.log('mouse_id: ', mouse_id);
-    console.log('session_time: ', session_time);
-    this.http.post(BACKEND_API_URL + `/plot/cluster`, {
-      'subject_uuid': mouse_id,
-      'session_start_time': session_time
+    console.log('subject_id: ', mouse_id);
+    console.log('session: ', session_id);
+    this.http.post(BACKEND_API_URL + `/plot/units`, {
+      'subject_id': mouse_id,
+      'session': session_id
     })
       .subscribe(
         (sessionCellData) => {

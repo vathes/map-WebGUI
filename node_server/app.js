@@ -265,6 +265,25 @@ app.post('/plot/dateReactionTimeTrialNumberPlot', checkAuth, (req, res) => {
     })
 })
 
+app.post('/plot/probeInsertions', checkAuth, (req, res) => {
+    console.log('requesting for probe insertions');
+    request.post(flask_backend + '/v0/_q/probe_insertions', { form: req.body }, function (error, httpResponse, body) {
+        if (error) {
+            console.error('error: ', error);
+        }
+        res.send(body);
+    })
+})
+
+app.post('/plot/units', checkAuth, (req, res) => {
+    request.post(flask_backend + '/v0/_q/units', { form: req.body }, function (error, httpResponse, body) {
+        if (error) {
+            console.error('error: ', error);
+        }
+        res.send(body);
+    })
+})
+
 app.post('/plot/cluster', checkAuth, (req, res) => {
     const timeX = new Date()
     console.log('requesting cluster list: ', timeX);
