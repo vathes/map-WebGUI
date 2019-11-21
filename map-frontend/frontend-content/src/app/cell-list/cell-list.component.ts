@@ -18,11 +18,11 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   // d3 = Plotly.d3;
   cells: any;
   session: any;
-  clickedClusterId: number;
+  clickedUnitId: number;
+  cellsByProbeIns = [];
   plot_data;
   plot_layout;
   plot_config;
-  cellOnFocus;
 
   raster_data = [];
   raster_layout = [];
@@ -38,11 +38,8 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   psthPlotList;
   psthTemplates = [];
 
-  testPlotData;
-  testPlotLayout;
-
   targetClusterRowInfo = [];
-  targetClusterId;
+  targetUnitId;
   targetClusterDepth;
   targetClusterAmp;
   targetProbeIndex;
@@ -54,6 +51,12 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   showController = false;
 
   color_data_adjusted;
+  size_data_adjusted;
+
+  probeInsertions = [];
+
+  unitBehaviorLoading = true;
+  unitPsthLoading = true;
 
   private cellListSubscription: Subscription;
   private rasterListSubscription: Subscription;
@@ -72,48 +75,63 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     }
   }
   @HostListener('window:scroll', ['$event']) onWindowScroll(event) {
-    if (window.pageYOffset > 640) {
+    // console.log('logging scroll event - ', event);
+    if (window.pageYOffset > 2000) {
       this.showController = true;
     } else {
       this.showController = false;
     }
   }
   ngOnInit() {
+    console.log('window height: ', window.innerHeight);
+    console.log('window screen height: ', window.screen.height);
     // const element = this.el_nav.nativeElement;
     this.session = this.sessionInfo;
+    let probeCount = 0
+    while (probeCount < this.sessionInfo['probe_count']) {
+      this.probeInsertions.push(probeCount + 1);
+      probeCount++;
+    }
     this.cellListService.retrieveCellList(this.sessionInfo);
     this.cellListSubscription = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
         console.log('logging retrieved cell list data: ', cellListData);
         if (Object.entries(cellListData).length > 0) {
           this.cells = cellListData;
-          this.cellOnFocus = this.cells[2];
           const x_data = [];
           const y_data = [];
           const id_data = [];
           const size_data = [];
           const color_data = [];
+          this.cellsByProbeIns = [];
           for (let entry of Object.values(cellListData)) {
-            id_data.push(entry['unit']);
-            size_data.push(entry['unit_amp']);
-            y_data.push(entry['unit_posy']);
-            x_data.push(entry['unit_posx']);
-            color_data.push(entry['unit_depth']);
+            if (entry['insertion_number'] == 1) {
+              id_data.push(entry['unit']);
+              size_data.push(entry['unit_amp']);
+              y_data.push(entry['unit_posy']);
+              x_data.push(entry['unit_posx']);
+              color_data.push(entry['unit_depth']);
+              this.cellsByProbeIns.push(entry);
+            }
           }
-          console.log('x_data is: ', x_data);
-          console.log('y_data is: ', y_data);
-          console.log('color_data is: ', color_data);
-          console.log('size_data is: ', size_data);
-          console.log('max of color is: ', Math.max(...color_data));
-          console.log('min of color is: ', Math.min(...color_data));
-          let size_data_adjusted = size_data.map(function(el) {
+          // console.log('x_data is: ', x_data);
+          // console.log('y_data is: ', y_data);
+          console.log('id_data is: ', id_data)
+          // console.log('color_data is: ', color_data);
+          // console.log('size_data is: ', size_data);
+          // console.log('max of color is: ', Math.max(...color_data));
+          // console.log('min of color is: ', Math.min(...color_data));
+          console.log('cellByProbeIns is: ', this.cellsByProbeIns);
+          this.size_data_adjusted = size_data.map(function(el) {
             return 5 + 15 * el/Math.max(...size_data)
           });
 
           this.color_data_adjusted = color_data.map(function(elem) {
             return `rgba(${255 * Math.abs(elem)/Math.abs(Math.min(...color_data))}, 125, ${255 * Math.abs(Math.max(...color_data))/Math.abs(elem)}, 0.5)`
           });
-          console.log('adjusted color data:', this.color_data_adjusted);
+          this.targetUnitId = 1;
+          this.clickedUnitId = 1;
+          // console.log('adjusted color data:', this.color_data_adjusted);
           this.plot_data = [{
             x: x_data,
             y: y_data,
@@ -121,23 +139,21 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             text: id_data,
             mode: 'markers',
             marker: {
-              size: size_data_adjusted,
+              size: this.size_data_adjusted,
               color: 'rgba(255, 255, 255, 0.2)',
               line: {
                 color: this.color_data_adjusted,
-                // color: 'rgb(124, 252, 0)',
                 width: 2
               },
-              // colorscale: 'Bluered',
             }
           }];
 
           this.plot_layout = {
             yaxis: {
-              title: 'Unit y position'
+              title: 'Unit y position (µm)'
             },
             xaxis: {
-              title: 'Unit x position'
+              title: 'Unit x position (µm)'
             },
             hovermode: 'closest'
           };
@@ -149,12 +165,14 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             modeBarButtonsToRemove: ['select2d', 'lasso2d', 'hoverClosestCartesian',
                             'hoverCompareCartesian', 'toImage', 'toggleSpikelines'],
           };
+          this.unitBehaviorLoading = false;
+          this.unitPsthLoading = false;
         }
       });
     // initial setting for the raster viewer
     this.eventType = 'feedback';
     this.sortType = 'trial_id';
-    this.targetClusterId = 0;
+    this.targetUnitId = 0;
     this.probeIndex = 0;
     const queryInfo = {};
     queryInfo['subject_uuid'] = this.sessionInfo['subject_uuid'];
@@ -185,7 +203,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
               const dataCopy = Object.assign([], currentTemplate['data']);
               dataCopy[0] = {
                 y: raster['plot_ylim'],
-                // y: [0, 147.2],
                 x: ['-1', '1'],
                 type: 'scatter',
                 showlegend: false,
@@ -304,12 +321,12 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   ngDoCheck() {
     // console.log('do check ran');
-    // console.log('this.clicked cluster id: ', this.clickedClusterId);
+    // console.log('this.clicked cluster id: ', this.clickedUnitId);
     const markerColors = [];
     if (this.plot_data) {
-      if (this.plot_data[0]['x'] && this.clickedClusterId > -1) {
+      if (this.plot_data[0]['x'] && this.clickedUnitId > -1) {
         for (let i = 0; i < this.plot_data[0]['x'].length; i++) {
-          if (this.clickedClusterId === i) {
+          if (this.clickedUnitId - 1 === i) {
             markerColors.push('rgba(0, 0, 0, 1)'); // black
           } else {
             markerColors.push(this.color_data_adjusted[i]); 
@@ -324,13 +341,16 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       // console.log('markerColors: ', markerColors);
     }
 
+    if (this.targetUnitId) {
+      this.cells
+    }
     // const psthQueryInfo = {};
     // psthQueryInfo['subject_uuid'] = this.sessionInfo['subject_uuid'];
     // psthQueryInfo['session_start_time'] = this.sessionInfo['session_start_time'];
     // psthQueryInfo['probe_idx'] = this.probeIndex;
     // psthQueryInfo['cluster_revision'] = '0';
     // psthQueryInfo['event'] = this.eventType;
-    // psthQueryInfo['cluster_id'] = this.clickedClusterId;
+    // psthQueryInfo['unit_id'] = this.clickedUnitId;
     // this.cellListService.retrievePSTHList(psthQueryInfo);
     // this.psthListSubscription = this.cellListService.getPSTHListLoadedListener()
     //   .subscribe((psthPlot) => {
@@ -354,17 +374,73 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     }
   }
 
+  probe_selected(probeInsNum) {
+    this.unitBehaviorLoading = true;
+    this.unitPsthLoading = true;
+    console.log('probe insertions selected: ', probeInsNum);
+    const x_data = [];
+    const y_data = [];
+    const id_data = [];
+    const size_data = [];
+    const color_data = [];
+    this.plot_data = [];
+    this.cellsByProbeIns = [];
+    for (let entry of Object.values(this.cells)) {
+      if (entry['insertion_number'] == probeInsNum) {
+        id_data.push(entry['unit']);
+        size_data.push(entry['unit_amp']);
+        y_data.push(entry['unit_posy']);
+        x_data.push(entry['unit_posx']);
+        color_data.push(entry['unit_depth']);
+        this.cellsByProbeIns.push(entry);
+      }
+    }
+    console.log('cellByProbeIns is: ', this.cellsByProbeIns);
+
+    this.size_data_adjusted = size_data.map(function (el) {
+      return 5 + 15 * el / Math.max(...size_data)
+    });
+
+    this.color_data_adjusted = color_data.map(function (elem) {
+      return `rgba(${255 * Math.abs(elem) / Math.abs(Math.min(...color_data))}, 125, ${255 * Math.abs(Math.max(...color_data)) / Math.abs(elem)}, 0.5)`
+    });
+    this.plot_data = [{
+      x: x_data,
+      y: y_data,
+      customdata: id_data,
+      text: id_data,
+      mode: 'markers',
+      marker: {
+        size: this.size_data_adjusted,
+        color: 'rgba(255, 255, 255, 0.2)',
+        line: {
+          color: this.color_data_adjusted,
+          width: 2
+        }
+      }
+    }];
+    this.unitBehaviorLoading = false;
+    this.unitPsthLoading = false;
+    this.targetUnitId = 1;
+    this.clickedUnitId = 1;
+  }
+
   clusterSelectedPlot(data) {
     const element = this.el_nav.nativeElement.children[1];
     console.log('cluster selected from cluster plot!');
     console.log(element);
+    console.log('data is: ', data);
     const rows = element.querySelectorAll('tr');
-    console.log('printing rows');
-    console.log(rows);
-    this.targetClusterId = this.clickedClusterId;
+    // console.log('printing rows');
+    // console.log(rows);
+    // this.targetUnitId = this.clickedUnitId;
+    console.log('clicked unitId is: ', this.clickedUnitId);
     if (data['points'] && data['points'][0]['customdata']) {
-      this.clickedClusterId = data['points'][0]['customdata'];
-      rows[this.clickedClusterId].scrollIntoView({
+      console.log('data[points][0] is: ', data['points'][0]);
+      this.clickedUnitId = data['points'][0]['customdata'];
+      this.targetUnitId = this.clickedUnitId;
+      console.log('clicked unitId according to data is: ', data['points'][0]['customdata']);
+      rows[this.clickedUnitId].scrollIntoView({
                                       behavior: 'smooth',
                                       block: 'center'});
     }
@@ -374,7 +450,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     // psthQueryInfo['probe_idx'] = this.probeIndex;
     // psthQueryInfo['cluster_revision'] = '0';
     // psthQueryInfo['event'] = this.eventType;
-    // psthQueryInfo['cluster_id'] = this.clickedClusterId;
+    // psthQueryInfo['unit_id'] = this.clickedUnitId;
     // this.cellListService.retrievePSTHList(psthQueryInfo);
     // this.psthListSubscription = this.cellListService.getPSTHListLoadedListener()
     //   .subscribe((psthPlot) => {
@@ -385,61 +461,34 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   }
 
-  clusterSelectedTable(cluster_id) {
+  clusterSelectedTable(unit_id) {
     console.log('cluster selected from table!');
     const element = this.el_nav.nativeElement.children[1];
-    console.log(cluster_id);
+    console.log(unit_id);
     const rows = element.querySelectorAll('tr');
     console.log('printing rows');
     console.log(rows);
-    this.clickedClusterId = cluster_id;
-    this.targetClusterId = this.clickedClusterId;
-    // const psthQueryInfo = {};
-    // psthQueryInfo['subject_uuid'] = this.sessionInfo['subject_uuid'];
-    // psthQueryInfo['session_start_time'] = this.sessionInfo['session_start_time'];
-    // psthQueryInfo['probe_idx'] = this.probeIndex;
-    // psthQueryInfo['cluster_revision'] = '0';
-    // psthQueryInfo['event'] = this.eventType;
-    // psthQueryInfo['cluster_id'] = cluster_id;
-    // this.cellListService.retrievePSTHList(psthQueryInfo);
-    // this.psthListSubscription = this.cellListService.getPSTHListLoadedListener()
-    //   .subscribe((psthPlot) => {
-    //     this.psth_data = psthPlot[0]['plotting_data']['data'];
-    //     this.psth_layout = psthPlot[0]['plotting_data']['layout'];
-    //     this.psth_config = {};
-    //   });
+    this.clickedUnitId = unit_id;
+    this.targetUnitId = this.clickedUnitId;
+ 
   }
 
   navigate_cell_plots(event, direction) {
     console.log('going', direction, 'the list of cells');
     if (direction === 'up') {
       console.log('arrow upped!');
-      if (this.clickedClusterId - 1 > -1) {
-        this.clickedClusterId -= 1;
-        this.targetClusterId = this.clickedClusterId;
+      if (this.clickedUnitId - 1 > -1) {
+        this.clickedUnitId -= 1;
+        this.targetUnitId = this.clickedUnitId;
       }
     }
     if (direction === 'down') {
       console.log('arrow down!');
-      if (this.clickedClusterId + 1 < this.plot_data[0]['x'].length + 1) {
-        this.clickedClusterId += 1;
-        this.targetClusterId = this.clickedClusterId;
+      if (this.clickedUnitId + 1 < this.plot_data[0]['x'].length + 1) {
+        this.clickedUnitId += 1;
+        this.targetUnitId = this.clickedUnitId;
       }
     }
-    // const psthQueryInfo = {};
-    // psthQueryInfo['subject_uuid'] = this.sessionInfo['subject_uuid'];
-    // psthQueryInfo['session_start_time'] = this.sessionInfo['session_start_time'];
-    // psthQueryInfo['probe_idx'] = this.probeIndex;
-    // psthQueryInfo['cluster_revision'] = '0';
-    // psthQueryInfo['event'] = this.eventType;
-    // psthQueryInfo['cluster_id'] = this.clickedClusterId;
-    // this.cellListService.retrievePSTHList(psthQueryInfo);
-    // this.psthListSubscription = this.cellListService.getPSTHListLoadedListener()
-    //   .subscribe((psthPlot) => {
-    //     this.psth_data = psthPlot[0]['plotting_data']['data'];
-    //     this.psth_layout = psthPlot[0]['plotting_data']['layout'];
-    //     this.psth_config = {};
-    //   });
   }
 
   order_by_event(eventType) {
@@ -468,7 +517,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           const subj_id = raster['subject_uuid'];
           const event = raster['event'];
           const sorting = raster['sort_by'];
-          const cluster_id = raster['cluster_id'];
+          const unit_id = raster['unit_id'];
 
           this.raster_data.push(this.rasterTemplates[raster['template_idx']]['data']);
           // this.raster_data.push(raster['plotting_data']['data']);
@@ -553,7 +602,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           const subj_id = raster['subject_uuid'];
           const event = raster['event'];
           const sorting = raster['sort_by'];
-          const cluster_id = raster['cluster_id'];
+          const unit_id = raster['unit_id'];
 
           this.raster_data.push(this.rasterTemplates[raster['template_idx']]['data']);
           // this.raster_data.push(raster['plotting_data']['data']);
@@ -575,7 +624,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           // const layout = raster['plotting_data']['layout'];
           // /raster/efa5e878-6d7a-47ef-8ec8-ac7d6272cf22/2019-05-07T17:22:20/0/0/feedback/feedback - response/4.png
           // layout['images'][0]['source'] =
-            // BACKEND_URL + `/raster/${subj_id}/${sstime}/${p_idx}/${c_rev}/${event}/${sorting}/${cluster_id}.png`;
+            // BACKEND_URL + `/raster/${subj_id}/${sstime}/${p_idx}/${c_rev}/${event}/${sorting}/${unit_id}.png`;
           // 'http://localhost:3333/plotImg/raster/efa5e878-6d7a-47ef-8ec8-ac7d6272cf22/2019-05-07T17:22:20/response/trial_id.0.png';
           // this.raster_layout.push(layout);
           this.raster_config.push(raster['plotting_data']['config']);
