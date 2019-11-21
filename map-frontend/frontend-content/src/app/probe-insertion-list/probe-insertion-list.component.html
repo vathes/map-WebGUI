@@ -1,7 +1,9 @@
 <div *ngIf="probeInsertions">
 <h5>Probe Insertions</h5>
-<div *ngFor="let probeIns of probeInsertions">
-  <app-probe-insertion [probeInsertionInfo]="probeIns"></app-probe-insertion>
+<div class="probe-insertion-list-container">
+  <div *ngFor="let probeIns of probeInsertions" [class]="probeInsertions.length > 2 ? probeInsertions.length > 3 ? 'quarter-card' : 'one-third-card': 'half-card'">
+    <app-probe-insertion [probeInsertionInfo]="probeIns"></app-probe-insertion>
+  </div>
 </div>
 
 </div>

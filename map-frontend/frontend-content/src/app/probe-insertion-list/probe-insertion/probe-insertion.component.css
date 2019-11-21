@@ -1,5 +1,4 @@
 .probe-insertion-card {
-    width: 45vw;
     border: 1px solid black;
     margin: 4px;
 }
@@ -13,8 +12,9 @@
 }
 
 .probe-insertion-info-table table {
-    width: 90%;
+    width: 98%;
     margin-left: 1%;
+    font-size: 82%;
 }
 
 h5 {
@@ -23,13 +23,15 @@ h5 {
 
 .probe-insertion-plots {
     width: 100%;
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
 }
 
 .probe-insertion-plot-container {
-    float: left;
-    margin: 2px 6px 2px 2px;
-    width: 45%;
+    /* float: left; */
+    
+    margin: 2px 4px;
+    width: 96%;
     text-align: center;
     border: 1px solid grey;
 }
