@@ -18,7 +18,6 @@
             <th>Unit Amp</th>
             <!-- <th>x position</th> -->
             <!-- <th>y position</th> -->
-            <!-- <th>Details</th> -->
           </thead>
           <tbody>
             <tr *ngFor="let cl of cellsByProbeIns" (click)="clusterSelectedTable(cl.unit)" [ngStyle]="{'backgroundColor': cl?.unit == clickedUnitId ? '#ffe5e5' : ''}">
@@ -28,18 +27,6 @@
               <td>{{ cl.unit_amp }}</td>
               <!-- <td>{{ cl.unit_posx }}</td> -->
               <!-- <td>{{ cl.unit_posy }}</td> -->
-              <!-- <td>
-                <span class="oi oi-external-link" routerLink="/cell/{{cl?.subject_id}}/{{cl?.session}}/{{cl?.unit}}">
-                  <div hidden>
-                    <td>{{ cl.unit }}</td>
-                    <td>{{ cl.insertion_number }}</td>
-                    <td>{{ cl.unit_depth }}</td>
-                    <td>{{ cl.unit_amp }}</td>
-                    <td>{{ cl.unit_posx }}</td>
-                    <td>{{ cl.unit_posy }}</td>
-                  </div>
-                </span>
-              </td> -->
             </tr>
           </tbody>
         </table>
