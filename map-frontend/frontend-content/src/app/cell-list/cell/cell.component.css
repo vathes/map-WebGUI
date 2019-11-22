@@ -1,12 +1,26 @@
-.cluster-container {
+.units-viewer-container {
     padding-top: 20px;
 }
 
-.cluster-info-table {
+.info-table {
     font-size: 85%;
     margin-left: 1%;
 }
 
-.cluster-info-table table {
+.info-table table {
     margin-left: 1%;
+}
+
+table.unit-detail {
+    font-size: 85%;
+}
+
+.unit-behavior-plot {
+    width: 100%;
+    /* width: 450px; */
+}
+
+.unit-psth-plot {
+    width: 100%;
+    /* width: 420px; */
 }

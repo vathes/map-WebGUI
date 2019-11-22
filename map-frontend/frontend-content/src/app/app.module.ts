@@ -52,8 +52,6 @@ import { SummaryPlotsComponent } from './daily-summary/summary-plots/summary-plo
 import { AnimatedPsychCurvePlotComponent } from './mouse-list/mouse/animated-psych-curve-plot/animated-psych-curve-plot.component';
 import { SessionRTCPlotComponent } from './session-list/session/session-rtc-plot/session-rtc-plot.component';
 import { SessionRTTNPlotComponent } from './session-list/session/session-rttn-plot/session-rttn-plot.component';
-import { RasterPlotsComponent } from './cell-list/cell/raster-plots/raster-plots.component';
-import { PsthPlotsComponent } from './cell-list/cell/psth-plots/psth-plots.component';
 import { ProbeInsertionListComponent } from './probe-insertion-list/probe-insertion-list.component';
 import { ProbeInsertionComponent } from './probe-insertion-list/probe-insertion/probe-insertion.component';
 
@@ -77,15 +75,15 @@ const appRoutes: Routes = [
       component: MouseListComponent
   },
   {
-    path: 'cell',
+    path: 'probe',
     canActivate: [AuthGuard],
     canActivateChild: [AuthGuard],
     children: [{
       path: ':mouseID',
       children: [{
-        path: ':sessionTime',
+        path: ':sessionID',
         children: [{
-          path: ':clusterID',
+          path: ':insertionNum',
           component: CellComponent
         }]
       }]
@@ -138,8 +136,6 @@ const appRoutes: Routes = [
     SessionRTCPlotComponent,
     SessionRTTNPlotComponent,
     SessionPlotDialog,
-    RasterPlotsComponent,
-    PsthPlotsComponent,
     ProbeInsertionListComponent,
     ProbeInsertionComponent
   ],

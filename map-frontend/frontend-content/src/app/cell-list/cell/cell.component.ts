@@ -11,9 +11,9 @@ import { CellListService } from '../cell-list.service';
 })
 export class CellComponent implements OnInit, OnDestroy {
   public mouse_id: string;
-  public session_time: string;
-  public cluster_id: string;
-  cell: any;
+  public session_id: string;
+  public insertion_num: string;
+  units: any;
   selectedEvent: string;
 
   private cellSubscription: Subscription;
@@ -22,17 +22,18 @@ export class CellComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.mouse_id = this.route.snapshot.paramMap.get('mouseID');
-    this.session_time = this.route.snapshot.paramMap.get('sessionTime');
-    this.cluster_id = this.route.snapshot.paramMap.get('clusterID');
+    this.session_id = this.route.snapshot.paramMap.get('sessionID');
+    this.insertion_num = this.route.snapshot.paramMap.get('insertionNum');
 
-    this.cellListService.retrieveCellList({'subject_uuid': this.mouse_id,
-                                           'session_start_time': this.session_time,
-                                           'cluster_id': this.cluster_id});
+    this.cellListService.retrieveCellList({'subject_id': this.mouse_id,
+                                           'session': this.session_id,
+                                           'insertion_number': this.insertion_num});
     this.cellSubscription = this.cellListService.getCellListLoadedListener()
-      .subscribe((cellData) => {
-        if (Object.entries(cellData).length > 0) {
-          // Double check with backend to make sure there is only 1 result with above request
-          this.cell = cellData[0];
+      .subscribe((unitsData) => {
+        if (Object.entries(unitsData).length > 0) {
+          console.log('cell data retrieved for session: ', this.session_id, ', insertion: ', this.insertion_num)
+          console.log(unitsData);
+          this.units = unitsData;
         }
       });
   }
@@ -43,10 +44,6 @@ export class CellComponent implements OnInit, OnDestroy {
     }
   }
 
-  rasterEventSelected(event) {
-    console.log('raster plot event selected!');
-    console.log(event);
-    this.selectedEvent = event;
-  }
+
 
 }

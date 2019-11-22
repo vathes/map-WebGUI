@@ -1,64 +1,52 @@
-<div class="cluster-container">
-  <h5>Cluster Info</h5>
-  <div class="row cluster-info-table">
-    <table class="table col-lg-6 col-sm-6 col-xs-12 table-striped table-bordered table-sm">
-      <tr>
-        <th>Session Start Time</th>
-        <td>{{ cell?.session_start_time.split("T")[0] }} {{ cell?.session_start_time.split("T")[1] }}</td>
-      </tr>
-      <tr>
-        <th>Subject UUID</th>
-        <td>{{ cell?.subject_uuid }}</td>
-      </tr>
-      <tr>
-        <th>Cluster ID</th>
-        <td>{{ cell?.cluster_id }}</td>
-      </tr>
-      <tr>
-        <th>Probe Index</th>
-        <td>{{ cell?.probe_idx }}</td>
-      </tr>
-      <tr>
-        <th>Cluster Revision</th>
-        <td>{{ cell?.cluster_revision }}</td>
-      </tr>
-      <tr>
-        <th>Probe Model Name</th>
-        <td>{{ cell?.probe_model_name }}</td>
-      </tr>
-    </table>
+<div class="units-viewer-container">
+  <h5>Units View</h5>
+  <div *ngIf="units" class="row info-table">
     <table class="table col-lg-4 col-sm-6 col-xs-12 table-striped table-bordered table-sm">
       <tr>
-        <th>Channel Group ID</th>
-        <td>{{ cell?.channel_group_id }}</td>
+        <th>Subject ID</th>
+        <td>{{ units[0]?.subject_id }}</td>
       </tr>
       <tr>
-        <th>Channel ID</th>
-        <td>{{ cell?.channel_id }}</td>
+        <th>Session</th>
+        <td>{{ units[0]?.session }}</td>
       </tr>
       <tr>
-        <th>Cluster Depth</th>
-        <td>{{ cell?.cluster_depth }}</td>
+        <th>Probe Insertion Number</th>
+        <td>{{ units[0]?.insertion_number }}</td>
       </tr>
       <tr>
-        <th>Cluster Annotation</th>
-        <td>{{ cell?.cluster_phy_annotation }}</td>
+        <th>Clustering Method</th>
+        <td>{{ units[0]?.clustering_method }}</td>
       </tr>
       <tr>
-        <th>Cluster Amp</th>
-        <td>{{ cell?.cluster_amp }}</td>
+        <th>Brain Location</th>
+        <td>{{ units[0]?.brain_location_name }}</td>
       </tr>
     </table>
   </div>
   <hr>
-  <h5>Plots</h5>
-  <div class="rasterPlotsSection" *ngIf="cell">
-    <h6>Raster Plot</h6>
-    <app-raster-plots [clusterInfo]="cell" (eventSelected)="rasterEventSelected($event)"></app-raster-plots>
-  </div>
-  <div class="psthPlotsSection" *ngIf="cell">
-    <h6>PSTH Plot</h6>
-    <app-psth-plots [clusterInfo]="cell" [selectedEvent]="selectedEvent"></app-psth-plots>
+  <div class="units-table">
+    <table *ngFor="let unit of units" class="table table-bordered table-sm">
+      <tr>
+        <td width="22%">
+          <table class="unit-detail table table-sm">
+            <tr><th>Unit #</th><td>{{ unit['unit'] }}</td></tr>
+            <tr><th>Quality</th><td>{{ unit['unit_quality'] }}</td></tr>
+            <tr><th>Electrode</th><td>{{ unit['electrode'] }}</td></tr>
+            <tr><th>Amp</th><td>{{ unit['unit_amp'] }}</td></tr>
+            <tr><th>Depth</th><td>{{ unit['unit_depth'] }}</td></tr>
+            <tr><th>Avg. Firing Rate</th><td>{{ unit['avg_firing_rate'] }}</td></tr>
+            <tr><th>ISI Violation</th><td>{{ unit['isi_violation'] }}</td></tr>
+            <tr><th>DV Location</th><td>{{ unit['dv_location'] }}</td></tr>
+            <tr><th>x Position</th><td>{{ unit['unit_posx'] }}</td></tr>
+            <tr><th>y Position</th><td>{{ unit['unit_posy'] }}</td></tr>
+            <tr><th>Unit Snr</th><td>{{ unit['unit_snr'] }}</td></tr>
+          </table>
+        </td>
+        <td width="38%"><img class="unit-behavior-plot" [src]="unit['unit_behavior']"></td>
+        <td width="32%"><img class="unit-psth-plot" [src]="unit['unit_psth']"></td>
+      </tr>
+    </table>
   </div>
 
 </div>
