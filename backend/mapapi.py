@@ -163,6 +163,13 @@ def handle_q(subpath, args, proj, **kwargs):
     '''
     app.logger.info("handle_q: subpath: '{}', args: {}".format(subpath, args))
 
+    # ---------- process the "args" ----------
+    if isinstance(args, list):
+      if len(args) == 1:
+        args = args[0]
+      else:
+        raise ValueError(f'args is a list of multiple dicts: {args}')
+
     contain_s3fp = False
     if subpath == 'sessionpage':
 
@@ -175,13 +182,6 @@ def handle_q(subpath, args, proj, **kwargs):
         sessions = sessions.aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
         sessions = sessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
         sessions = sessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction', keep_all_rows=True)
-
-        # ---------- process the "args" ----------
-        if isinstance(args, list):
-            if len(args) == 1:
-                args = args[0]
-            else:
-                raise ValueError(f'args is a list of multiple dicts: {args}')
 
         # handling special GROUPCONCAT attributes: `insert_locations` and `clustering_methods` in args
         insert_locations_restr = make_LIKE_restrictor('insert_locations', args,
@@ -214,6 +214,10 @@ def handle_q(subpath, args, proj, **kwargs):
 
         contain_s3fp = True
         q = units & args
+    elif subpath == 'project_probe_tracks':
+        args['project_name'] = 'MAP'
+        contain_s3fp = True
+        q = report.ProjectLevelProbeTrack.proj(tracks_plot_s3fp='tracks_plot') & args
     else:
         abort(404)
 
