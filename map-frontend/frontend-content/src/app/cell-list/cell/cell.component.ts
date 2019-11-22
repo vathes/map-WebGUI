@@ -33,12 +33,12 @@ export class CellComponent implements OnInit, OnDestroy {
                                            'insertion_number': this.insertion_num});
     this.cellSubscription = this.cellListService.getCellListLoadedListener()
       .subscribe((unitsData) => {
+        this.unitsLoading = false;
         if (Object.entries(unitsData).length > 0) {
           // console.log('cell data retrieved for session: ', this.session_id, ', insertion: ', this.insertion_num)
           // console.log(unitsData);
           this.units = unitsData;
-          this.unitsLoading = false;
-        }
+        } 
       });
   }
 

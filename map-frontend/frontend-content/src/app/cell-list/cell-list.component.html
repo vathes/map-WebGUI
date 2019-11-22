@@ -1,15 +1,12 @@
-<div *ngIf="cells">
-  <h3>Cells</h3>
-</div>
-<!-- <p>id: {{ clickedUnitId }}</p> -->
-<div class="probe-selection-area">
+<h3>Cells</h3>
+<div class="probe-selection-area" *ngIf="cells">
   <label for="insertion_number">Select Probe Insertion Number:  </label>
   <select name="insertion_number" (change)="probe_selected($event.target.value)">
     <option *ngFor="let probeIns of probeInsertions" [value]="probeIns" [selected]="probeIns == probeInsertions[0]">{{ probeIns }}</option>
   </select>
 </div>
 <div class="row">
-  <div class="units-nav-area">
+  <div class="units-nav-area" *ngIf="cells">
     <plotly-plot [data]="plot_data" [layout]="plot_layout" [config]="plot_config" (click)="clusterSelectedPlot($event)"></plotly-plot>
     <div class="plots-navigator" *ngIf="showController">
       <div *ngIf="cells" class="clusterListContainer">

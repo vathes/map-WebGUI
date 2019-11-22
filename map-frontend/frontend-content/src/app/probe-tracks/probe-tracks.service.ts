@@ -18,7 +18,7 @@ export class ProbeTracksService {
 
   retrieveprobeTracks() {
     // console.log('retrieving probe tracks');
-    this.http.post(BACKEND_API_URL + `/plot/probeTracks`)
+    this.http.post(BACKEND_API_URL + `/plot/probeTracks`, {})
       .subscribe(
         (probeTracksData) => {
           // console.log('retrieved Probe Tracks Data!: ', Object.entries(probeTracksData).length)
