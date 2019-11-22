@@ -9,49 +9,50 @@
   </select>
 </div>
 <div class="row">
-  <plotly-plot [data]="plot_data" [layout]="plot_layout" [config]="plot_config" (click)="clusterSelectedPlot($event)"></plotly-plot>
-  <div class="plots-navigator" *ngIf="showController">
-    <div *ngIf="cells" class="clusterListContainer">
-      <table class="table table-sm table-hover col-5 ml-auto clusterListTable" #navTable>
-        <thead class="thead-light">
-          <th>Unit</th>
-          <!-- <th>Probe Index</th> -->
-          <th>Unit Depth</th>
-          <th>Unit Amp</th>
-          <!-- <th>x position</th> -->
-          <!-- <th>y position</th> -->
-          <th>Details</th>
-        </thead>
-        <tbody>
-          <tr *ngFor="let cl of cells" (click)="clusterSelectedTable(cl.unit)" [ngStyle]="{'backgroundColor': cl?.unit == clickedUnitId ? '#ffe5e5' : ''}">
-            <td>{{ cl.unit }}</td>
-            <!-- <td>{{ cl.insertion_number }}</td> -->
-            <td>{{ cl.unit_depth }}</td>
-            <td>{{ cl.unit_amp }}</td>
-            <!-- <td>{{ cl.unit_posx }}</td> -->
-            <!-- <td>{{ cl.unit_posy }}</td> -->
-            <td>
-              <span class="oi oi-external-link" routerLink="/cell/{{cl?.subject_id}}/{{cl?.session}}/{{cl?.unit}}">
-                <div hidden>
-                  <td>{{ cl.unit }}</td>
-                  <td>{{ cl.insertion_number }}</td>
-                  <td>{{ cl.unit_depth }}</td>
-                  <td>{{ cl.unit_amp }}</td>
-                  <td>{{ cl.unit_posx }}</td>
-                  <td>{{ cl.unit_posy }}</td>
-                </div>
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="plots-navigator-buttons">
-      <h3><span class="oi oi-arrow-circle-top" (click)="navigate_cell_plots($event, 'up')"></span></h3>
-      <h3><span class="oi oi-arrow-circle-bottom" (click)="navigate_cell_plots($event, 'down')"></span></h3>
+  <div class="units-nav-area">
+    <plotly-plot [data]="plot_data" [layout]="plot_layout" [config]="plot_config" (click)="clusterSelectedPlot($event)"></plotly-plot>
+    <div class="plots-navigator" *ngIf="showController">
+      <div *ngIf="cells" class="clusterListContainer">
+        <table class="table table-sm table-hover col-5 ml-auto clusterListTable" #navTable>
+          <thead class="thead-light">
+            <th>Unit</th>
+            <!-- <th>Probe Index</th> -->
+            <th>Unit Depth</th>
+            <th>Unit Amp</th>
+            <!-- <th>x position</th> -->
+            <!-- <th>y position</th> -->
+            <!-- <th>Details</th> -->
+          </thead>
+          <tbody>
+            <tr *ngFor="let cl of cells" (click)="clusterSelectedTable(cl.unit)" [ngStyle]="{'backgroundColor': cl?.unit == clickedUnitId ? '#ffe5e5' : ''}">
+              <td>{{ cl.unit }}</td>
+              <!-- <td>{{ cl.insertion_number }}</td> -->
+              <td>{{ cl.unit_depth }}</td>
+              <td>{{ cl.unit_amp }}</td>
+              <!-- <td>{{ cl.unit_posx }}</td> -->
+              <!-- <td>{{ cl.unit_posy }}</td> -->
+              <!-- <td>
+                <span class="oi oi-external-link" routerLink="/cell/{{cl?.subject_id}}/{{cl?.session}}/{{cl?.unit}}">
+                  <div hidden>
+                    <td>{{ cl.unit }}</td>
+                    <td>{{ cl.insertion_number }}</td>
+                    <td>{{ cl.unit_depth }}</td>
+                    <td>{{ cl.unit_amp }}</td>
+                    <td>{{ cl.unit_posx }}</td>
+                    <td>{{ cl.unit_posy }}</td>
+                  </div>
+                </span>
+              </td> -->
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="plots-navigator-buttons">
+        <h3><span class="oi oi-arrow-circle-top" (click)="navigate_cell_plots($event, 'up')"></span></h3>
+        <h3><span class="oi oi-arrow-circle-bottom" (click)="navigate_cell_plots($event, 'down')"></span></h3>
+      </div>
     </div>
   </div>
-
   <div class="unit-plots-area">
     Selected Unit Id: {{ targetUnitId }}
     <div class="unit-plots-subarea" *ngIf="cellsByProbeIns">

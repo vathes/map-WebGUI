@@ -147,13 +147,14 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             customdata: id_data,
             text: id_data,
             mode: 'markers',
+            name: 'marker size: avg. firing rate',
             marker: {
               size: this.size_data_adjusted,
               color: 'rgba(255, 255, 255, 0.2)',
               line: {
                 color: this.color_data_adjusted,
                 // color: this.test_color_data,
-                width: 2
+                width: 2,
               },
               colorbar: {
                 thickness: 10,
@@ -167,13 +168,21 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           }];
 
           this.plot_layout = {
+            autosize: false,
+            width: 350,
+            height: 600,
             yaxis: {
               title: 'Unit Depth (µm)'
             },
             xaxis: {
               title: 'Unit x position (µm)'
             },
-            hovermode: 'closest'
+            hovermode: 'closest',
+            showlegend: true,
+            legend: {
+              x: 0,
+              y: -0.2
+            }
           };
 
           this.plot_config = {

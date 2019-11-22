@@ -13,13 +13,19 @@ td span.oi {
     position: relative;
 }
 
+.units-nav-area {
+    display: inline-flex;
+    flex-direction: row;
+}
+
 .plots-navigator {
-    position: fixed;
+    /* position: fixed; */
     z-index: 999;
     display: inline-flex;
     flex-direction: row;
     right: 0;
-    bottom: 200px;
+    margin-top: 120px;
+    margin-left: 30px;
 }
 
 .clusterListContainer {
