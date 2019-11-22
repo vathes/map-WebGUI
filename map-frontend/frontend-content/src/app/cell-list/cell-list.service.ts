@@ -24,14 +24,10 @@ export class CellListService {
   constructor(private http: HttpClient) { }
 
   retrieveCellList(sessionInfo) {
-    console.log('retrieving for..');
-    console.log('subject_id: ', sessionInfo['subject_id']);
-    console.log('session: ', sessionInfo['session']);
-    console.log('insertion: ', sessionInfo['insertion_number']);
     this.http.post(BACKEND_API_URL + `/plot/units`, sessionInfo)
       .subscribe(
         (sessionCellData) => {
-          console.log('retrieved cell Data!: ', Object.entries(sessionCellData).length)
+          // console.log('retrieved cell Data!: ', Object.entries(sessionCellData).length)
           this.cellList = sessionCellData;
           this.cellListLoaded.next(this.cellList);
         },

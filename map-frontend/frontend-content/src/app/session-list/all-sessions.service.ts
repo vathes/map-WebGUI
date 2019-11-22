@@ -38,8 +38,6 @@ export class AllSessionsService {
       .subscribe(
         (filteredSessionsData) => {
           this.allSessionMenu = filteredSessionsData;
-          console.log('retrieved session menu data are: ');
-          console.log(this.allSessionMenu);
           this.allSessionMenuLoaded.next(this.allSessionMenu);
         },
         (err: any) => {
@@ -72,8 +70,6 @@ export class AllSessionsService {
       .subscribe(
         (filteredSessionsData) => {
           this.retrievedSessions = filteredSessionsData;
-          console.log('retrievedSessions data are: ');
-          console.log(this.retrievedSessions);
           this.newSessionsLoaded.next(this.retrievedSessions);
         },
         (err: any) => {

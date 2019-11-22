@@ -2,6 +2,15 @@
     padding-top: 20px;
 }
 
+.units-viewer-header {
+    display: flex;
+    flex-direction: column;
+}
+
+.units-loading img {
+    width: 120px;
+}
+
 .info-table {
     font-size: 85%;
     margin-left: 1%;
@@ -11,16 +20,25 @@
     margin-left: 1%;
 }
 
-table.unit-detail {
-    font-size: 85%;
+tr.unit-row td{
+    text-align: center;
 }
 
+table.unit-detail {
+    font-size: 0.65rem;
+}
+
+
 .unit-behavior-plot {
-    width: 100%;
+    /* width: 100%; */
     /* width: 450px; */
+    height: 18vw;
+    width: auto;
 }
 
 .unit-psth-plot {
-    width: 100%;
+    /* width: 100%; */
     /* width: 420px; */
+    height: 18vw;
+    width: auto;
 }
