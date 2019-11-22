@@ -24,15 +24,11 @@ export class CellListService {
   constructor(private http: HttpClient) { }
 
   retrieveCellList(sessionInfo) {
-    const mouse_id = sessionInfo['subject_uuid'];
-    const session_time = sessionInfo['session_start_time'];
     console.log('retrieving for..');
-    console.log('mouse_id: ', mouse_id);
-    console.log('session_time: ', session_time);
-    this.http.post(BACKEND_API_URL + `/plot/cluster`, {
-      'subject_uuid': mouse_id,
-      'session_start_time': session_time
-    })
+    console.log('subject_id: ', sessionInfo['subject_id']);
+    console.log('session: ', sessionInfo['session']);
+    console.log('insertion: ', sessionInfo['insertion_number']);
+    this.http.post(BACKEND_API_URL + `/plot/units`, sessionInfo)
       .subscribe(
         (sessionCellData) => {
           console.log('retrieved cell Data!: ', Object.entries(sessionCellData).length)
@@ -44,6 +40,8 @@ export class CellListService {
           console.error(err);
         }
       );
+
+
   }
 
   retrieveRasterList(queryInfo) {

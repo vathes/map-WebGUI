@@ -30,13 +30,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AuthGuard } from './auth/auth-guard.service';
 import { AppComponent } from './app.component';
-import { EachBatchComponent } from './each-batch/each-batch.component';
 import { LoginComponent } from './auth/login/login.component';
 import { AuthService } from './auth/auth.service';
-import { SamplePlotComponent } from './plots/view-sample-plots/sample-plot/sample-plot.component';
-import { PlotsService } from './plots.service';
-import { ViewSamplePlotsComponent } from './plots/view-sample-plots/view-sample-plots.component';
-import { PlotMenuToggleComponent } from './plots/view-sample-plots/plot-menu-toggle/plot-menu-toggle.component';
 import { SessionListComponent } from './session-list/session-list.component';
 import { SessionComponent, SessionPlotDialog } from './session-list/session/session.component';
 import { MouseListComponent } from './mouse-list/mouse-list.component';
@@ -57,15 +52,15 @@ import { SummaryPlotsComponent } from './daily-summary/summary-plots/summary-plo
 import { AnimatedPsychCurvePlotComponent } from './mouse-list/mouse/animated-psych-curve-plot/animated-psych-curve-plot.component';
 import { SessionRTCPlotComponent } from './session-list/session/session-rtc-plot/session-rtc-plot.component';
 import { SessionRTTNPlotComponent } from './session-list/session/session-rttn-plot/session-rttn-plot.component';
-import { RasterPlotsComponent } from './cell-list/cell/raster-plots/raster-plots.component';
-import { PsthPlotsComponent } from './cell-list/cell/psth-plots/psth-plots.component';
+import { ProbeInsertionListComponent } from './probe-insertion-list/probe-insertion-list.component';
+import { ProbeInsertionComponent } from './probe-insertion-list/probe-insertion/probe-insertion.component';
+import { ProbeTracksComponent } from './probe-tracks/probe-tracks.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
 const appRoutes: Routes = [
   { path: '', component: OverviewComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
-  { path: 'plot', component: ViewSamplePlotsComponent },
   { path: 'cells', component: CellListComponent },
   { path: 'water-weight', component: WaterWeightPlotComponent},
   {
@@ -81,15 +76,15 @@ const appRoutes: Routes = [
       component: MouseListComponent
   },
   {
-    path: 'cell',
+    path: 'probe',
     canActivate: [AuthGuard],
     canActivateChild: [AuthGuard],
     children: [{
       path: ':mouseID',
       children: [{
-        path: ':sessionTime',
+        path: ':sessionID',
         children: [{
-          path: ':clusterID',
+          path: ':insertionNum',
           component: CellComponent
         }]
       }]
@@ -113,8 +108,9 @@ const appRoutes: Routes = [
     component: DailySummaryComponent
   },
   {
-    path: 'testRaster',
-    component: ViewSamplePlotsComponent
+    path: 'project-probe-tracks',
+    canActivate: [AuthGuard],
+    component: ProbeTracksComponent
   }
   // { path: 'not-found', component: ErrorPageComponent, data: { message: '404 - Page not found!' } },
   // { path: '**', redirectTo: '/not-found' }
@@ -125,11 +121,7 @@ const appRoutes: Routes = [
   entryComponents: [SessionComponent, SessionPlotDialog],
   declarations: [
     AppComponent,
-    EachBatchComponent,
     LoginComponent,
-    SamplePlotComponent,
-    ViewSamplePlotsComponent,
-    PlotMenuToggleComponent,
     SessionListComponent,
     SessionComponent,
     MouseListComponent,
@@ -150,8 +142,9 @@ const appRoutes: Routes = [
     SessionRTCPlotComponent,
     SessionRTTNPlotComponent,
     SessionPlotDialog,
-    RasterPlotsComponent,
-    PsthPlotsComponent
+    ProbeInsertionListComponent,
+    ProbeInsertionComponent,
+    ProbeTracksComponent
   ],
   imports: [
     CommonModule, PlotlyModule,
@@ -165,7 +158,7 @@ const appRoutes: Routes = [
     MatCardModule, MatButtonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatSliderModule, MatExpansionModule,
     MatDialogModule, ReactiveFormsModule, FlexLayoutModule
   ],
-  providers: [AuthService, AuthGuard, PlotsService,
+  providers: [AuthService, AuthGuard,
               { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
               { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
              ],

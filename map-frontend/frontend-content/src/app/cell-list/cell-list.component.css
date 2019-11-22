@@ -36,13 +36,38 @@ td span.oi {
     cursor: pointer;
 }
 
-.rasterPlotSelectors {
+
+.unit-plots-subarea {
+    width: 100%;
     display: inline-flex;
     flex-direction: row;
 }
 
-.order-buttons {
-    display: flex;
-    flex-direction: column;
+.unit-behavior-plot {
+    width: 42vw !important;
+}
+
+.unit-psth-plot {
+    width: 25vw !important;
+}
+
+.unit-plot img {
+    width: 100%;
+}
+
+.empty-plot {
+    display: block;
+    /* border: 2px solid black; */
+    width: 100%;
+    height: auto;
+}
+.dummy-behavior-plot {
+    width: 1600px;
+    height: 1600px;
+}
+
+.dummy-psth-plot {
+    width: 640px;
+    height: 480px;
 }
 

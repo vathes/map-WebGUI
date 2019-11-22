@@ -1,0 +1,42 @@
+.probe-insertion-card {
+    border: 1px solid black;
+    margin: 4px;
+}
+
+.probe-insertion-info-table {
+    font-size: 85%;
+    margin-left: 1%;
+    margin-top: 1%;
+    display: flex;
+    flex-direction: row;
+}
+
+.probe-insertion-info-table table {
+    width: 98%;
+    margin-left: 1%;
+    font-size: 82%;
+}
+
+h5 {
+    font-weight: 300;
+}
+
+.probe-insertion-plots {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.probe-insertion-plot-container {
+    /* float: left; */
+    
+    margin: 2px 4px;
+    width: 96%;
+    text-align: center;
+    border: 1px solid grey;
+}
+
+img.probe-insertion-plot {
+    width: 100%;
+}
+

@@ -19,18 +19,21 @@ h5 {
     display: table;
 }
 
-.fitParTable {
-    font-size: 75%;
-    display: table-footer-group;
+
+.session-plots {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
 }
 
-.fitParTable th {
+.session-plot-container {
+    display: block;
+    width: 32%;
     text-align: center;
 }
 
-.behavior-plots {
-    display: flex;
-    flex-direction: row;
+img.session-plot {
+    width: 100%;
 }
 
 @media only screen and (max-width: 768px) {

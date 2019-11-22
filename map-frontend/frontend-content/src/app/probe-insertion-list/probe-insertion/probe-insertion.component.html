@@ -1,0 +1,44 @@
+<p *ngIf="!probeInsertion">Probe Insertion Detail Not Available</p>
+<div *ngIf="probeInsertion">
+  <div class="probe-insertion-card">
+    <div class="probe-insertion-info-table">
+      <table class="table  col-sm-6 col-xs-12 table-striped table-bordered table-sm">
+        <tr><th>Subject ID</th><td>{{ probeInsertion.subject_id}}</td></tr>
+        <tr><th>Session #</th><td>{{ probeInsertion.session}}</td></tr>
+        <tr><th>Insertion #</th><td>{{ probeInsertion.insertion_number}}</td></tr>
+        <tr><th>Hemipshere</th><td>{{ probeInsertion.hemisphere}}</td></tr>
+        <tr><th>Brain Area</th><td>{{ probeInsertion.brain_area}}</td></tr>
+        <tr><th>Brain Location</th><td>{{ probeInsertion.brain_location_name}}</td></tr>
+        <tr><th>Skull Reference</th><td>{{ probeInsertion.skull_reference}}</td></tr>
+      </table>
+      <table class="table col-sm-5 col-xs-12 table-striped table-bordered table-sm">
+        <tr><th>Probe</th><td>{{ probeInsertion.probe}}</td></tr>
+        <tr><th>AP Angle</th><td>{{ probeInsertion.ap_angle}}</td></tr>
+        <tr><th>AP Location</th><td>{{ probeInsertion.ap_location}}</td></tr>
+        <tr><th>DV Location</th><td>{{ probeInsertion.dv_location}}</td></tr>
+        <tr><th>ML Angle</th><td>{{ probeInsertion.ml_angle}}</td></tr>
+        <tr><th>ML Location</th><td>{{ probeInsertion.ml_location}}</td></tr>
+        <tr><th>Units</th><td><button class="btn btn-sm btn-success" routerLink="/probe/{{probeInsertion?.subject_id}}/{{probeInsertion?.session}}/{{probeInsertion?.insertion_number}}">View Units</button></td></tr>
+      </table>
+    </div>
+    <hr>
+    <div class="probe-insertion-plots">
+      <div class="probe-insertion-plot-container">
+        <p *ngIf="!probeInsertion.clustering_quality">Clustering Quality Plots Not Available</p>
+        <img *ngIf="probeInsertion.clustering_quality" class="probe-insertion-plot clustering-quality" [src]="probeInsertion.clustering_quality">
+      </div>
+      <div class="probe-insertion-plot-container">
+        <p *ngIf="!probeInsertion.unit_characteristic">Unit Characteristic Plots Not Available</p>
+        <img *ngIf="probeInsertion.unit_characteristic" class="probe-insertion-plot unit-characteristic" [src]="probeInsertion.unit_characteristic">
+      </div>
+      <div class="probe-insertion-plot-container">
+        <p *ngIf="!probeInsertion.group_psth">Group PSTH Plots Not Available</p>
+        <img *ngIf="probeInsertion.group_psth" class="probe-insertion-plot group-psth" [src]="probeInsertion.group_psth">
+      </div>
+      <div class="probe-insertion-plot-container">
+        <p *ngIf="!probeInsertion.group_photostim">Group Photostim Plots Not Available</p>
+        <img *ngIf="probeInsertion.group_photostim" class="probe-insertion-plot group-photostim" [src]="probeInsertion.group_photostim">
+      </div>
+    </div>
+  </div>
+</div>

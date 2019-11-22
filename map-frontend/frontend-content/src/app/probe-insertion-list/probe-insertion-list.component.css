@@ -1,0 +1,20 @@
+h5 {
+    font-weight: 300;
+}
+.probe-insertion-list-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.quarter-card {
+    width: 22%;
+}
+
+.one-third-card {
+    width: 26%;
+}
+
+.half-card {
+    width: 30%;
+}
