@@ -1,3 +1,8 @@
-<p>
-  probe-tracks works!
-</p>
+<div class="probe-tracks-container">
+  <h4>
+    Probe Tracks
+  </h4>
+  <div *ngIf="probeTracks" class="image-container">
+    <img class="probe-tracks-image" [src]="probeTracks['tracks_plot']">
+  </div>
+</div>
