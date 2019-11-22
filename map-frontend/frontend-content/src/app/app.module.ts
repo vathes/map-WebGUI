@@ -54,6 +54,7 @@ import { SessionRTCPlotComponent } from './session-list/session/session-rtc-plot
 import { SessionRTTNPlotComponent } from './session-list/session/session-rttn-plot/session-rttn-plot.component';
 import { ProbeInsertionListComponent } from './probe-insertion-list/probe-insertion-list.component';
 import { ProbeInsertionComponent } from './probe-insertion-list/probe-insertion/probe-insertion.component';
+import { ProbeTracksComponent } from './probe-tracks/probe-tracks.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -105,6 +106,11 @@ const appRoutes: Routes = [
     path: 'summary',
     canActivate: [AuthGuard],
     component: DailySummaryComponent
+  },
+  {
+    path: 'project-probe-tracks',
+    canActivate: [AuthGuard],
+    component: ProbeTracksComponent
   }
   // { path: 'not-found', component: ErrorPageComponent, data: { message: '404 - Page not found!' } },
   // { path: '**', redirectTo: '/not-found' }
@@ -137,7 +143,8 @@ const appRoutes: Routes = [
     SessionRTTNPlotComponent,
     SessionPlotDialog,
     ProbeInsertionListComponent,
-    ProbeInsertionComponent
+    ProbeInsertionComponent,
+    ProbeTracksComponent
   ],
   imports: [
     CommonModule, PlotlyModule,
