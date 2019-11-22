@@ -16,13 +16,14 @@ export class CellComponent implements OnInit, OnDestroy {
   units: any;
   selectedEvent: string;
   unitsLoading: boolean;
-  hideMissingPlots = false;
+  hideMissingPlots: boolean;
 
   private cellSubscription: Subscription;
 
   constructor(private route: ActivatedRoute, public cellListService: CellListService) { }
 
   ngOnInit() {
+    this.hideMissingPlots = true;
     this.unitsLoading = true;
     this.mouse_id = this.route.snapshot.paramMap.get('mouseID');
     this.session_id = this.route.snapshot.paramMap.get('sessionID');

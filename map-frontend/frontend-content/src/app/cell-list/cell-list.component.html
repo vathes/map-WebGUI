@@ -21,7 +21,7 @@
             <!-- <th>Details</th> -->
           </thead>
           <tbody>
-            <tr *ngFor="let cl of cells" (click)="clusterSelectedTable(cl.unit)" [ngStyle]="{'backgroundColor': cl?.unit == clickedUnitId ? '#ffe5e5' : ''}">
+            <tr *ngFor="let cl of cellsByProbeIns" (click)="clusterSelectedTable(cl.unit)" [ngStyle]="{'backgroundColor': cl?.unit == clickedUnitId ? '#ffe5e5' : ''}">
               <td>{{ cl.unit }}</td>
               <!-- <td>{{ cl.insertion_number }}</td> -->
               <td>{{ cl.unit_depth }}</td>

@@ -29,7 +29,7 @@
       </table>
     </div>
     <div class="toggle-view-filter">
-      <mat-checkbox class="toggle-view-chbox" (change)="toggleUnitsView()">
+      <mat-checkbox [checked]="hideMissingPlots" class="toggle-view-chbox" (change)="toggleUnitsView()">
         Only Show Units With Plots
       </mat-checkbox>
     </div>

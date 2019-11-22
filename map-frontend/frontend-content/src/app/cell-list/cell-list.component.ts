@@ -136,7 +136,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           })
 
           this.color_data_adjusted = color_data.map(function(elem) {
-            return `rgba(25, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
+            return `rgba(0, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
           });
           this.targetUnitId = 1;
           this.clickedUnitId = 1;
@@ -147,7 +147,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             customdata: id_data,
             text: id_data,
             mode: 'markers',
-            name: 'marker size: avg. firing rate',
+            name: 'size: avg. firing rate',
             marker: {
               size: this.size_data_adjusted,
               color: 'rgba(255, 255, 255, 0.2)',
@@ -163,13 +163,13 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
               cmax: Math.max(...color_data),
               cmin: Math.min(...color_data),
               // colorscale: [['0.0', '0'], ['1.0', '1']]
-              colorscale: [['0.0','rgba(25, 0, 0, 0.33)'], ['1.0','rgba(25, 255,255, 0.33)']]
+              colorscale: [['0.0','rgba(0, 0, 0, 0.33)'], ['1.0','rgba(0, 255,255, 0.33)']]
             }
           }];
 
           this.plot_layout = {
-            autosize: false,
-            width: 350,
+            // autosize: false,
+            width: 400,
             height: 600,
             yaxis: {
               title: 'Unit Depth (µm)'
@@ -180,7 +180,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             hovermode: 'closest',
             showlegend: true,
             legend: {
-              x: 0,
+              x: -0.1,
               y: -0.2
             }
           };
@@ -399,42 +399,49 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     for (let entry of Object.values(this.cells)) {
       if (entry['insertion_number'] == probeInsNum) {
         id_data.push(entry['unit']);
-        size_data.push(entry['unit_amp']);
-        y_data.push(entry['unit_posy']);
+        size_data.push(entry['avg_firing_rate']);
+        y_data.push(entry['unit_depth']);
         x_data.push(entry['unit_posx']);
-        color_data.push(entry['unit_depth']);
+        color_data.push(entry['unit_amp']);
         this.cellsByProbeIns.push(entry);
       }
     }
 
-    // this.size_data_adjusted = size_data.map(function (el) {
-    //   return 5 + 15 * el / Math.max(...size_data)
-    // });
+    this.size_data_adjusted = size_data.map(function (el) {
+      return 8 + (12 * (el - Math.min(...size_data)) / (Math.max(...size_data)) - Math.min(...size_data));
+    });
 
-    // this.color_data_adjusted = color_data.map(function (elem) {
-    //   return `rgba(${255 * Math.abs(elem) / Math.abs(Math.min(...color_data))}, 125, ${255 * Math.abs(Math.max(...color_data)) / Math.abs(elem)}, 0.5)`
-    // });
+    this.color_data_adjusted = color_data.map(function (elem) {
+      return `rgba(0, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
+    });
     this.plot_data = [{
       x: x_data,
       y: y_data,
       customdata: id_data,
       text: id_data,
       mode: 'markers',
+      name: 'size: avg. firing rate',
       marker: {
         size: this.size_data_adjusted,
         color: 'rgba(255, 255, 255, 0.2)',
         line: {
           color: this.color_data_adjusted,
-          // color: this.test_color_data,
           width: 2
         },
-        colorscale: 'Viridis'
+        colorbar: {
+          thickness: 10,
+          title: 'Unit Amp (µV)'
+        },
+        cmax: Math.max(...color_data),
+        cmin: Math.min(...color_data),
+        colorscale: [['0.0', 'rgba(0, 0, 0, 0.33)'], ['1.0', 'rgba(0, 255,255, 0.33)']]
       }
     }];
     this.unitBehaviorLoading = false;
     this.unitPsthLoading = false;
     this.targetUnitId = 1;
     this.clickedUnitId = 1;
+    console.log('plot data for probe (' + probeInsNum + ') is - ', this.plot_data);
   }
 
   clusterSelectedPlot(data) {
