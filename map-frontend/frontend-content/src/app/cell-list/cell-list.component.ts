@@ -118,7 +118,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           })
 
           this.color_data_adjusted = color_data.map(function(elem) {
-            return `rgba(0, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
+            return `rgba(0, 125, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
           });
           this.targetUnitId = 1;
           this.clickedUnitId = 1;
@@ -145,7 +145,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
               cmax: Math.max(...color_data),
               cmin: Math.min(...color_data),
               // colorscale: [['0.0', '0'], ['1.0', '1']]
-              colorscale: [['0.0','rgba(0, 0, 0, 0.33)'], ['1.0','rgba(0, 255,255, 0.33)']]
+              colorscale: [['0.0','rgba(0, 125, 0, 0.33)'], ['1.0','rgba(0, 125, 255, 0.33)']]
             }
           }];
 
@@ -244,7 +244,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     });
 
     this.color_data_adjusted = color_data.map(function (elem) {
-      return `rgba(0, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
+      return `rgba(0, 125, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
     });
     this.plot_data = [{
       x: x_data,
@@ -266,7 +266,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
         },
         cmax: Math.max(...color_data),
         cmin: Math.min(...color_data),
-        colorscale: [['0.0', 'rgba(0, 0, 0, 0.33)'], ['1.0', 'rgba(0, 255,255, 0.33)']]
+        colorscale: [['0.0', 'rgba(0, 125, 0, 0.33)'], ['1.0', 'rgba(0, 125, 255, 0.33)']]
       }
     }];
     this.unitBehaviorLoading = false;
