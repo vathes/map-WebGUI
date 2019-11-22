@@ -142,20 +142,20 @@ tr.mat-row:hover {
 button {
     float: left;
     margin-left: 5px;
-    border: 2px solid rgb(101, 152, 184);
+    border: 2px solid #22294e;
 }
 button:hover {
-    border: 2px solid rgb(0, 124, 183);
-    background-color: rgb(0, 124, 183);
+    border: 2px solid #0d143a;
+    background-color: #0d143a;
     color: white;
 }
 
 .btn-reset {
-    border: 2px solid rgb(180, 69, 134);
+    border: 2px solid #993a3a !important;
 }
 .btn-reset:hover {
-    border: 2px solid rgb(180, 69, 134);
-    background-color: rgb(180, 69, 134);
+    border: 2px solid #7e4444 !important;
+    background-color: #7e4444 !important;
     color: white;
 }
 

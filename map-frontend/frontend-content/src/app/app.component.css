@@ -11,11 +11,11 @@ a.logolink * {
     float: left;
 }
 .nav-item a {
-    color: #03a2da;
+    color: #0d143a;
 }
 .nav-item a:hover,
 .active a {
-    background-color: #03a2da;
+    background-color: #0d143a;
     color: #fff;
 }
 
@@ -42,13 +42,13 @@ a.logolink * {
 
 .menu-button button,
 .menu-button button:active {
-    border: 2px solid #03a2da;
+    border: 2px solid #0d143a;
     background-color: transparent;
-    color: #03a2da;
+    color: #0d143a;
 }
 .menu-button button:hover {
-    border: 2px solid #03a2da;
-    background-color: #03a2da;
+    border: 2px solid #0d143a;
+    background-color: #0d143a;
     color: white;
 }
 .menu-container {  
@@ -76,7 +76,7 @@ a.logolink * {
 }
 
 .footer p a:hover {
-    color: #03a2da;
+    color: #0d143a;
     text-decoration: none;
 }
 
