@@ -10,17 +10,18 @@
     <plotly-plot [data]="plot_data" [layout]="plot_layout" [config]="plot_config" (click)="clusterSelectedPlot($event)"></plotly-plot>
     <div class="plots-navigator" *ngIf="showController">
       <div *ngIf="cells" class="clusterListContainer">
-        <table class="table table-sm table-hover col-5 ml-auto clusterListTable" #navTable>
+        <table matSort (matSortChange)="sortData($event)" class="table table-sm table-hover col-5 ml-auto clusterListTable" #navTable>
           <thead class="thead-light">
-            <th>Unit</th>
+            <th mat-sort-header="unit">Unit</th>
             <!-- <th>Probe Index</th> -->
-            <th>Unit Depth</th>
-            <th>Unit Amp</th>
+            <th mat-sort-header="unit_depth">Unit Depth</th>
+            <th mat-sort-header="unit_amp">Unit Amp</th>
             <!-- <th>x position</th> -->
             <!-- <th>y position</th> -->
           </thead>
           <tbody>
-            <tr *ngFor="let cl of cellsByProbeIns" (click)="clusterSelectedTable(cl.unit)" [ngStyle]="{'backgroundColor': cl?.unit == clickedUnitId ? '#ffe5e5' : ''}">
+            <tr *ngFor="let cl of sortedCellsByProbeIns" (click)="clusterSelectedTable(cl.unit)" [id]="cl?.unit == clickedUnitId ? 'highlighted-row' : ''" [ngStyle]="{'backgroundColor': cl?.unit == clickedUnitId ? '#ffe5e5' : ''}">
+            <!-- <tr *ngFor="let cl of cellsByProbeIns" (click)="clusterSelectedTable(cl.unit)" [ngStyle]="{'backgroundColor': cl?.unit == clickedUnitId ? '#ffe5e5' : ''}"> -->
               <td>{{ cl.unit }}</td>
               <!-- <td>{{ cl.insertion_number }}</td> -->
               <td>{{ cl.unit_depth }}</td>
