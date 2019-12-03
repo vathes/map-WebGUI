@@ -49,14 +49,13 @@ export class SessionListComponent implements OnInit, OnDestroy {
   filteredInsertLocationsOptions: Observable<string[]>;
   filteredWaterRestrictionNumberOptions: Observable<string[]>;
   filteredUsernameOptions: Observable<string[]>;
-  // nplotMap: any = { '0': '', '1': '\u2714' };
   session_menu: any;
   // setup for the table columns
   // displayedColumns: string[] = ['probe_count', 'subject_id', 'subject_birth_date', 'session_date',
   //                             'clustering_methods', 'water_restriction_number', 'username',
-  //                             'session', 'sex', 'nplot', 'insert_locations'];
-  displayedColumns: string[] = ['subject_id', 'session', 'session_date',
-    'username', 'water_restriction_number', 'probe_count', 'insert_locations', 'clustering_methods' ];
+  //                             'session', 'sex', 'insert_locations'];
+  displayedColumns: string[] = ['session', 'subject_id', 'session_date', 'probe_count',
+    'insert_locations', 'clustering_methods', 'water_restriction_number', 'username' ];
   
   
   // setup for the paginator
@@ -220,7 +219,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
         }
       }
     }
-    console.log('printing session_menu: ', this.session_menu);
+    // console.log('printing session_menu: ', this.session_menu);
 
 
     // for (const item in this.session_menu['sex']) {

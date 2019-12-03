@@ -4,20 +4,16 @@ import { Subscription } from 'rxjs';
 
 import { CellListService } from './cell-list.service';
 
-import { environment } from '../../environments/environment';
 import { Sort } from '@angular/material/sort';
 
-const BACKEND_URL = environment.backend_url;
-
-// declare var Plotly: any;
 
 @Component({
   selector: 'app-cell-list',
   templateUrl: './cell-list.component.html',
   styleUrls: ['./cell-list.component.css']
 })
+
 export class CellListComponent implements OnInit, OnDestroy, DoCheck {
-  // d3 = Plotly.d3;
   cells: any;
   session: any;
   clickedUnitId: number;
@@ -62,9 +58,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngOnInit() {
-    // console.log('window height: ', window.innerHeight);
-    // console.log('window screen height: ', window.screen.height);
-    // const element = this.el_nav.nativeElement;
     this.session = this.sessionInfo;
     let probeCount = 0
     while (probeCount < this.sessionInfo['probe_count']) {
@@ -74,7 +67,9 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     this.cellListService.retrieveCellList(this.sessionInfo);
     this.cellListSubscription = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
-        console.log('logging retrieved cell list data: ', cellListData);
+        this.unitBehaviorLoading = false;
+        this.unitPsthLoading = false;
+        // console.log('logging retrieved cell list data: ', cellListData);
         if (Object.entries(cellListData).length > 0) {
           this.cells = cellListData;
           const x_data = [];
@@ -98,12 +93,12 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           // console.log('id_data is: ', id_data)
           // console.log('color_data is: ', color_data);
           // console.log('size_data is: ', size_data);
-          console.log('max of size is: ', Math.max(...size_data));
-          console.log('min of size is: ', Math.min(...size_data));
-          console.log('max of depth(y) is: ', Math.max(...y_data));
-          console.log('min of depth(y) is: ', Math.min(...y_data));
-          console.log('max of color is: ', Math.max(...color_data));
-          console.log('min of color is: ', Math.min(...color_data));
+          // console.log('max of size is: ', Math.max(...size_data));
+          // console.log('min of size is: ', Math.min(...size_data));
+          // console.log('max of depth(y) is: ', Math.max(...y_data));
+          // console.log('min of depth(y) is: ', Math.min(...y_data));
+          // console.log('max of color is: ', Math.max(...color_data));
+          // console.log('min of color is: ', Math.min(...color_data));
           // console.log('cellByProbeIns is: ', this.cellsByProbeIns);
 
           this.sortedCellsByProbeIns = this.cellsByProbeIns;
@@ -170,19 +165,16 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             showLink: false,
             showSendToCloud: false,
             displaylogo: false,
-            modeBarButtonsToRemove: ['select2d', 'lasso2d', 'hoverClosestCartesian',
+            modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d', 'hoverClosestCartesian',
                             'hoverCompareCartesian', 'toImage', 'toggleSpikelines'],
           };
-          this.unitBehaviorLoading = false;
-          this.unitPsthLoading = false;
+          
         }
       });
 
   }
 
   ngDoCheck() {
-    // console.log('do check ran');
-    // console.log('this.clicked cluster id: ', this.clickedUnitId);
     const markerColors = [];
     if (this.plot_data) {
       if (this.plot_data[0]['x'] && this.clickedUnitId > -1) {
@@ -219,7 +211,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   probe_selected(probeInsNum) {
     this.unitBehaviorLoading = true;
     this.unitPsthLoading = true;
-    console.log('probe insertions selected: ', probeInsNum);
+    // console.log('probe insertions selected: ', probeInsNum);
     const x_data = [];
     const y_data = [];
     const id_data = [];
@@ -274,24 +266,24 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     this.unitPsthLoading = false;
     this.targetUnitId = 1;
     this.clickedUnitId = 1;
-    console.log('plot data for probe (' + probeInsNum + ') is - ', this.plot_data);
+    // console.log('plot data for probe (' + probeInsNum + ') is - ', this.plot_data);
   }
 
   clusterSelectedPlot(data) {
     const element = this.el_nav.nativeElement.children[1];
-    console.log('cluster selected from cluster plot!');
-    console.log(element);
-    console.log('data is: ', data);
+    // console.log('cluster selected from cluster plot!');
+    // console.log(element);
+    // console.log('data is: ', data);
     const rows = element.querySelectorAll('tr');
     // console.log('printing rows');
     // console.log(rows);
     // this.targetUnitId = this.clickedUnitId;
-    console.log('clicked unitId is: ', this.clickedUnitId);
+    // console.log('clicked unitId is: ', this.clickedUnitId);
     if (data['points'] && data['points'][0]['customdata']) {
-      console.log('data[points][0] is: ', data['points'][0]);
+      // console.log('data[points][0] is: ', data['points'][0]);
       this.clickedUnitId = data['points'][0]['customdata'];
       this.targetUnitId = this.clickedUnitId;
-      console.log('clicked unitId according to data is: ', data['points'][0]['customdata']);
+      // console.log('clicked unitId according to data is: ', data['points'][0]['customdata']);
       rows[this.clickedUnitId].scrollIntoView({
                                       behavior: 'smooth',
                                       block: 'center'});
@@ -300,7 +292,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   clusterSelectedTable(unit_id) {
-    console.log('table row selected!')
+    // console.log('table row selected!')
     const element = this.el_nav.nativeElement.children[1];
     const rows = element.querySelectorAll('tr');
     this.clickedUnitId = unit_id;
@@ -309,61 +301,61 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   navigate_cell_plots(event, direction) {
-    console.log('navigation activated')
-    let element = this.el_nav.nativeElement.children[1];
-    let rows = element.querySelectorAll('tr');
-    let HLrowID = element.querySelectorAll('#highlighted-row');
-    console.log('element: ', element)
-    console.log('rows: ', rows)
-    console.log('highlighted id: ', HLrowID)
-    console.log('highlighted id[0]: ', HLrowID[0])
-    console.log('highlighted id[0] type: ', typeof HLrowID[0])
-    console.log('highlighted id[0][outerText]: ', HLrowID[0]['outerText'])
-    console.log('=============================')
-    rows.forEach((row, index) => {
-      if (row.id == 'highlighted-row') {
-        console.log('highlighted row at index - ', index)
-        console.log('highlighted row at rowindex - ', row['rowIndex'])
-        console.log('unit - ', row['outerText'].split('')[2])
-      }
-    })
+    // console.log('navigation activated')
+    // let element = this.el_nav.nativeElement.children[1];
+    // let rows = element.querySelectorAll('tr');
+    // let HLrowID = element.querySelectorAll('#highlighted-row');
+    // console.log('element: ', element)
+    // console.log('rows: ', rows)
+    // console.log('highlighted id: ', HLrowID)
+    // console.log('highlighted id[0]: ', HLrowID[0])
+    // console.log('highlighted id[0] type: ', typeof HLrowID[0])
+    // console.log('highlighted id[0][outerText]: ', HLrowID[0]['outerText'])
+    // console.log('=============================')
+    // rows.forEach((row, index) => {
+    //   if (row.id == 'highlighted-row') {
+    //     console.log('highlighted row at index - ', index)
+    //     console.log('highlighted row at rowindex - ', row['rowIndex'])
+    //     console.log('unit - ', row['outerText'].split('')[2])
+    //   }
+    // })
     
-    console.log('clickedUnitId before - ', this.clickedUnitId);
+    // console.log('clickedUnitId before - ', this.clickedUnitId);
     if (direction === 'up') {
       if (this.clickedUnitId - 1 > -1) {
         this.clickedUnitId -= 1;
         this.targetUnitId = this.clickedUnitId;
       }
-      console.log('clickedUnitId after - ', this.clickedUnitId);
+      // console.log('clickedUnitId after - ', this.clickedUnitId);
     }
     if (direction === 'down') {
       if (this.clickedUnitId + 1 < this.plot_data[0]['x'].length + 1) {
         this.clickedUnitId += 1;
         this.targetUnitId = this.clickedUnitId;
       }
-      console.log('clickedUnitId after - ', this.clickedUnitId);
+      // console.log('clickedUnitId after - ', this.clickedUnitId);
     }
   }
 
-  sortData(sort: Sort) {
-    const data = this.cellsByProbeIns.slice();
-    if (!sort.active || sort.direction === '') {
-      this.sortedCellsByProbeIns = data;
-      return;
-    }
+  // sortData(sort: Sort) {
+  //   const data = this.cellsByProbeIns.slice();
+  //   if (!sort.active || sort.direction === '') {
+  //     this.sortedCellsByProbeIns = data;
+  //     return;
+  //   }
 
-    this.sortedCellsByProbeIns = data.sort((a, b) => {
-      const isAsc = sort.direction === 'asc';
-      switch (sort.active) {
-        case 'unit': return compare(a.unit, b.unit, isAsc);
-        case 'unit_depth': return compare(a.unit_depth, b.unit_depth, isAsc);
-        case 'unit_amp': return compare(a.unit_amp, b.unit_amp, isAsc);
-        case 'unit_posx': return compare(a.unit_posx, b.unit_posx, isAsc);
-        case 'unit_posy': return compare(a.unit_posy, b.unit_posy, isAsc);
-        default: return 0;
-      }
-    })
-  } 
+  //   this.sortedCellsByProbeIns = data.sort((a, b) => {
+  //     const isAsc = sort.direction === 'asc';
+  //     switch (sort.active) {
+  //       case 'unit': return compare(a.unit, b.unit, isAsc);
+  //       case 'unit_depth': return compare(a.unit_depth, b.unit_depth, isAsc);
+  //       case 'unit_amp': return compare(a.unit_amp, b.unit_amp, isAsc);
+  //       case 'unit_posx': return compare(a.unit_posx, b.unit_posx, isAsc);
+  //       case 'unit_posy': return compare(a.unit_posy, b.unit_posy, isAsc);
+  //       default: return 0;
+  //     }
+  //   })
+  // } 
 }
 
 function compare(a: number | string, b: number | string, isAsc: boolean) {

@@ -1,24 +1,28 @@
 <div class="session-info-container">  
   <h5>Session Info</h5>
   <div class="row session-info-table">
-    <table class="table col-lg-4 col-sm-6 col-xs-12 table-striped table-bordered table-sm" >
+    <table class="table col-lg-4 col-sm-6 col-xs-12 table-bordered table-sm" >
+      <tr>
+        <th>Session Number</th>
+        <td>{{ session?.session }}</td>
+      </tr>
+      <tr>
+        <th>Session Date</th>
+        <td>{{ session?.session_date.split("T")[0] }} {{ session?.session_date.split("T")[1] }}</td>
+      </tr>
       <tr>
         <th>Subject ID</th><td>{{ session?.subject_id }}</td>
       </tr>
       <tr>
-        <th>Water Restriction</th><td>{{ session?.water_restriction_number }}</td>
+        <th>Experimenter</th>
+        <td>{{ session?.username }}</td>
       </tr>
-      <tr>
-        <th>Session Date</th><td>{{ session?.session_date.split("T")[0] }} {{ session?.session_date.split("T")[1] }}</td>
-      </tr>
-      <tr>
-        <th>Session #</th><td>{{ session?.session }}</td>
-      </tr>
+      
+      
+      
     </table>
-    <table class="table col-lg-4 col-sm-6 col-xs-12 table-striped table-bordered table-sm">
-      <tr>
-        <th>Experimenter</th><td>{{ session?.username }}</td>
-      </tr>
+    <table class="table col-lg-4 col-sm-6 col-xs-12 table-bordered table-sm">
+      
       <tr>
         <th>Probe Count</th><td>{{ session?.probe_count }}</td>
       </tr>
@@ -27,6 +31,10 @@
       </tr>
       <tr>
         <th>Clustering Method(s)</th><td>{{ session?.clustering_methods }}</td>
+      </tr>
+      <tr>
+        <th>Water Restriction</th>
+        <td>{{ session?.water_restriction_number }}</td>
       </tr>
     </table>
   </div>
@@ -46,9 +54,6 @@
         <p *ngIf="!session.coding_direction">Coding Direction Plot Not Available</p>
         <img *ngIf="session.coding_direction" class="session-plot" [src]="session.coding_direction">
       </div>
-      <!-- <app-session-psych-plot [sessionData]="session" [dialogClosed]="dialogClosedSPC" (openSPCplot)="openDialog($event)" (psychCurveFitPars)="fitParsReady($event)"></app-session-psych-plot>
-      <app-session-rtc-plot [sessionData]="session" [dialogClosed]="dialogClosedSRTC" (openSRTCplot)="openDialog($event)"></app-session-rtc-plot>
-      <app-session-rttn-plot [sessionData]="session" [dialogClosed]="dialogClosedSRTTN" (openSRTTNplot)="openDialog($event)"></app-session-rttn-plot> -->
     </div>
   </div>
   <br>

@@ -11,7 +11,7 @@ RUN \
     npm install --only=dev &&\
     npm install -g @angular/cli > /dev/null
 
-COPY ./frontend-content/src/assets/addons/indigo-pink-map.css /frontend/node_modules/\@angular/material/prebuilt-themes/
+COPY ./frontend-content/src/assets/addons/map-color-theme.css /frontend/node_modules/\@angular/material/prebuilt-themes/
 COPY ./frontend-content/src/assets/addons/plotly.js /frontend/node_modules/plotly.js-dist/
 
 HEALTHCHECK       \

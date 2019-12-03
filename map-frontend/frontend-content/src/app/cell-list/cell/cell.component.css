@@ -1,5 +1,10 @@
+
 .units-viewer-container {
     padding-top: 20px;
+}
+
+h5 {
+    font-weight: 300;
 }
 
 .units-viewer-header {

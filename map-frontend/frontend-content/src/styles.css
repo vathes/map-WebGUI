@@ -1,9 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
-@import "~@angular/material/prebuilt-themes/indigo-pink-map.css";
-@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed:300, 300i ,400, 400i, 700, 700i&subset=greek,greek-ext');
-
+@import "~@angular/material/prebuilt-themes/map-color-theme.css";
+/* @import url('https://fonts.googleapis.com/css?family=Ubuntu:300, 300i ,400, 400i, 700, 700i&subset=greek,greek-ext'); */
+@import url('https://fonts.googleapis.com/css?family=Ubuntu:300,300i,400,400i,700,700i&display=swap&subset=greek,greek-ext');
 /* *:not(mat-icon) {
-    font-family: 'Roboto Condensed', sans-serif;
+    font-family: 'Public Sans', sans-serif;
     font-weight: 300;
 } */
 

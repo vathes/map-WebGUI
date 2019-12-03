@@ -1,3 +1,6 @@
+* {
+    font-family: Ubuntu;
+}
 .session-list-container {
     padding-top: 20px;
 }
@@ -7,7 +10,7 @@ h4 {
 }
 
 form { 
-    margin-bottom: 5px;
+    /* margin-bottom: 5px; */
     padding-bottom: 25px;
     border-bottom: 3px solid rgb(209, 209, 209);
     display: inline-block;
@@ -88,6 +91,11 @@ label {
     width: 100%;
     overflow-x: auto;
 }
+
+.table-container * {
+    background-color: rgba(224, 227, 250, 0.023);
+}
+
 td.mat-cell, 
 td.mat-footer-cell, 
 th.mat-header-cell {
@@ -99,67 +107,43 @@ td.to-center {
 }
 
 mat-form-field {
-    margin: 10px;
-    width: 220px;
+    margin: 14px;
+    width: 200px;
     float: left;
 }
 
-mat-form-field input {
-    /* font-family: 'Roboto Condensed', sans-serif; */
-}
-
-mat-form-field.long {
-    width: 350px;
-}
 
 mat-form-field.short {
-    width: 190px;
+    width: 100px;
 }
 
-.nplot_filter {
-    /* display: inline-flex; */
-    padding-top: 14px;
-    /* padding-bottom: 2px; */
-    margin-top: 19px;
-    margin-bottom: 8px;
-    margin-left: 10px;
-    float: left;
-    top: 8px;
-}
-mat-checkbox.nplot_chbox {
-    /* margin: 8px; */
-    top: 12px;
-}
-tr.mat-row {
-    /* border-bottom: 1px solid rgba(0,0,0,.12); */
-}
 tr.mat-row:hover {
     /* background-color: rgb(248, 248, 248); */
-    background-color: rgba(0, 83, 145, .05);
+    background-color: rgba(15, 146, 107, 0.2);
     cursor: pointer;
 }
 
 button {
     float: left;
-    margin-left: 5px;
-    border: 2px solid #22294e;
+    margin-left: 3px;
+    border: 2px solid #2f25bd;
 }
 button:hover {
-    border: 2px solid #0d143a;
-    background-color: #0d143a;
+    border: 2px solid #2f25bd;
+    background-color: #2f25bd;
     color: white;
 }
 
 .btn-reset {
-    border: 2px solid #993a3a !important;
+    border: 2px solid #8e3a99 !important;
 }
 .btn-reset:hover {
-    border: 2px solid #7e4444 !important;
-    background-color: #7e4444 !important;
+    border: 2px solid #b768b9 !important;
+    background-color: #b768b9 !important;
     color: white;
 }
 
-.mouse_gender_filter {
+/* .mouse_gender_filter {
     padding-top: 12px;
     padding-bottom: 2px;
     margin-top: 11px;
@@ -181,10 +165,8 @@ mat-checkbox.mouse_gender_menu_chbox {
 .mouse_gender_menu{
     display: flex;
     flex-direction: row;
-};
-.cleardivider {
-    visibility: hidden;
-}
+}; */
+
 
 
 /* for different screen sizes */
@@ -211,57 +193,6 @@ mat-checkbox.mouse_gender_menu_chbox {
     }
 }
 
-/* XXL (1600px and up) */
-@media only screen and (min-width: 1600px) {
-}
-/* note - to make sure the filter folds smoothly without getting stuck */
-/* problem folding areas */
-/* 2076px - 2267px is where the menu breaks */
-@media only screen and (min-width: 2076px) and (max-width: 2267px) {
-    .cleardivider {
-        width: 100vw;
-        height: 2px;
-        display: inline-block;
-    }
-}
-/* 1200px - 1247px is where the menu breaks */
-@media only screen and (min-width: 1200px) and (max-width: 1247px) {
-    .cleardivider {
-        width: 100vw;
-        height: 2px;
-        display: inline-block;
-    }
-}
-/* 910px - 1039px is where the menu breaks */
-@media only screen and (min-width: 910px) and (max-width: 1039px) {
-    .cleardivider {
-        width: 100vw;
-        height: 2px;
-        display: inline-block;
-    }
-}
 
-/* 512px - 641px is where the menu breaks */
-@media only screen and (min-width: 512px) and (max-width: 641px) {
-    .cleardivider {
-        width: 100vw;
-        height: 2px;
-        display: inline-block;
-    }
-}
-
-@media only screen and (max-width: 639px) {
-    .mouse_gender_filter {
-        /* margin-bottom: 20px; */
-    }
-}
-
-
-/* XXXL (2200px and up) */
-@media only screen and (min-width: 2200px) {
-    .loading-icon {
-        margin-left: 700px;
-    }
-}
 
 

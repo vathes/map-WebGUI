@@ -33,25 +33,13 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './auth/login/login.component';
 import { AuthService } from './auth/auth.service';
 import { SessionListComponent } from './session-list/session-list.component';
-import { SessionComponent, SessionPlotDialog } from './session-list/session/session.component';
-import { MouseListComponent } from './mouse-list/mouse-list.component';
-import { MouseComponent } from './mouse-list/mouse/mouse.component';
+import { SessionComponent } from './session-list/session/session.component';
+// import { MouseListComponent } from './mouse-list/mouse-list.component';
+// import { MouseComponent } from './mouse-list/mouse/mouse.component';
 import { CellListComponent } from './cell-list/cell-list.component';
 import { CellComponent } from './cell-list/cell/cell.component';
 import { OverviewComponent } from './overview/overview.component';
-import { WaterWeightPlotComponent } from './mouse-list/mouse/water-weight-plot/water-weight-plot.component';
-import { SessionPsychPlotComponent } from './session-list/session/session-psych-plot/session-psych-plot.component';
-import { TrialCountsSessionDurationComponent } from './mouse-list/mouse/trial-counts-session-duration/trial-counts-session-duration.component';
-import { PerformanceReactionTimePlotComponent } from './mouse-list/mouse/performance-reaction-time-plot/performance-reaction-time-plot.component';
-import { ContrastHeatmapPlotComponent } from './mouse-list/mouse/contrast-heatmap-plot/contrast-heatmap-plot.component';
-import { FitParPlotsComponent } from './mouse-list/mouse/fit-par-plots/fit-par-plots.component';
-import { ByDateResultPlotsComponent } from './mouse-list/mouse/by-date-result-plots/by-date-result-plots.component';
 import { AuthInterceptor } from './auth/auth-interceptor';
-import { DailySummaryComponent } from './daily-summary/daily-summary.component';
-import { SummaryPlotsComponent } from './daily-summary/summary-plots/summary-plots.component';
-import { AnimatedPsychCurvePlotComponent } from './mouse-list/mouse/animated-psych-curve-plot/animated-psych-curve-plot.component';
-import { SessionRTCPlotComponent } from './session-list/session/session-rtc-plot/session-rtc-plot.component';
-import { SessionRTTNPlotComponent } from './session-list/session/session-rttn-plot/session-rttn-plot.component';
 import { ProbeInsertionListComponent } from './probe-insertion-list/probe-insertion-list.component';
 import { ProbeInsertionComponent } from './probe-insertion-list/probe-insertion/probe-insertion.component';
 import { ProbeTracksComponent } from './probe-tracks/probe-tracks.component';
@@ -62,19 +50,18 @@ const appRoutes: Routes = [
   { path: '', component: OverviewComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'cells', component: CellListComponent },
-  { path: 'water-weight', component: WaterWeightPlotComponent},
-  {
-    path: 'mouse/:mouseUUID',
-    canActivate: [AuthGuard],
-    canActivateChild: [AuthGuard],
-    component: MouseComponent
-  },
-  {
-    path: 'mice',
-      canActivate: [AuthGuard],
-      canActivateChild: [AuthGuard],
-      component: MouseListComponent
-  },
+  // {
+  //   path: 'mouse/:mouseUUID',
+  //   canActivate: [AuthGuard],
+  //   canActivateChild: [AuthGuard],
+  //   component: MouseComponent
+  // },
+  // {
+  //   path: 'mice',
+  //     canActivate: [AuthGuard],
+  //     canActivateChild: [AuthGuard],
+  //     component: MouseListComponent
+  // },
   {
     path: 'probe',
     canActivate: [AuthGuard],
@@ -103,11 +90,6 @@ const appRoutes: Routes = [
       component: SessionListComponent
   },
   {
-    path: 'summary',
-    canActivate: [AuthGuard],
-    component: DailySummaryComponent
-  },
-  {
     path: 'project-probe-tracks',
     canActivate: [AuthGuard],
     component: ProbeTracksComponent
@@ -118,30 +100,18 @@ const appRoutes: Routes = [
 
 
 @NgModule({
-  entryComponents: [SessionComponent, SessionPlotDialog],
+  // entryComponents: [SessionComponent, SessionPlotDialog],
+  entryComponents: [SessionComponent],
   declarations: [
     AppComponent,
     LoginComponent,
     SessionListComponent,
     SessionComponent,
-    MouseListComponent,
-    MouseComponent,
+    // MouseListComponent,
+    // MouseComponent,
     CellListComponent,
     CellComponent,
     OverviewComponent,
-    WaterWeightPlotComponent,
-    SessionPsychPlotComponent,
-    TrialCountsSessionDurationComponent,
-    PerformanceReactionTimePlotComponent,
-    ContrastHeatmapPlotComponent,
-    FitParPlotsComponent,
-    ByDateResultPlotsComponent,
-    DailySummaryComponent,
-    SummaryPlotsComponent,
-    AnimatedPsychCurvePlotComponent,
-    SessionRTCPlotComponent,
-    SessionRTTNPlotComponent,
-    SessionPlotDialog,
     ProbeInsertionListComponent,
     ProbeInsertionComponent,
     ProbeTracksComponent

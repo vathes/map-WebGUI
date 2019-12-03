@@ -5,9 +5,9 @@
   </div>
   <div class="row title-container">
     <a class="logolink" href="/">
-    <img src="assets/images/monochromeDJ.png">
+    <img src="../assets/images/MAP_logo.png">
     <div class="navigator-head">
-      <h3 class="navigator-header-title">MAP Data Navigator</h3>
+      <h3 class="navigator-header-title">Data Navigator</h3>
     </div>
     </a>
   </div>
@@ -20,7 +20,7 @@
       </button>
     </div>
     <div *ngIf="!menuCollapsed" class="menu-container">
-      <ul class="nav nav-tabs">
+      <ul class="nav nav-pills">
         <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
           <a class="nav-link" routerLink="/">Home</a>
         </li>
@@ -40,7 +40,8 @@
     </div>
   </div>
   <div class="row content-container">
-    <div class="col-xl-10 offset-xl-1">
+    <!-- <div class="col-xl-10 offset-xl-1"> -->
+    <div class="col-xl-11">
       <router-outlet></router-outlet>
     </div>
   </div>

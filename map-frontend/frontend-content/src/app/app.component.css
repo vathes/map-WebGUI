@@ -1,7 +1,11 @@
+* {
+    font-family: Ubuntu;
+}
 
 .navigator-container {
     width: 100%;
     padding: 0;
+    background-color: #f6f5fd;
 }
 
 .row {
@@ -11,29 +15,38 @@ a.logolink * {
     float: left;
 }
 .nav-item a {
-    color: #0d143a;
+    /* color: #2f25bd; */
+    color: #2c3332;
+    border: solid 0.5px #b7b3ee;
 }
-.nav-item a:hover,
-.active a {
-    background-color: #0d143a;
+.nav-item a:hover {
+    background-color: #25bd97;
+    border: solid 0.5px #25bd97;
     color: #fff;
 }
 
+.active a {
+    background-color: #2f25bd;
+    color: #fff;
+}
+
+.title-container {
+    margin-left: 12px;
+}
+
 .title-container img {
-    /* height: 100px; */
-    margin-top:24px;
+    margin: 15px 0px 25px 8px;
     height: 51px;
 }
 
 .navigator-head {
     /* border-left: 1.5px solid rgb(151, 151, 151);  */
-    height: 71px; 
-    margin-top:14px;
+    height: 71px;
 }
 .navigator-header-title {
-    padding: 17px 14px;
-    color: #413f40;
-    font-family: 'Roboto Condensed', sans-serif;
+    padding: 26px 14px;
+    color: #2f25bd;
+    font-family: 'Ubuntu', sans-serif;
     font-weight: 300;
 }
 .menu-button {
@@ -42,22 +55,33 @@ a.logolink * {
 
 .menu-button button,
 .menu-button button:active {
-    border: 2px solid #0d143a;
+    border: 2px solid #2f25bd;
     background-color: transparent;
-    color: #0d143a;
+    color: #2f25bd;
+    /* color: #2c3332; */
 }
 .menu-button button:hover {
-    border: 2px solid #0d143a;
-    background-color: #0d143a;
+    border: 2px solid #2f25bd;
+    background-color: #2f25bd;
     color: white;
 }
 .menu-container {  
     width: 100%; 
 }
+.menu-container ul.nav {  
+    margin-left: 18px;
+}
+
+.menu-container li.nav-item {
+    margin-left: 6px;
+}
 
 .navBarLogin {
     padding: 0;
     margin-right: 10px;
+}
+.content-container {
+    margin-left: 7px;
 }
 
 .footer {
@@ -71,12 +95,12 @@ a.logolink * {
 .footer p,
 .footer * {
     font-size: 0.8rem;
-    color: rgb(32, 31, 34);
+    color: rgb(41, 11, 100);
     margin: 8px auto;
 }
 
 .footer p a:hover {
-    color: #0d143a;
+    color: #2f25bd;
     text-decoration: none;
 }
 
@@ -99,7 +123,7 @@ a.logolink * {
     .title-container img {
         /* height: 80px; */
         height: 36px;
-        margin-top: 22px;
+        margin-top: 18px;
     }
 
     .navigator-head {
@@ -107,7 +131,7 @@ a.logolink * {
         margin-top:12px;
     }
     .navigator-header-title {
-        padding: 15px 14px;
+        padding: 15px 10px;
         font-size: 120%;
     }
     .footer {
@@ -127,15 +151,15 @@ a.logolink * {
     .title-container img {
         /* height: 70px; */
         height: 31px;
-        margin-top: 29.5px;
+        margin-top: 19.5px;
     }
 
     .navigator-head {
         height: 51px; 
-        margin-top:9.5px;
+        margin-top: 9.5px;
     }
     .navigator-header-title {
-        padding: 16px 14px;
+        padding: 16px 8px;
         font-size: 110%;
     }
     .nav-tabs {
