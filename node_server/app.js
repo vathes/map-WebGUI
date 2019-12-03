@@ -49,7 +49,7 @@ app.post('/login', (req, res) => {
 
 // ======================== getting info from flask server ========================== //
 app.get('/sessions', checkAuth, (req, res) => {
-    console.log('req.headers is', req.headers)
+    // console.log('req.headers is', req.headers)
     // setup for proxy server
     var options = {
         // hostname: '127.0.0.1/',
@@ -75,9 +75,6 @@ app.get('/sessions', checkAuth, (req, res) => {
 })
 
 app.post('/sessions', checkAuth, (req, res) => {
-    console.log('posting to filter session page');
-    console.log('This is the guy!!!')
-    console.log('requesting with - ', req.body)
     // request.post(flask_backend + '/v0/_q/sessionpage', { form: req.body }, function (error, httpResponse, body) {
 
     request.post(flask_backend + '/v0/_q/sessionpage', { form: req.body }, function (error, httpResponse, body) {
@@ -91,66 +88,16 @@ app.post('/sessions', checkAuth, (req, res) => {
 })
 
 
-
-app.get('/mice', checkAuth, (req, res) => {
-    // setup for proxy server
-    var options = {
-        // hostname: '127.0.0.1/',
-        hostname: flask_backend.split(':')[1].split('//')[1],
-        port: parseInt(flask_backend.split(':')[2]),
-        path: 'v0/_q/subjpage',//'v0/subject',
-        method: req.method,
-        headers: req.headers
-    };
-
-    var proxy = http.request(options, function (proxy_res) {
-        res.writeHead(proxy_res.statusCode, proxy_res.headers)
-        proxy_res.pipe(res, {
-            end: true
-        });
-    });
-
-    req.pipe(proxy, {
-        end: true
-    });
-})
-
-app.post('/mice', checkAuth, (req, res) => {
-
-    // let query = ''
-    // let count = 0
-    // // console.log('filter in filterValues are: ')
-    // for (filter in req.body) {
-    //     // console.log(filter, ": ", req.body[filter])
-    //     if (count == 0) {
-    //         query += filter + '=' + req.body[filter]
-    //     } else {
-    //         query += '&' + filter + '=' + req.body[filter]
-    //     }
-    //     count += 1;
-    // }
- 
-
-    request.post(flask_backend + '/v0/_q/subjpage', {form: req.body}, function(error, httpResponse, body) {
-        if (error) {
-            console.error('error: ', error);
-        }
-
-        res.send(body);
-    })
-})
-
-
-// app.post('/summary', checkAuth, (req, res) => {
-
-//     request.post(flask_backend + '/v0/_q/dailysummary', { form: req.body }, function (error, httpResponse, body) {
+// app.post('/mice', checkAuth, (req, res) => {
+//     request.post(flask_backend + '/v0/_q/subjpage', {form: req.body}, function(error, httpResponse, body) {
 //         if (error) {
 //             console.error('error: ', error);
 //         }
-//         // console.log(body);
+
 //         res.send(body);
 //     })
 // })
+
 
 
 app.post('/plot/probeInsertions', checkAuth, (req, res) => {
@@ -194,57 +141,7 @@ app.post('/plot/probeTracks', checkAuth, (req, res) => {
     })
 })
 
-// app.post('/plot/rasterbatch', checkAuth, (req, res) => {
-//     // req.setTimeout(60000);
-//     const timeA = new Date()
-//     console.log('requesting rasters light batch to backend: ', timeA);
-//     request.post(flask_backend + '/v0/_q/rasterlight', { form: req.body, timeout: 180000 }, function (error, httpResponse, body) {
-//         if (error) {
-//             console.error('error: ', error);
-//         }
-//         const timeZ = new Date()
-//         console.log('rasters batch took ', timeZ - timeA, ' ms to receive from backend')
-//         console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ')
-//         res.send(body);
-//     })
-// })
 
-// app.post('/plot/psthbatch', checkAuth, (req, res) => {
-//     // req.setTimeout(60000);
-//     const timeA = new Date()
-//     console.log('requesting psth batch to backend: ', timeA);
-//     request.post(flask_backend + '/v0/psthdata', { form: req.body, timeout: 200000 }, function (error, httpResponse, body) {
-//         if (error) {
-//             console.error('error: ', error);
-//         }
-//         const timeZ = new Date()
-//         console.log('psth data batch took ', timeZ - timeA, ' ms to receive from backend')
-//         console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ')
-//         res.send(body);
-//     })
-// })
-// app.get('/plot/psthtemplate', checkAuth, (req, res) => {
-//     const time1 = new Date()
-//     request.get(flask_backend + '/v0/psthtemplate', function (error, httpResponse, body) {
-//         if (error) {
-//             console.error('error: ', error);
-//         }
-//         const time2 = new Date()
-//         console.log('psth template took ', time2 - time1, ' ms to receive from backend')
-//         res.send(body);
-//     })
-// })
-// app.get('/plot/rastertemplate', checkAuth, (req, res) => {
-//     const time1 = new Date()
-//     request.get(flask_backend + '/v0/rastertemplate', function(error, httpResponse, body) {
-//         if (error) {
-//             console.error('error: ', error);
-//         }
-//         const time2 = new Date()
-//         console.log('rasters templates took ', time2 - time1, ' ms to receive from backend')
-//         res.send(body);
-//     })
-// })
 
 
 //Docker Healthcheck

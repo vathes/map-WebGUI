@@ -70,31 +70,10 @@
       <div class="single-plot">
         <app-trial-counts-session-duration [mouseInfo]="mouse"></app-trial-counts-session-duration>
       </div>
-      <div class="single-plot">
-        <app-performance-reaction-time-plot [mouseInfo]="mouse"></app-performance-reaction-time-plot>
-      </div>
-      <div class="single-plot">
-        <app-contrast-heatmap-plot [mouseInfo]="mouse"></app-contrast-heatmap-plot>
-      </div>
-    </div>
-    <div class="v-long-plot-container">
-      <app-fit-par-plots [mouseInfo]="mouse"></app-fit-par-plots>
-    </div>
-    <div class="row fetch-sessions">
-      <button routerLink="/sessions" [queryParams]="cleanMouse" mat-raised-button>
-        See Sessions</button>
-    </div>
-    <div class="row by-date-plots-container">
-      <app-by-date-result-plots [mouseInfo]="mouse"></app-by-date-result-plots>
-    </div>
-    <div class="sessionPCP-container row">
-      <app-animated-psych-curve-plot [mouseInfo]="mouse"></app-animated-psych-curve-plot>
-    </div>
+      
     <br>
   </div>
 
 </div>
 
-
-<!-- <app-session-list *ngIf="mouse" [preRestriction]="mouse"></app-session-list> -->
 

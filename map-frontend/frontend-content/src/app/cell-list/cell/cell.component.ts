@@ -16,13 +16,14 @@ export class CellComponent implements OnInit, OnDestroy {
   units: any;
   selectedEvent: string;
   unitsLoading: boolean;
-  hideMissingPlots = false;
+  hideMissingPlots: boolean;
 
   private cellSubscription: Subscription;
 
   constructor(private route: ActivatedRoute, public cellListService: CellListService) { }
 
   ngOnInit() {
+    this.hideMissingPlots = true;
     this.unitsLoading = true;
     this.mouse_id = this.route.snapshot.paramMap.get('mouseID');
     this.session_id = this.route.snapshot.paramMap.get('sessionID');
@@ -33,12 +34,12 @@ export class CellComponent implements OnInit, OnDestroy {
                                            'insertion_number': this.insertion_num});
     this.cellSubscription = this.cellListService.getCellListLoadedListener()
       .subscribe((unitsData) => {
+        this.unitsLoading = false;
         if (Object.entries(unitsData).length > 0) {
           // console.log('cell data retrieved for session: ', this.session_id, ', insertion: ', this.insertion_num)
           // console.log(unitsData);
           this.units = unitsData;
-          this.unitsLoading = false;
-        }
+        } 
       });
   }
 

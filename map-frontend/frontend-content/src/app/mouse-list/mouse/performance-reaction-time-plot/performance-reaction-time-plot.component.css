@@ -1,8 +1,0 @@
-.PRTplot-container {
-    width: 100%;
-    overflow-x: hidden;
-}
-
-.PRTplot-container:hover {
-    overflow-x: auto;
-}

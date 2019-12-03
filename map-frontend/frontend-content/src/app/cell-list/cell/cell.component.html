@@ -5,7 +5,7 @@
   </div>
   <div *ngIf="units" class="units-viewer-header">
     <div class="row info-table">
-      <table class="table col-lg-4 col-sm-6 col-xs-12 table-striped table-bordered table-sm">
+      <table class="table col-lg-4 col-sm-6 col-xs-12 table-bordered table-sm">
         <tr>
           <th>Subject ID</th>
           <td>{{ units[0]?.subject_id }}</td>
@@ -29,7 +29,7 @@
       </table>
     </div>
     <div class="toggle-view-filter">
-      <mat-checkbox class="toggle-view-chbox" (change)="toggleUnitsView()">
+      <mat-checkbox [checked]="hideMissingPlots" class="toggle-view-chbox" (change)="toggleUnitsView()">
         Only Show Units With Plots
       </mat-checkbox>
     </div>
