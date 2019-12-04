@@ -64,12 +64,15 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       this.probeInsertions.push(probeCount + 1);
       probeCount++;
     }
-    this.cellListService.retrieveCellList(this.sessionInfo);
+    let cellsQuery = this.session;
+    cellsQuery['is_all'] = 0;
+    // this.cellListService.retrieveCellList(this.sessionInfo);
+    this.cellListService.retrieveCellList(cellsQuery);
     this.cellListSubscription = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
         this.unitBehaviorLoading = false;
         this.unitPsthLoading = false;
-        // console.log('logging retrieved cell list data: ', cellListData);
+        console.log('logging retrieved cell list data: ', cellListData);
         if (Object.entries(cellListData).length > 0) {
           this.cells = cellListData;
           const x_data = [];
