@@ -72,7 +72,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       .subscribe((cellListData) => {
         this.unitBehaviorLoading = false;
         this.unitPsthLoading = false;
-        // console.log('logging retrieved cell list data: ', cellListData);
+        console.log('logging retrieved cell list data: ', cellListData);
         if (Object.entries(cellListData).length > 0) {
           this.cells = cellListData;
           const x_data = [];

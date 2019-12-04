@@ -10,17 +10,6 @@
 <form [formGroup]="session_filter_form">
   <div [class]="filterExpanded ? 'filters col-12 filterExpand':'filters col-12 filterCollapse'">
     <div class="session-field-filters form-section">
-
-      <mat-form-field class="short">
-        <label for="">Session Number</label>
-        <input matInput type="text" name="session" formControlName="session_control" [matAutocomplete]="auto2"
-          (focus)="stepBackMenu($event)">
-        <mat-autocomplete #auto2="matAutocomplete">
-          <mat-option *ngFor="let sessionId of filteredSessionOptions | async" [value]="sessionId"
-            (click)="updateMenu()">{{ sessionId }}</mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
-
       <mat-form-field>
         <label>Mouse ID</label>
         <input matInput type="text" name="subject_id" formControlName="subject_id_control" [matAutocomplete]="autoCompSN"
@@ -28,6 +17,29 @@
         <mat-autocomplete #autoCompSN="matAutocomplete">
           <mat-option *ngFor="let subjectId of filteredSubjectIdOptions | async" [value]="subjectId" (click)="updateMenu()">
             {{ subjectId }}</mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+
+      
+
+      <mat-form-field>
+        <label>Water Restriction</label>
+        <input matInput type="text" name="water_restriction_number" formControlName="water_restriction_number_control"
+          [matAutocomplete]="autoCompSL" (focus)="stepBackMenu($event)">
+        <mat-autocomplete #autoCompSL="matAutocomplete">
+          <mat-option *ngFor="let wrNum of filteredWaterRestrictionNumberOptions | async" [value]="wrNum"
+            (click)="updateMenu()">
+            {{ wrNum }}</mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-form-field class="short">
+        <label for="">Session Number</label>
+        <input matInput type="text" name="session" formControlName="session_control" [matAutocomplete]="auto2"
+          (focus)="stepBackMenu($event)">
+        <mat-autocomplete #auto2="matAutocomplete">
+          <mat-option *ngFor="let sessionId of filteredSessionOptions | async" [value]="sessionId" (click)="updateMenu()">
+            {{ sessionId }}</mat-option>
         </mat-autocomplete>
       </mat-form-field>
 
@@ -69,6 +81,15 @@
        
     </div>
     <div class="mouse-field-filters form-section">
+      <mat-form-field>
+        <label>User</label>
+        <input matInput type="text" name="username" formControlName="username_control" [matAutocomplete]="autoCompRU"
+          (focus)="stepBackMenu($event)">
+        <mat-autocomplete #autoCompRU="matAutocomplete">
+          <mat-option *ngFor="let username of filteredUsernameOptions | async" [value]="username" (click)="updateMenu()">
+            {{ username }}</mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
 
       <mat-form-field class="short">
         <label>Probe Count</label>
@@ -119,25 +140,7 @@
           </mat-checkbox>
         </div>
       </div> -->
-      <mat-form-field>
-        <label>Water Restriction</label>
-        <input matInput type="text" name="water_restriction_number" formControlName="water_restriction_number_control" [matAutocomplete]="autoCompSL"
-          (focus)="stepBackMenu($event)">
-        <mat-autocomplete #autoCompSL="matAutocomplete">
-          <mat-option *ngFor="let wrNum of filteredWaterRestrictionNumberOptions | async" [value]="wrNum" (click)="updateMenu()">
-            {{ wrNum }}</mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
-      <mat-form-field>
-        <label>User</label>
-        <input matInput type="text" name="username" formControlName="username_control" [matAutocomplete]="autoCompRU"
-          (focus)="stepBackMenu($event)">
-        <mat-autocomplete #autoCompRU="matAutocomplete">
-          <mat-option *ngFor="let username of filteredUsernameOptions | async" [value]="username" (click)="updateMenu()">
-            {{ username }}</mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
-
+      
     </div>
   </div>
   <br>

@@ -21,7 +21,7 @@
             <th>Unit Depth</th>
             <!-- <th mat-sort-header="unit_amp">Unit Amp</th> -->
             <th>Unit Amp</th>
-            <!-- <th>x position</th> -->
+            <th>Quality</th>
             <!-- <th>y position</th> -->
           </thead>
           <tbody>
@@ -29,9 +29,9 @@
             <!-- <tr *ngFor="let cl of cellsByProbeIns" (click)="clusterSelectedTable(cl.unit)" [ngStyle]="{'backgroundColor': cl?.unit == clickedUnitId ? '#e5ffec' : ''}"> -->
               <td>{{ cl.unit }}</td>
               <!-- <td>{{ cl.insertion_number }}</td> -->
-              <td>{{ cl.unit_depth }}</td>
-              <td>{{ cl.unit_amp }}</td>
-              <!-- <td>{{ cl.unit_posx }}</td> -->
+              <td>{{ cl.unit_depth | number: '1.0-2' }}</td>
+              <td>{{ cl.unit_amp | number: '1.0-2' }}</td>
+              <td>{{ cl.unit_quality}}</td>
               <!-- <td>{{ cl.unit_posy }}</td> -->
             </tr>
           </tbody>

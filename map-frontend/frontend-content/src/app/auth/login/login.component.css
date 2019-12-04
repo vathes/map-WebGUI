@@ -1,9 +1,13 @@
 .login-container {
-    padding-top: 20px;
+    /* padding-top: 20px; */
 }
 
 .login-sub-container {
-    float: right;
+    /* float: right; */
+    right: 4px;
+    top: 17px;
+    position: absolute;
+    z-index: 50;
 }
 
 .login-fail-text {
