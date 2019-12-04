@@ -208,7 +208,7 @@ def handle_q(subpath, args, proj, **kwargs):
         exclude_attrs = ['-spike_times', '-waveform', '-unit_uid', '-probe', '-electrode_config_name', '-electrode_group']
         units = (ephys.Unit * ephys.UnitStat
                  * ephys.ProbeInsertion.InsertionLocation.proj('brain_location_name', 'dv_location')).proj(
-          ..., unit_depth='unit_posy - dv_location', *exclude_attrs)
+          ..., unit_depth='unit_posy - dv_location', is_all='unit_quality = "all"', *exclude_attrs)
         units = units.aggr(report.UnitLevelReport, ..., unit_psth_s3fp='unit_psth',
                            unit_behavior_s3fp='unit_behavior', keep_all_rows=True)
 
