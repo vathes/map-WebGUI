@@ -6,19 +6,18 @@
         <tr><th>Subject ID</th><td>{{ probeInsertion.subject_id}}</td></tr>
         <tr><th>Session #</th><td>{{ probeInsertion.session}}</td></tr>
         <tr><th>Insertion #</th><td>{{ probeInsertion.insertion_number}}</td></tr>
-        <tr><th>Hemipshere</th><td>{{ probeInsertion.hemisphere}}</td></tr>
-        <tr><th>Brain Area</th><td>{{ probeInsertion.brain_area}}</td></tr>
-        <tr><th>Brain Location</th><td>{{ probeInsertion.brain_location_name}}</td></tr>
-        <tr><th>Skull Reference</th><td>{{ probeInsertion.skull_reference}}</td></tr>
+        <tr><th>Probe Type</th><td>{{ probeInsertion.probe_type}}</td></tr>
+        <tr><th>Recordable Brain Region(s)</th><td>{{ probeInsertion.brain_regions}}</td></tr>
+        <tr><th>Units</th><td><button class="btn btn-sm btn-success" routerLink="/probe/{{probeInsertion?.subject_id}}/{{probeInsertion?.session}}/{{probeInsertion?.insertion_number}}">View Units</button></td></tr>
       </table>
       <table class="table col-sm-5 col-xs-12 table-striped table-bordered table-sm">
-        <tr><th>Probe</th><td>{{ probeInsertion.probe}}</td></tr>
-        <tr><th>AP Angle</th><td>{{ probeInsertion.ap_angle}}</td></tr>
+        <tr><th>Skull Reference</th><td>{{ probeInsertion.skull_reference}}</td></tr>
         <tr><th>AP Location</th><td>{{ probeInsertion.ap_location}}</td></tr>
-        <tr><th>DV Location</th><td>{{ probeInsertion.dv_location}}</td></tr>
-        <tr><th>ML Angle</th><td>{{ probeInsertion.ml_angle}}</td></tr>
         <tr><th>ML Location</th><td>{{ probeInsertion.ml_location}}</td></tr>
-        <tr><th>Units</th><td><button class="btn btn-sm btn-success" routerLink="/probe/{{probeInsertion?.subject_id}}/{{probeInsertion?.session}}/{{probeInsertion?.insertion_number}}">View Units</button></td></tr>
+        <tr><th>Depth</th><td>{{ probeInsertion.depth}}</td></tr>
+        <tr><th>Theta</th><td>{{ probeInsertion.theta}}</td></tr>
+        <tr><th>Phi</th><td>{{ probeInsertion.phi}}</td></tr>
+        <tr><th>Beta</th><td>{{ probeInsertion.beta}}</td></tr>
       </table>
     </div>
     <hr>

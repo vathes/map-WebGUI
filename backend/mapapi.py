@@ -29,7 +29,7 @@ os.environ['DJ_SUPPORT_FILEPATH_MANAGEMENT'] = "TRUE"
 
 
 def mkvmod(mod):
-    return dj.create_virtual_module(mod, 'map_v1_{}'.format(mod))
+    return dj.create_virtual_module(mod, 'map_v2_{}'.format(mod))
 
 
 lab = mkvmod('lab')
@@ -172,12 +172,15 @@ def handle_q(subpath, args, proj, **kwargs):
 
     contain_s3fp = False
     if subpath == 'sessionpage':
+        recordable_brain_regions = ephys.ProbeInsertion.aggr(ephys.ProbeInsertion.RecordableBrainRegion.proj(
+          brain_region='CONCAT(hemisphere, " ", brain_area)'),
+          brain_regions='GROUP_CONCAT(brain_region)', keep_all_rows=True)
 
         sessions = (experiment.Session * lab.WaterRestriction).aggr(
           ephys.ProbeInsertion, 'session_date', 'water_restriction_number', 'username',
           probe_count='count(insertion_number)', keep_all_rows=True).aggr(
-          ephys.ProbeInsertion.InsertionLocation, ...,
-          insert_locations='GROUP_CONCAT(brain_location_name)', keep_all_rows=True)
+          recordable_brain_regions, ..., insert_locations='GROUP_CONCAT(brain_regions)', keep_all_rows=True)
+
         sessions = sessions.aggr(ephys.Unit, ..., clustering_methods='GROUP_CONCAT(DISTINCT clustering_method)', keep_all_rows=True)
         sessions = sessions.aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
         sessions = sessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
@@ -194,8 +197,11 @@ def handle_q(subpath, args, proj, **kwargs):
         q = sessions & args & insert_locations_restr & clustering_methods_restr
     elif subpath == 'probe_insertions':
         exclude_attrs = ['-electrode_config_name']
-        probe_insertions = (ephys.ProbeInsertion * ephys.ProbeInsertion.InsertionLocation
-                            * experiment.BrainLocation).proj(..., *exclude_attrs)
+        probe_insertions = (ephys.ProbeInsertion * ephys.ProbeInsertion.InsertionLocation).proj(
+          ..., *exclude_attrs).aggr(ephys.ProbeInsertion.RecordableBrainRegion.proj(
+          brain_region='CONCAT(hemisphere, " ", brain_area)'), ...,
+          brain_regions='GROUP_CONCAT(brain_region)', keep_all_rows=True)
+
         probe_insertions = probe_insertions.aggr(
           report.ProbeLevelReport, ..., clustering_quality_s3fp='clustering_quality',
           unit_characteristic_s3fp = 'unit_characteristic', group_psth_s3fp = 'group_psth', keep_all_rows=True)
@@ -207,8 +213,8 @@ def handle_q(subpath, args, proj, **kwargs):
     elif subpath == 'units':
         exclude_attrs = ['-spike_times', '-waveform', '-unit_uid', '-probe', '-electrode_config_name', '-electrode_group']
         units = (ephys.Unit * ephys.UnitStat
-                 * ephys.ProbeInsertion.InsertionLocation.proj('brain_location_name', 'dv_location')).proj(
-          ..., unit_depth='unit_posy - dv_location', is_all='unit_quality = "all"', *exclude_attrs)
+                 * ephys.ProbeInsertion.InsertionLocation.proj('depth')).proj(
+          ..., unit_depth='unit_posy + depth', is_all='unit_quality = "all"', *exclude_attrs)
         units = units.aggr(report.UnitLevelReport, ..., unit_psth_s3fp='unit_psth',
                            unit_behavior_s3fp='unit_behavior', keep_all_rows=True)
 
