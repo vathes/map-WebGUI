@@ -17,6 +17,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   cells: any;
   session: any;
   clickedUnitId: number;
+  clickedUnitIndex: number;
   cellsByProbeIns = [];
   sortedCellsByProbeIns = [];
   plot_data;
@@ -24,7 +25,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   plot_config;
 
   targetClusterRowInfo = [];
-  targetUnitId;
   targetClusterDepth;
   targetClusterAmp;
   targetProbeIndex;
@@ -59,6 +59,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   ngOnInit() {
     this.session = this.sessionInfo;
+    this.clickedUnitIndex = 0;
     let probeCount = 0
     while (probeCount < this.sessionInfo['probe_count']) {
       this.probeInsertions.push(probeCount + 1);
@@ -72,7 +73,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       .subscribe((cellListData) => {
         this.unitBehaviorLoading = false;
         this.unitPsthLoading = false;
-        console.log('logging retrieved cell list data: ', cellListData);
+        // console.log('logging retrieved cell list data: ', cellListData);
         if (Object.entries(cellListData).length > 0) {
           this.cells = cellListData;
           const x_data = [];
@@ -117,7 +118,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           this.color_data_adjusted = color_data.map(function(elem) {
             return `rgba(0, 125, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
           });
-          this.targetUnitId = 1;
           this.clickedUnitId = 1;
           // console.log('adjusted color data:', this.color_data_adjusted);
           this.plot_data = [{
@@ -180,9 +180,9 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   ngDoCheck() {
     const markerColors = [];
     if (this.plot_data) {
-      if (this.plot_data[0]['x'] && this.clickedUnitId > -1) {
+      if (this.plot_data[0]['x'] && this.clickedUnitIndex > -1) {
         for (let i = 0; i < this.plot_data[0]['x'].length; i++) {
-          if (this.clickedUnitId - 1 === i) {
+          if (this.clickedUnitIndex === i) {
             markerColors.push('rgba(0, 0, 0, 1)'); // black
           } else {
             markerColors.push(this.color_data_adjusted[i]); 
@@ -199,9 +199,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       // console.log('markerColors: ', markerColors);
     }
 
-    if (this.targetUnitId) {
-      this.cells
-    }
+    
 
   }
   ngOnDestroy() {
@@ -267,7 +265,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     }];
     this.unitBehaviorLoading = false;
     this.unitPsthLoading = false;
-    this.targetUnitId = 1;
     this.clickedUnitId = 1;
     // console.log('plot data for probe (' + probeInsNum + ') is - ', this.plot_data);
   }
@@ -280,64 +277,62 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     const rows = element.querySelectorAll('tr');
     // console.log('printing rows');
     // console.log(rows);
-    // this.targetUnitId = this.clickedUnitId;
     // console.log('clicked unitId is: ', this.clickedUnitId);
     if (data['points'] && data['points'][0]['customdata']) {
       // console.log('data[points][0] is: ', data['points'][0]);
       this.clickedUnitId = data['points'][0]['customdata'];
-      this.targetUnitId = this.clickedUnitId;
-      // console.log('clicked unitId according to data is: ', data['points'][0]['customdata']);
-      rows[this.clickedUnitId].scrollIntoView({
-                                      behavior: 'smooth',
-                                      block: 'center'});
+      for (const [ind, row] of Object.entries(rows)) {
+
+        
+        // console.log('row inner text is - ', row['innerText']);
+        if (this.clickedUnitId == row['innerText'].split('	')[0]) {
+          // console.log('row unit id is - ', row['innerText'].split('	')[0]);
+          const unitId = row['innerText'].split('	')[0];
+          this.clickedUnitIndex = parseInt(ind, 10);
+          row.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+        
+      }
+      
+      // rows[this.clickedUnitId].scrollIntoView({
+      //                                 behavior: 'smooth',
+      //                                 block: 'center'});
     }
 
   }
 
   clusterSelectedTable(unit_id) {
-    // console.log('table row selected!')
-    const element = this.el_nav.nativeElement.children[1];
-    const rows = element.querySelectorAll('tr');
-    this.clickedUnitId = unit_id;
-    this.targetUnitId = this.clickedUnitId;
+
+    for (const [index, unit] of Object.entries(this.cellsByProbeIns)) {
+      if (unit['unit'] === unit_id) {
+        
+        this.clickedUnitIndex = parseInt(index, 10);
+        this.clickedUnitId = unit_id;
+      }
+    }
+    // const element = this.el_nav.nativeElement.children[1];
+    // const rows = element.querySelectorAll('tr');
+    // this.clickedUnitId = unit_id;
  
   }
 
   navigate_cell_plots(event, direction) {
-    // console.log('navigation activated')
-    // let element = this.el_nav.nativeElement.children[1];
-    // let rows = element.querySelectorAll('tr');
-    // let HLrowID = element.querySelectorAll('#highlighted-row');
-    // console.log('element: ', element)
-    // console.log('rows: ', rows)
-    // console.log('highlighted id: ', HLrowID)
-    // console.log('highlighted id[0]: ', HLrowID[0])
-    // console.log('highlighted id[0] type: ', typeof HLrowID[0])
-    // console.log('highlighted id[0][outerText]: ', HLrowID[0]['outerText'])
-    // console.log('=============================')
-    // rows.forEach((row, index) => {
-    //   if (row.id == 'highlighted-row') {
-    //     console.log('highlighted row at index - ', index)
-    //     console.log('highlighted row at rowindex - ', row['rowIndex'])
-    //     console.log('unit - ', row['outerText'].split('')[2])
-    //   }
-    // })
-    
-    // console.log('clickedUnitId before - ', this.clickedUnitId);
     if (direction === 'up') {
-      if (this.clickedUnitId - 1 > -1) {
-        this.clickedUnitId -= 1;
-        this.targetUnitId = this.clickedUnitId;
+      if (this.clickedUnitIndex - 1 > -1) {
+        this.clickedUnitIndex -= 1;
+        
       }
-      // console.log('clickedUnitId after - ', this.clickedUnitId);
     }
     if (direction === 'down') {
-      if (this.clickedUnitId + 1 < this.plot_data[0]['x'].length + 1) {
-        this.clickedUnitId += 1;
-        this.targetUnitId = this.clickedUnitId;
+      if (this.clickedUnitIndex + 1 < this.plot_data[0]['x'].length + 1) {
+        this.clickedUnitIndex += 1;
       }
-      // console.log('clickedUnitId after - ', this.clickedUnitId);
     }
+    // console.log('this.cellsByProbeIns[this.clickedUnitId][unit]: ', this.cellsByProbeIns[this.clickedUnitIndex]['unit'])
+    this.clickedUnitId = this.cellsByProbeIns[this.clickedUnitIndex]['unit'];
   }
 
   // sortData(sort: Sort) {
