@@ -281,20 +281,33 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     if (data['points'] && data['points'][0]['customdata']) {
       // console.log('data[points][0] is: ', data['points'][0]);
       this.clickedUnitId = data['points'][0]['customdata'];
-      for (const [ind, row] of Object.entries(rows)) {
-
-        
-        // console.log('row inner text is - ', row['innerText']);
+      // for (const [ind, row] of Object.entries(rows)) {
+      //   // console.log('row inner text is - ', row['innerText']);
+      //   if (this.clickedUnitId == row['innerText'].split('	')[0]) {
+      //     console.log('row1 is: ', row)
+      //     console.log('row unit id is - ', row['innerText'].split('	')[0]);
+      //     const unitId = row['innerText'].split('	')[0];
+      //     this.clickedUnitIndex = parseInt(ind, 10);
+      //     row.scrollIntoView({
+      //       behavior: 'smooth',
+      //       block: 'center'
+      //     });
+      //   } 
+      // }
+      let rowIndex = 0;
+      for (const row of rows) {
+        // console.log('inside second loop');
         if (this.clickedUnitId == row['innerText'].split('	')[0]) {
-          // console.log('row unit id is - ', row['innerText'].split('	')[0]);
-          const unitId = row['innerText'].split('	')[0];
-          this.clickedUnitIndex = parseInt(ind, 10);
+          // console.log('row2 is: ', row)
+          // console.log('row unit2 id is - ', row['innerText'].split('	')[0]);
+          this.clickedUnitIndex = rowIndex;
+          // console.log('index 2 - ', rowIndex);
           row.scrollIntoView({
             behavior: 'smooth',
             block: 'center'
           });
         }
-        
+        rowIndex += 1; 
       }
       
       // rows[this.clickedUnitId].scrollIntoView({
