@@ -276,20 +276,33 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     const element = this.el_nav.nativeElement.children[1];
     // console.log('cluster selected from cluster plot!');
     // console.log(element);
-    // console.log('data is: ', data);
+    console.log('data is: ', data);
     const rows = element.querySelectorAll('tr');
-    // console.log('printing rows');
-    // console.log(rows);
+    console.log('printing rows');
+    console.log(rows);
     // this.targetUnitId = this.clickedUnitId;
     // console.log('clicked unitId is: ', this.clickedUnitId);
     if (data['points'] && data['points'][0]['customdata']) {
-      // console.log('data[points][0] is: ', data['points'][0]);
+      console.log('data[points][0] is: ', data['points'][0]);
       this.clickedUnitId = data['points'][0]['customdata'];
       this.targetUnitId = this.clickedUnitId;
-      // console.log('clicked unitId according to data is: ', data['points'][0]['customdata']);
-      rows[this.clickedUnitId].scrollIntoView({
-                                      behavior: 'smooth',
-                                      block: 'center'});
+      console.log('clicked unitId according to data is: ', data['points'][0]['customdata']);
+      for (const row of rows) {
+        // console.log('row inner text is - ', row['innerText']);
+        if (this.clickedUnitId == row['innerText'].split('	')[0]) {
+          console.log('row unit id is - ', row['innerText'].split('	')[0]);
+          const unitId = row['innerText'].split('	')[0];
+          row.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+        
+      }
+      
+      // rows[this.clickedUnitId].scrollIntoView({
+      //                                 behavior: 'smooth',
+      //                                 block: 'center'});
     }
 
   }
