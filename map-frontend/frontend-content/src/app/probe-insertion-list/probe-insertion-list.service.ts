@@ -25,7 +25,7 @@ export class ProbeInsertionListService {
     })
       .subscribe(
         (probeInsertionData) => {
-          console.log('fetched probeInsertionData!: ', probeInsertionData);
+          // console.log('fetched probeInsertionData!: ', probeInsertionData);
           this.probeInsertionList = probeInsertionData;
           this.probeInsertionListLoaded.next(this.probeInsertionList);
         }, 

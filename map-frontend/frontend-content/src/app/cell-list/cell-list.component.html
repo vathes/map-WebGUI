@@ -44,20 +44,20 @@
     </div>
   </div>
   <div class="unit-plots-area">
-    <p *ngIf="!unitBehaviorLoading">Selected Unit Id: {{ targetUnitId }}</p>
+    <p *ngIf="!unitBehaviorLoading">Selected Unit Id: {{ clickedUnitId }}</p>
     <div class="unit-plots-subarea" *ngIf="cellsByProbeIns">
       <div class="unit-plot unit-behavior-plot">
         <p *ngIf="unitBehaviorLoading">Unit Behavior Plot Loading...</p>
-        <img *ngIf="!unitBehaviorLoading && cellsByProbeIns[targetUnitId - 1] && cellsByProbeIns[targetUnitId - 1]['unit_behavior']" [src]="cellsByProbeIns[targetUnitId - 1]['unit_behavior']">
-        <img *ngIf="(!unitBehaviorLoading && !cellsByProbeIns[targetUnitId - 1]) || (!unitBehaviorLoading && !cellsByProbeIns[targetUnitId - 1]['unit_behavior'])" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
-        <!-- <div *ngIf="!cellsByProbeIns[targetUnitId - 1] || !cellsByProbeIns[targetUnitId - 1]['unit_behavior']" class="empty-plot empty-behavior-plot"><img class="dummy-behavior-plot"></div> -->
+        <img *ngIf="!unitBehaviorLoading && cellsByProbeIns[clickedUnitIndex] && cellsByProbeIns[clickedUnitIndex]['unit_behavior']" [src]="cellsByProbeIns[clickedUnitIndex]['unit_behavior']">
+        <img *ngIf="(!unitBehaviorLoading && !cellsByProbeIns[clickedUnitIndex]) || (!unitBehaviorLoading && !cellsByProbeIns[clickedUnitIndex]['unit_behavior'])" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
+        <!-- <div *ngIf="!cellsByProbeIns[clickedUnitIndex] || !cellsByProbeIns[clickedUnitIndex]['unit_behavior']" class="empty-plot empty-behavior-plot"><img class="dummy-behavior-plot"></div> -->
 
       </div>
       <div class="unit-plot unit-psth-plot">
         <p *ngIf="unitPsthLoading">Unit PSTH Plot Loading...</p>
-        <img *ngIf="!unitPsthLoading && cellsByProbeIns[targetUnitId - 1] && cellsByProbeIns[targetUnitId - 1]['unit_psth']" [src]="cellsByProbeIns[targetUnitId - 1]['unit_psth']">
-        <img *ngIf="(!unitPsthLoading && !cellsByProbeIns[targetUnitId - 1]) || (!unitPsthLoading && !cellsByProbeIns[targetUnitId - 1]['unit_psth'])" class="empty-plot empty-psth-plot" src="assets/images/unit_psth_empty.png">
-        <!-- <div *ngIf="!cellsByProbeIns[targetUnitId - 1] || !cellsByProbeIns[targetUnitId - 1]['unit_psth']" class="empty-plot empty-psth-plot"><img class="dummy-psth-plot"></div> -->
+        <img *ngIf="!unitPsthLoading && cellsByProbeIns[clickedUnitIndex] && cellsByProbeIns[clickedUnitIndex]['unit_psth']" [src]="cellsByProbeIns[clickedUnitIndex]['unit_psth']">
+        <img *ngIf="(!unitPsthLoading && !cellsByProbeIns[clickedUnitIndex]) || (!unitPsthLoading && !cellsByProbeIns[clickedUnitIndex]['unit_psth'])" class="empty-plot empty-psth-plot" src="assets/images/unit_psth_empty.png">
+        <!-- <div *ngIf="!cellsByProbeIns[clickedUnitIndex] || !cellsByProbeIns[clickedUnitIndex]['unit_psth']" class="empty-plot empty-psth-plot"><img class="dummy-psth-plot"></div> -->
       </div>
     </div>
   </div>

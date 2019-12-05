@@ -24,7 +24,7 @@ export class ProbeInsertionListComponent implements OnInit {
     this.probeInsertionListSubscription = this.probeInsertionListService.getProbeInsertionListLoadedListener()
       .subscribe((probeInsData) => {
         this.probeInsertions = probeInsData;
-        console.log('printing probe insertion data: ', probeInsData);
+        // console.log('printing probe insertion data: ', probeInsData);
       })
 
   }
