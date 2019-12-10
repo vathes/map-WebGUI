@@ -12,6 +12,7 @@ from datetime import datetime
 import numpy as np
 import datajoint as dj
 import pathlib
+from decimal import Decimal
 
 from flask import Flask
 from flask import request
@@ -70,7 +71,8 @@ class DateTimeEncoder(json.JSONEncoder):
         np.int64: str,
         np.float32: str,
         np.float64: str,
-        np.ndarray: list
+        np.ndarray: list,
+        Decimal: float
     }
 
     def default(self, o):
@@ -188,7 +190,9 @@ def handle_q(subpath, args, proj, **kwargs):
 
         # handling special GROUPCONCAT attributes: `insert_locations` and `clustering_methods` in args
         insert_locations_restr = make_LIKE_restrictor('insert_locations', args,
-                                                      (experiment.BrainLocation, 'brain_location_name'))
+                                                      (ephys.ProbeInsertion.RecordableBrainRegion.proj(
+                                                        brain_region='CONCAT(hemisphere, " ", brain_area)'),
+                                                       'brain_region'))
         clustering_methods_restr = make_LIKE_restrictor('clustering_methods', args,
                                                         (ephys.ClusteringMethod, 'clustering_method'))
         [args.pop(v) for v in ('insert_locations', 'clustering_methods') if v in args]
@@ -215,8 +219,9 @@ def handle_q(subpath, args, proj, **kwargs):
         units = (ephys.Unit * ephys.UnitStat
                  * ephys.ProbeInsertion.InsertionLocation.proj('depth')).proj(
           ..., unit_depth='unit_posy + depth', is_all='unit_quality = "all"', *exclude_attrs)
-        units = units.aggr(report.UnitLevelReport, ..., unit_psth_s3fp='unit_psth',
-                           unit_behavior_s3fp='unit_behavior', keep_all_rows=True)
+
+        units = units.aggr(report.UnitLevelEphysReport, ..., unit_psth_s3fp='unit_psth', keep_all_rows=True)
+        units = units.aggr(report.UnitLevelTrackingReport, ..., unit_behavior_s3fp='unit_behavior', keep_all_rows=True)
 
         contain_s3fp = True
         q = units & args
