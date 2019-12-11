@@ -151,6 +151,11 @@
     <div>
       <button mat-raised-button class="btn btn-reset" (click)="clearControl()">Reset Filter</button>
     </div>
+    <div class="sorted_sessions_filter">
+      <mat-checkbox class="sorted_sessions_chbox" [checked]="showSortedSessions" (change)="toggleSortedSessionViewStatus()">
+        Only show sorted sessions
+      </mat-checkbox>
+    </div>
   </div>
 
 </form>

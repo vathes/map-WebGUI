@@ -37,6 +37,8 @@ export class SessionListComponent implements OnInit, OnDestroy {
   filterExpanded;
   sessions;
   allSessions;
+
+  showSortedSessions = false;
   sessionDateFilter: Function;
   // miceBirthdayFilter: Function;
   sessionMinDate: Date;
@@ -162,6 +164,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
       .subscribe((sessions_all: any) => {
         this.allSessions = sessions_all;
         this.createMenu(sessions_all);
+        this.toggleSortedSessionViewStatus();
       });
   }
 
@@ -460,14 +463,14 @@ export class SessionListComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.sessions = [];
     const request = this.filterRequests();
-    console.log('applying filter with...', request);
+    // console.log('applying filter with...', request);
     request['__order'] = 'session_date DESC';
     if (Object.entries(request) && Object.entries(request).length > 1) {
       this.filterStoreService.storeSessionFilter(request);
       this.allSessionsService.retrieveSessions2(request);
       this.reqSessionsSubscription = this.allSessionsService.getNewSessionsLoadedListener2()
         .subscribe((newSessions: any) => {
-          console.log('response: ', newSessions);
+          // console.log('response: ', newSessions);
           this.loading = false;
           this.sessions = newSessions;
           this.dataSource = new MatTableDataSource(newSessions);
@@ -558,6 +561,28 @@ export class SessionListComponent implements OnInit, OnDestroy {
   sessionSelected(session) {
     // console.log(session);
     this.selectedSession = session;
+  }
+
+  toggleSortedSessionViewStatus() {
+    // console.log('show sorted sessions: ', this.showSortedSessions);
+    this.showSortedSessions = !this.showSortedSessions;
+    if (this.showSortedSessions) {
+      const sortedSessions = [];
+      for (const session of this.allSessions) {
+        if (session['clustering_methods'] && session['clustering_methods'].length > 0) {
+          // console.log('session[clustinermethod]: ', session['clustering_methods']);
+          sortedSessions.push(session);
+        }
+      }
+      this.dataSource = new MatTableDataSource(sortedSessions);
+    } else {
+      this.dataSource = new MatTableDataSource(this.allSessions);
+    }
+    this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (data, header) => data[header];
+    this.dataSource.paginator = this.paginator;
+
+    
   }
 
 }

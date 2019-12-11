@@ -40,6 +40,11 @@ form {
     flex-direction: column;
 }
 
+
+.sorted_sessions_chbox {
+    margin-left: 15px;
+}
+
 .form-section {
     width: 100%;
 }
