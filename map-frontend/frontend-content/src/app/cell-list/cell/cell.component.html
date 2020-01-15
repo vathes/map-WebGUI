@@ -36,8 +36,19 @@
   </div>
   
   <hr>
+  <div *ngIf="units">
+    <app-modal [showModal]="modalShow" [customClass]="'custom-modal-class'" [closeModalCallback]="toggleModal">
+      <div class="zoomedPlotContainer">
+        <div *ngIf="zoomPlot == 'behavior'">
+          <h5>Unit: {{zoomUnit.unit}}</h5>
+          <img class="zoomedPlot" [src]="units[zoomUnitIndex]['unit_behavior']">
+        </div>
+        <img class="zoomedPlot" *ngIf="zoomPlot == 'psth'" [src]="units[zoomUnitIndex]['unit_psth']">
+      </div>
+    </app-modal>
+  </div>
   <div class="units-table">
-    <table *ngFor="let unit of units" [style.display]="hideMissingPlots && !unit['unit_behavior'] ? 'none': 'table'" class="unit table table-bordered table-sm">
+    <table *ngFor="let unit of units; let i = index" [style.display]="hideMissingPlots && !unit['unit_behavior'] ? 'none': 'table'" class="unit table table-bordered table-sm">
       <tr class="unit-row">
         <td width="22%">
           <table class="unit-detail table table-sm">
@@ -54,10 +65,13 @@
             <tr><th>Unit Snr</th><td>{{ unit['unit_snr'] }}</td></tr>
           </table>
         </td>
-        <td width="38%"><img class="unit-behavior-plot" [src]="unit['unit_behavior']"></td>
-        <td width="32%"><img class="unit-psth-plot" [src]="unit['unit_psth']"></td>
+        <td class="plot-grid" width="38%"><img class="unit-behavior-plot" [src]="unit['unit_behavior']" (click)="toggleModal(i,'behavior', unit)"></td>
+        <td class="plot-grid" width="32%"><img class="unit-psth-plot" [src]="unit['unit_psth']" (click)="toggleModal(i,'psth', unit)"></td>
+        
+      
       </tr>
     </table>
+    
   </div>
 
 </div>
