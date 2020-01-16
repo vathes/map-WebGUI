@@ -43,6 +43,7 @@ import { AuthInterceptor } from './auth/auth-interceptor';
 import { ProbeInsertionListComponent } from './probe-insertion-list/probe-insertion-list.component';
 import { ProbeInsertionComponent } from './probe-insertion-list/probe-insertion/probe-insertion.component';
 import { ProbeTracksComponent } from './probe-tracks/probe-tracks.component';
+import { ModalComponent } from './modal/modal.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -114,7 +115,8 @@ const appRoutes: Routes = [
     OverviewComponent,
     ProbeInsertionListComponent,
     ProbeInsertionComponent,
-    ProbeTracksComponent
+    ProbeTracksComponent,
+    ModalComponent
   ],
   imports: [
     CommonModule, PlotlyModule,

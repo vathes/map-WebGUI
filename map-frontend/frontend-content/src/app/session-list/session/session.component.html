@@ -38,21 +38,29 @@
       </tr>
     </table>
   </div>
+
+  <div *ngIf="session">
+    <app-modal [showModal]="showSessionModal" [customClass]="'custom-modal-class'" [closeModalCallback]="toggleSessionModal">
+      <div class="zoomedSessionPlotContainer">
+        <img class="zoomedSessionPlot" [src]="zoomSessionPlotURL">
+      </div>
+    </app-modal>
+  </div>
   <hr>
   <h5>Session Plots</h5>
   <div class="sessionBehaviorPlotSection">
     <div class="session-plots" *ngIf="session">
       <div class="session-plot-container">
         <p *ngIf="!session.session_tracks_plot">Session Tracks Plot Not Available</p>
-        <img *ngIf="session.session_tracks_plot" class="session-plot" [src]="session.session_tracks_plot">
+        <img *ngIf="session.session_tracks_plot" class="session-plot" [src]="session.session_tracks_plot" (click)="toggleSessionModal(session.session_tracks_plot)">
       </div>
       <div class="session-plot-container">
         <p *ngIf="!session.behavior_performance">Behavior Performance Plot Not Available</p>
-        <img *ngIf="session.behavior_performance" class="session-plot" [src]="session.behavior_performance">
+        <img *ngIf="session.behavior_performance" class="session-plot" [src]="session.behavior_performance" (click)="toggleSessionModal(session.behavior_performance)">
       </div>
       <div class="session-plot-container">
         <p *ngIf="!session.coding_direction">Coding Direction Plot Not Available</p>
-        <img *ngIf="session.coding_direction" class="session-plot" [src]="session.coding_direction">
+        <img *ngIf="session.coding_direction" class="session-plot" [src]="session.coding_direction" (click)="toggleSessionModal(session.coding_direction)">
       </div>
     </div>
   </div>

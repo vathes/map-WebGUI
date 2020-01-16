@@ -37,13 +37,31 @@ table.unit-detail {
 .unit-behavior-plot {
     /* width: 100%; */
     /* width: 450px; */
-    height: 18vw;
+    height: 20vw;
     width: auto;
 }
 
 .unit-psth-plot {
     /* width: 100%; */
     /* width: 420px; */
-    height: 18vw;
+    height: 20vw;
     width: auto;
+}
+
+.plot-grid:hover {
+    border-right: 2px solid lightgrey;
+    border-bottom: 2px solid lightgrey;
+}
+
+.unit-behavior-plot:hover,
+.unit-psth-plot:hover {
+    cursor: pointer;
+}
+
+.zoomedPlotContainer {
+}
+
+.zoomedPlot {
+    width: auto;
+    height: 90vh;
 }

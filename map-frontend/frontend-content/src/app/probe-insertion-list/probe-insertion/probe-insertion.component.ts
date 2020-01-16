@@ -8,12 +8,19 @@ import { Component, OnInit, OnDestroy, ElementRef, ViewChild, Input, HostListene
 })
 export class ProbeInsertionComponent implements OnInit {
   probeInsertion: any;
+  zoomProbeInsPlotPlotURL;
+  showProbeInsPlotModal = false;
 
   @Input() probeInsertionInfo: Object;
   constructor() { }
 
   ngOnInit() {
     this.probeInsertion = this.probeInsertionInfo;
+  }
+
+  toggleProbeInsPlotModal = (plotURL) => {
+    this.zoomProbeInsPlotPlotURL = plotURL;
+    this.showProbeInsPlotModal = !this.showProbeInsPlotModal;
   }
 
 }

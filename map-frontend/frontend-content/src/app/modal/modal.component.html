@@ -1,0 +1,7 @@
+<div [ngClass]="customClass || ''" class="modal" [ngStyle]="{display: showModal ? 'block': 'none'}">
+  <div class="overlay" (click)="closeModalCallback()"></div>
+  <div class="modal-content">
+    <ng-content></ng-content>
+    <button class="close-modal-button" (click)="closeModalCallback()"><span class="oi oi-x"></span></button>
+  </div>
+</div>
