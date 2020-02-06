@@ -17,6 +17,10 @@ export class CellComponent implements OnInit, OnDestroy {
   selectedEvent: string;
   unitsLoading: boolean;
   hideMissingPlots: boolean;
+  modalShow = false;
+  zoomPlot: string;
+  zoomUnitIndex;
+  zoomUnit;
 
   private cellSubscription: Subscription;
 
@@ -53,6 +57,11 @@ export class CellComponent implements OnInit, OnDestroy {
     this.hideMissingPlots = !this.hideMissingPlots;
   }
 
-
+  toggleModal = (unitIndex, plotType, unit) => {
+    this.zoomUnitIndex = unitIndex;
+    this.zoomPlot = plotType;
+    this.zoomUnit = unit;
+    this.modalShow = !this.modalShow;
+  }
 
 }

@@ -14,6 +14,8 @@ export class SessionComponent implements OnInit, OnDestroy {
   private sessionSubscription: Subscription;
   session: any;
   sessionPlotInfo: any;
+  zoomSessionPlotURL: string;
+  showSessionModal = false;
 
   constructor(private route: ActivatedRoute, public allSessionsService: AllSessionsService) { }
 
@@ -34,6 +36,10 @@ export class SessionComponent implements OnInit, OnDestroy {
     }
   }
 
+  toggleSessionModal = (plotURL) => {
+    this.zoomSessionPlotURL = plotURL;
+    this.showSessionModal = !this.showSessionModal;
+  }
 
 }
 

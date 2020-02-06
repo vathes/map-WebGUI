@@ -1,0 +1,36 @@
+.modal {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: 950;
+}
+
+.modal .overlay {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: rgba(0,0,0,0.5);
+    z-index: 975;
+}
+
+.modal .modal-content {
+    position: absolute;
+    z-index: 999;
+    background: white;
+}
+
+.modal button.close-modal-button {
+    top: 8px;
+    right: 8px;
+    position: absolute;
+    border: none;
+}
+
+.modal button.close-modal-button:hover,
+.modal button.close-modal-button:active {
+    color: grey;
+}

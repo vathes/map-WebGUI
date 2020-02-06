@@ -36,6 +36,23 @@ img.session-plot {
     width: 100%;
 }
 
+.session-plot-container:hover {
+    border-right: 2px solid lightgrey;
+    border-bottom: 2px solid lightgrey;
+}
+
+img.session-plot:hover {
+    cursor: pointer;
+}
+
+.zoomedSessionPlotContainer {
+}
+
+.zoomedSessionPlot {
+    width: auto;
+    height: 90vh;
+}
+
 @media only screen and (max-width: 768px) {
   .behavior-plots {
       flex-direction: column;

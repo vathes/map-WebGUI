@@ -40,3 +40,13 @@ img.probe-insertion-plot {
     width: 100%;
 }
 
+.zoomedProbeInsPlot {
+    width: auto;
+    height: 90vh;
+}
+
+.probe-insertion-plot:hover {
+    border-right: 2px solid lightgrey;
+    border-bottom: 2px solid lightgrey;
+    cursor: pointer;
+}
