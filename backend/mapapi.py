@@ -184,6 +184,9 @@ def handle_q(subpath, args, proj, **kwargs):
           recordable_brain_regions, ..., insert_locations='GROUP_CONCAT(brain_regions SEPARATOR", ")', keep_all_rows=True)
 
         sessions = sessions.aggr(ephys.Unit, ..., clustering_methods='GROUP_CONCAT(DISTINCT clustering_method)', keep_all_rows=True)
+        sessions = sessions.aggr(ephys.ClusteringLabel, ..., quality_control='SUM(quality_control) > 0',
+                                 manual_curation = 'SUM(manual_curation) > 0', keep_all_rows=True)
+
         sessions = sessions.aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
         sessions = sessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
         sessions = sessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction', keep_all_rows=True)
@@ -206,9 +209,12 @@ def handle_q(subpath, args, proj, **kwargs):
           brain_region='CONCAT(hemisphere, " ", brain_area)'), ...,
           brain_regions='GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows=True)
 
+        probe_insertions = probe_insertions.aggr(ephys.ClusteringLabel, ..., quality_control='SUM(quality_control) > 0',
+                                                 manual_curation='SUM(manual_curation) > 0', keep_all_rows=True)
+
         probe_insertions = probe_insertions.aggr(
           report.ProbeLevelReport, ..., clustering_quality_s3fp='clustering_quality',
-          unit_characteristic_s3fp = 'unit_characteristic', group_psth_s3fp = 'group_psth', keep_all_rows=True)
+          unit_characteristic_s3fp='unit_characteristic', group_psth_s3fp='group_psth', keep_all_rows=True)
         probe_insertions = probe_insertions.aggr(report.ProbeLevelPhotostimEffectReport, ...,
                                                  group_photostim_s3fp='group_photostim', keep_all_rows=True)
 
