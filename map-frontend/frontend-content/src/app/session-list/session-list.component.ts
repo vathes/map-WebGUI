@@ -57,7 +57,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
   //                             'clustering_methods', 'water_restriction_number', 'username',
   //                             'session', 'sex', 'insert_locations'];
   displayedColumns: string[] = ['subject_id', 'water_restriction_number', 'session', 'session_date', 'username',
-    'probe_count', 'insert_locations', 'clustering_methods'];
+    'probe_count', 'insert_locations', 'clustering_methods', 'quality_control', 'manual_curation'];
 
   // setup for the paginator
   dataSource;
@@ -70,6 +70,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
   // };
 
   // genderForm2MenuMap = { F: 0, M: 1, U: 2 };
+  checkmarkMap: any = {'0': '', '1': '\u2714'};
 
   selectedSession = {};
 

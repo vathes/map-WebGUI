@@ -10,6 +10,7 @@
 <form [formGroup]="session_filter_form">
   <div [class]="filterExpanded ? 'filters col-12 filterExpand':'filters col-12 filterCollapse'">
     <div class="session-field-filters form-section">
+
       <mat-form-field>
         <label>Mouse ID</label>
         <input matInput type="text" name="subject_id" formControlName="subject_id_control" [matAutocomplete]="autoCompSN"
@@ -19,8 +20,6 @@
             {{ subjectId }}</mat-option>
         </mat-autocomplete>
       </mat-form-field>
-
-      
 
       <mat-form-field>
         <label>Water Restriction</label>
@@ -80,7 +79,9 @@
       </div>
        
     </div>
+
     <div class="mouse-field-filters form-section">
+
       <mat-form-field>
         <label>User</label>
         <input matInput type="text" name="username" formControlName="username_control" [matAutocomplete]="autoCompRU"
@@ -204,6 +205,16 @@
     <th mat-header-cell *matHeaderCellDef> Clustering Method(s) </th>
     <td mat-cell *matCellDef="let session"> {{session.clustering_methods}} </td>
   </ng-container>
+
+  <ng-container matColumnDef="quality_control">
+    <th mat-header-cell *matHeaderCellDef> Quality Control </th>
+    <td mat-cell *matCellDef="let session"> {{session.quality_control.toString() | i18nSelect: checkmarkMap}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="manual_curation">
+    <th mat-header-cell *matHeaderCellDef> Manual Curation </th>
+    <td mat-cell *matCellDef="let session"> {{session.manual_curation.toString() | i18nSelect: checkmarkMap}} </td>
+  </ng-container>z`
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns; let session" routerLink="/session/{{session?.subject_id}}/{{session?.session}}"></tr>

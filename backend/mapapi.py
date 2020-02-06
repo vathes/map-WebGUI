@@ -179,13 +179,15 @@ def handle_q(subpath, args, proj, **kwargs):
           brain_regions='GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows=True)
 
         sessions = (experiment.Session * lab.WaterRestriction).aggr(
-          ephys.ProbeInsertion, 'session_date', 'water_restriction_number', 'username',
+          ephys.ProbeInsertion, 'water_restriction_number', 'username',
+          session_date="cast(concat(session_date, ' ', session_time) as datetime)",
           probe_count='count(insertion_number)', keep_all_rows=True).aggr(
           recordable_brain_regions, ..., insert_locations='GROUP_CONCAT(brain_regions SEPARATOR", ")', keep_all_rows=True)
 
         sessions = sessions.aggr(ephys.Unit, ..., clustering_methods='GROUP_CONCAT(DISTINCT clustering_method)', keep_all_rows=True)
         sessions = sessions.aggr(ephys.ClusteringLabel, ..., quality_control='SUM(quality_control) > 0',
-                                 manual_curation = 'SUM(manual_curation) > 0', keep_all_rows=True)
+                                 manual_curation='SUM(manual_curation) > 0', keep_all_rows=True).proj(
+          ..., quality_control='IFNULL(quality_control, false)', manual_curation='IFNULL(manual_curation, false)')
 
         sessions = sessions.aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
         sessions = sessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
@@ -210,7 +212,8 @@ def handle_q(subpath, args, proj, **kwargs):
           brain_regions='GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows=True)
 
         probe_insertions = probe_insertions.aggr(ephys.ClusteringLabel, ..., quality_control='SUM(quality_control) > 0',
-                                                 manual_curation='SUM(manual_curation) > 0', keep_all_rows=True)
+                                                 manual_curation='SUM(manual_curation) > 0', keep_all_rows=True).proj(
+          ..., quality_control='IFNULL(quality_control, false)', manual_curation='IFNULL(manual_curation, false)')
 
         probe_insertions = probe_insertions.aggr(
           report.ProbeLevelReport, ..., clustering_quality_s3fp='clustering_quality',

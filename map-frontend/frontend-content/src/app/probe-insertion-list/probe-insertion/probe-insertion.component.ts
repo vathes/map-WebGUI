@@ -10,6 +10,7 @@ export class ProbeInsertionComponent implements OnInit {
   probeInsertion: any;
   zoomProbeInsPlotPlotURL;
   showProbeInsPlotModal = false;
+  checkmarkMap: any = {'0': '', '1': '\u2714'};
 
   @Input() probeInsertionInfo: Object;
   constructor() { }
