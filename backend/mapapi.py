@@ -184,7 +184,7 @@ def handle_q(subpath, args, proj, **kwargs):
           probe_count='count(insertion_number)', keep_all_rows=True).aggr(
           recordable_brain_regions, ..., insert_locations='GROUP_CONCAT(brain_regions SEPARATOR", ")', keep_all_rows=True)
 
-        sessions = sessions.aggr(ephys.Unit, ..., clustering_methods='GROUP_CONCAT(DISTINCT clustering_method)', keep_all_rows=True)
+        sessions = sessions.aggr(ephys.Unit, ..., clustering_methods='GROUP_CONCAT(DISTINCT clustering_method SEPARATOR", ")', keep_all_rows=True)
         sessions = sessions.aggr(ephys.ClusteringLabel, ..., quality_control='SUM(quality_control) > 0',
                                  manual_curation='SUM(manual_curation) > 0', keep_all_rows=True).proj(
           ..., quality_control='IFNULL(quality_control, false)', manual_curation='IFNULL(manual_curation, false)')
