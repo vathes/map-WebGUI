@@ -174,24 +174,26 @@ def handle_q(subpath, args, proj, **kwargs):
 
     contain_s3fp = False
     if subpath == 'sessionpage':
-        recordable_brain_regions = ephys.ProbeInsertion.aggr(ephys.ProbeInsertion.RecordableBrainRegion.proj(
-          brain_region='CONCAT(hemisphere, " ", brain_area)'),
-          brain_regions='GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows=True)
 
         sessions = (experiment.Session * lab.WaterRestriction).aggr(
           ephys.ProbeInsertion, 'water_restriction_number', 'username',
           session_date="cast(concat(session_date, ' ', session_time) as datetime)",
-          probe_count='count(insertion_number)', keep_all_rows=True).aggr(
-          recordable_brain_regions, ..., insert_locations='GROUP_CONCAT(brain_regions SEPARATOR", ")', keep_all_rows=True)
+          probe_count='count(insertion_number)', keep_all_rows=True)
 
-        sessions = sessions.aggr(ephys.Unit, ..., clustering_methods='GROUP_CONCAT(DISTINCT clustering_method SEPARATOR", ")', keep_all_rows=True)
-        sessions = sessions.aggr(ephys.ClusteringLabel, ..., quality_control='SUM(quality_control) > 0',
+        sessions = sessions.aggr(ephys.ProbeInsertion.RecordableBrainRegion.proj(
+          brain_region='CONCAT(hemisphere, " ", brain_area)'), ...,
+          insert_locations='GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows=True)
+
+        unitsessions = experiment.Session.proj().aggr(ephys.Unit, ..., clustering_methods='GROUP_CONCAT(DISTINCT clustering_method SEPARATOR", ")', keep_all_rows=True)
+        unitsessions = unitsessions.aggr(ephys.ClusteringLabel, ..., quality_control='SUM(quality_control) > 0',
                                  manual_curation='SUM(manual_curation) > 0', keep_all_rows=True).proj(
           ..., quality_control='IFNULL(quality_control, false)', manual_curation='IFNULL(manual_curation, false)')
 
-        sessions = sessions.aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
-        sessions = sessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
-        sessions = sessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction', keep_all_rows=True)
+        plotsessions = experiment.Session.proj().aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
+        plotsessions = plotsessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
+        plotsessions = plotsessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction', keep_all_rows=True)
+
+        sessions = sessions * unitsessions * plotsessions
 
         # handling special GROUPCONCAT attributes: `insert_locations` and `clustering_methods` in args
         insert_locations_restr = make_LIKE_restrictor('insert_locations', args,
