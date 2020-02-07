@@ -8,7 +8,8 @@
         <tr><th>Insertion #</th><td>{{ probeInsertion.insertion_number}}</td></tr>
         <tr><th>Probe Type</th><td>{{ probeInsertion.probe_type}}</td></tr>
         <tr><th>Recordable Brain Region(s)</th><td>{{ probeInsertion.brain_regions}}</td></tr>
-        <tr><th>Units</th><td><button class="btn btn-sm btn-success" routerLink="/probe/{{probeInsertion?.subject_id}}/{{probeInsertion?.session}}/{{probeInsertion?.insertion_number}}">View Units</button></td></tr>
+        <tr><th>Quality Control</th><td>{{ probeInsertion.quality_control.toString() | i18nSelect: checkmarkMap}}</td></tr>
+        <tr><th>Manual Curation</th><td>{{ probeInsertion.manual_curation.toString() | i18nSelect: checkmarkMap}}</td></tr>
       </table>
       <table class="table col-sm-5 col-xs-12 table-striped table-bordered table-sm">
         <tr><th>Skull Reference</th><td>{{ probeInsertion.skull_reference}}</td></tr>
@@ -18,6 +19,7 @@
         <tr><th>Theta</th><td>{{ probeInsertion.theta}}</td></tr>
         <tr><th>Phi</th><td>{{ probeInsertion.phi}}</td></tr>
         <tr><th>Beta</th><td>{{ probeInsertion.beta}}</td></tr>
+        <tr><th>Units</th><td><button class="btn btn-sm btn-success" routerLink="/probe/{{probeInsertion?.subject_id}}/{{probeInsertion?.session}}/{{probeInsertion?.insertion_number}}">View Units</button></td></tr>
       </table>
     </div>
 
