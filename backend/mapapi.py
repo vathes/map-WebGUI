@@ -39,6 +39,7 @@ ephys = mkvmod('ephys')
 psth = mkvmod('psth')
 report = mkvmod('report')
 tracking = mkvmod('tracking')
+histology = mkvmod('histology')
 
 map_s3_bucket = os.environ.get('MAP_S3_BUCKET')
 map_store_location = os.environ.get('MAP_REPORT_STORE_LOCATION')
@@ -184,10 +185,13 @@ def handle_q(subpath, args, proj, **kwargs):
           brain_region='CONCAT(hemisphere, " ", brain_area)'), ...,
           insert_locations='GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows=True)
 
+        sessions = sessions.aggr(tracking.Tracking, ..., tracking_avai='count(trial) > 0', keep_all_rows=True)
+
         unitsessions = experiment.Session.proj().aggr(ephys.Unit, ..., clustering_methods='GROUP_CONCAT(DISTINCT clustering_method SEPARATOR", ")', keep_all_rows=True)
         unitsessions = unitsessions.aggr(ephys.ClusteringLabel, ..., quality_control='SUM(quality_control) > 0',
-                                 manual_curation='SUM(manual_curation) > 0', keep_all_rows=True).proj(
+                                         manual_curation='SUM(manual_curation) > 0', keep_all_rows=True).proj(
           ..., quality_control='IFNULL(quality_control, false)', manual_curation='IFNULL(manual_curation, false)')
+        unitsessions = unitsessions.aggr(histology.ElectrodeCCFPosition, ..., histology_avai='count(insertion_number) > 0', keep_all_rows=True)
 
         plotsessions = experiment.Session.proj().aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
         plotsessions = plotsessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
