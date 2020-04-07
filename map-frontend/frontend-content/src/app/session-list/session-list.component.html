@@ -214,7 +214,17 @@
   <ng-container matColumnDef="manual_curation">
     <th mat-header-cell *matHeaderCellDef> Manual Curation </th>
     <td mat-cell *matCellDef="let session"> {{session.manual_curation.toString() | i18nSelect: checkmarkMap}} </td>
-  </ng-container>z`
+  </ng-container>
+
+  <ng-container matColumnDef="tracking_avai">
+    <th mat-header-cell *matHeaderCellDef> Tracking </th>
+    <td mat-cell *matCellDef="let session"> {{session.tracking_avai.toString() | i18nSelect: checkmarkMap}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="histology_avai">
+    <th mat-header-cell *matHeaderCellDef> Histology </th>
+    <td mat-cell *matCellDef="let session"> {{session.histology_avai.toString() | i18nSelect: checkmarkMap}} </td>
+  </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns; let session" routerLink="/session/{{session?.subject_id}}/{{session?.session}}"></tr>

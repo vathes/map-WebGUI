@@ -57,7 +57,8 @@ export class SessionListComponent implements OnInit, OnDestroy {
   //                             'clustering_methods', 'water_restriction_number', 'username',
   //                             'session', 'sex', 'insert_locations'];
   displayedColumns: string[] = ['subject_id', 'water_restriction_number', 'session', 'session_date', 'username',
-    'probe_count', 'insert_locations', 'clustering_methods', 'quality_control', 'manual_curation'];
+    'probe_count', 'insert_locations', 'clustering_methods',
+    'quality_control', 'manual_curation', 'tracking_avai', 'histology_avai'];
 
   // setup for the paginator
   dataSource;
