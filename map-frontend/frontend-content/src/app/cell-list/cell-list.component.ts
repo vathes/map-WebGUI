@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ElementRef, ViewChild, Input, DoCheck, Ho
 
 import { Subscription } from 'rxjs';
 
-import { CellListService } from './cell-list.service';
+import { CellListService, RegionColorService } from './cell-list.service';
 
 import { Sort } from '@angular/material/sort';
 
@@ -65,7 +65,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   ngOnInit() {
     this.session = this.sessionInfo;
     this.clickedUnitIndex = 0;
-    let probeCount = 0
+    let probeCount = 0;
     while (probeCount < this.sessionInfo['probe_count']) {
       this.probeInsertions.push(probeCount + 1);
       probeCount++;
@@ -186,6 +186,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     
 
   }
+
   ngOnDestroy() {
     if (this.cellListSubscription) {
       this.cellListSubscription.unsubscribe();

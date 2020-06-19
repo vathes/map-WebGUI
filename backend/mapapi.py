@@ -5,6 +5,9 @@ import json
 import uuid
 import logging
 
+from PIL import ImageColor
+from collections import Counter
+
 from uuid import UUID
 from datetime import date
 from datetime import datetime
@@ -40,6 +43,7 @@ psth = mkvmod('psth')
 report = mkvmod('report')
 tracking = mkvmod('tracking')
 histology = mkvmod('histology')
+ccf = mkvmod('ccf')
 
 map_s3_bucket = os.environ.get('MAP_S3_BUCKET')
 map_store_location = os.environ.get('MAP_REPORT_STORE_LOCATION')
@@ -176,28 +180,7 @@ def handle_q(subpath, args, proj, **kwargs):
     contain_s3fp = False
     if subpath == 'sessionpage':
 
-        sessions = (experiment.Session * lab.WaterRestriction).aggr(
-          ephys.ProbeInsertion, 'water_restriction_number', 'username',
-          session_date="cast(concat(session_date, ' ', session_time) as datetime)",
-          probe_count='count(insertion_number)', keep_all_rows=True)
-
-        sessions = sessions.aggr(ephys.ProbeInsertion.RecordableBrainRegion.proj(
-          brain_region='CONCAT(hemisphere, " ", brain_area)'), ...,
-          insert_locations='GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows=True)
-
-        sessions = sessions.aggr(tracking.Tracking, ..., tracking_avai='count(trial) > 0', keep_all_rows=True)
-
-        unitsessions = experiment.Session.proj().aggr(ephys.Unit, ..., clustering_methods='GROUP_CONCAT(DISTINCT clustering_method SEPARATOR", ")', keep_all_rows=True)
-        unitsessions = unitsessions.aggr(ephys.ClusteringLabel, ..., quality_control='SUM(quality_control) > 0',
-                                         manual_curation='SUM(manual_curation) > 0', keep_all_rows=True).proj(
-          ..., quality_control='IFNULL(quality_control, false)', manual_curation='IFNULL(manual_curation, false)')
-        unitsessions = unitsessions.aggr(histology.ElectrodeCCFPosition, ..., histology_avai='count(insertion_number) > 0', keep_all_rows=True)
-
-        plotsessions = experiment.Session.proj().aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
-        plotsessions = plotsessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
-        plotsessions = plotsessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction', keep_all_rows=True)
-
-        sessions = sessions * unitsessions * plotsessions
+        sessions = get_sessions_query()
 
         # handling special GROUPCONCAT attributes: `insert_locations` and `clustering_methods` in args
         insert_locations_restr = make_LIKE_restrictor('insert_locations', args,
@@ -208,9 +191,27 @@ def handle_q(subpath, args, proj, **kwargs):
                                                         (ephys.ClusteringMethod, 'clustering_method'))
         [args.pop(v) for v in ('insert_locations', 'clustering_methods') if v in args]
 
-        contain_s3fp = True
         q = sessions & args & insert_locations_restr & clustering_methods_restr
+
+    elif subpath == 'session':
+        check_is_session_restriction(args)
+
+        sessions = get_sessions_query() & args
+
+        plotsessions = (experiment.Session & args).proj().aggr(report.SessionLevelReport, ...,
+                                                               behavior_performance_s3fp = 'behavior_performance',
+                                                               keep_all_rows = True)
+        plotsessions = plotsessions.aggr(report.SessionLevelProbeTrack, ...,
+                                         session_tracks_plot_s3fp = 'session_tracks_plot', keep_all_rows = True)
+        plotsessions = plotsessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp = 'coding_direction',
+                                         keep_all_rows = True)
+
+        contain_s3fp = True
+        q = sessions * plotsessions
+
     elif subpath == 'probe_insertions':
+        check_is_session_restriction(args)
+
         exclude_attrs = ['-electrode_config_name']
         probe_insertions = (ephys.ProbeInsertion * ephys.ProbeInsertion.InsertionLocation).proj(
           ..., *exclude_attrs).aggr(ephys.ProbeInsertion.RecordableBrainRegion.proj(
@@ -221,6 +222,7 @@ def handle_q(subpath, args, proj, **kwargs):
                                                  manual_curation='SUM(manual_curation) > 0', keep_all_rows=True).proj(
           ..., quality_control='IFNULL(quality_control, false)', manual_curation='IFNULL(manual_curation, false)')
 
+        probe_insertions = probe_insertions & args
         probe_insertions = probe_insertions.aggr(
           report.ProbeLevelReport, ..., clustering_quality_s3fp='clustering_quality',
           unit_characteristic_s3fp='unit_characteristic', group_psth_s3fp='group_psth', keep_all_rows=True)
@@ -228,18 +230,21 @@ def handle_q(subpath, args, proj, **kwargs):
                                                  group_photostim_s3fp='group_photostim', keep_all_rows=True)
 
         contain_s3fp = True
-        q = probe_insertions & args
+        q = probe_insertions
     elif subpath == 'units':
-        exclude_attrs = ['-spike_times', '-waveform', '-unit_uid', '-probe', '-electrode_config_name', '-electrode_group']
+        check_is_session_restriction(args)
+
+        exclude_attrs = ['-spike_times', '-waveform', '-unit_uid', '-spike_depths', '-spike_sites',
+                         '-probe', '-electrode_config_name', '-electrode_group']
         units = (ephys.Unit * ephys.UnitStat
-                 * ephys.ProbeInsertion.InsertionLocation.proj('depth')).proj(
+                 * ephys.ProbeInsertion.InsertionLocation.proj('depth') & args).proj(
           ..., unit_depth='unit_posy + depth', is_all='unit_quality = "all"', *exclude_attrs)
 
         units = units.aggr(report.UnitLevelEphysReport, ..., unit_psth_s3fp='unit_psth', keep_all_rows=True)
         units = units.aggr(report.UnitLevelTrackingReport, ..., unit_behavior_s3fp='unit_behavior', keep_all_rows=True)
 
         contain_s3fp = True
-        q = units & args
+        q = units
     elif subpath == 'project_probe_tracks':
         args['project_name'] = 'MAP'
         contain_s3fp = True
@@ -299,10 +304,13 @@ def handle_q(subpath, args, proj, **kwargs):
     else:
         abort(404)
 
-    if proj:
-        ret = q.proj(*proj).fetch(**kwargs)
+    if isinstance(q, (list, dict)):
+        ret = q
     else:
-        ret = q.fetch(**kwargs)
+        if proj:
+            ret = q.proj(*proj).fetch(**kwargs)
+        else:
+            ret = q.fetch(**kwargs)
 
     # print('D type', ret.dtype)
     # print(ret)
@@ -310,7 +318,41 @@ def handle_q(subpath, args, proj, **kwargs):
     app.logger.info("About to return {} entries".format(len(ret)))
     return dumps(post_process(ret)) if contain_s3fp else dumps(ret)
 
+
+# ----------- More generalized query methods -------------------
+
+def get_sessions_query():
+    sessions = (experiment.Session * lab.WaterRestriction).aggr(
+      ephys.ProbeInsertion, 'water_restriction_number', 'username',
+      session_date = "cast(concat(session_date, ' ', session_time) as datetime)",
+      probe_count = 'count(insertion_number)', keep_all_rows = True)
+
+    sessions = sessions.aggr(ephys.ProbeInsertion.RecordableBrainRegion.proj(
+      brain_region = 'CONCAT(hemisphere, " ", brain_area)'), ...,
+      insert_locations = 'GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows = True)
+
+    sessions = sessions.aggr(tracking.Tracking, ..., tracking_avai = 'count(trial) > 0', keep_all_rows = True)
+
+    unitsessions = experiment.Session.proj().aggr(ephys.Unit.proj(), ...,
+                                                  clustering_methods = 'GROUP_CONCAT(DISTINCT clustering_method SEPARATOR", ")',
+                                                  keep_all_rows = True)
+    unitsessions = unitsessions.aggr(ephys.ClusteringLabel, ..., quality_control = 'SUM(quality_control) > 0',
+                                     manual_curation = 'SUM(manual_curation) > 0', keep_all_rows = True).proj(
+      ..., quality_control = 'IFNULL(quality_control, false)', manual_curation = 'IFNULL(manual_curation, false)')
+    unitsessions = unitsessions.aggr(histology.ElectrodeCCFPosition, ..., histology_avai = 'count(insertion_number) > 0',
+                                     keep_all_rows = True)
+
+    return sessions * unitsessions
+
 # ----------- HELPER METHODS -------------------
+
+
+def check_is_session_restriction(args):
+    is_sess_res = np.all([k in args for k in experiment.Session.primary_key])
+    if not is_sess_res:
+        raise RuntimeError('args has to be a restriction to a session')
+
+    return True
 
 
 def make_presign_url(data_link):

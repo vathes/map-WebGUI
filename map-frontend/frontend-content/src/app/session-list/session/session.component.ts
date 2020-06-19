@@ -23,8 +23,8 @@ export class SessionComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.session_id = this.route.snapshot.paramMap.get('sessionID');
     this.mouse_id = this.route.snapshot.paramMap.get('mouseID');
-    this.allSessionsService.retrieveSessions({'session': parseInt(this.session_id), 'subject_id': parseInt(this.mouse_id)});
-    this.sessionSubscription = this.allSessionsService.getNewSessionsLoadedListener()
+    this.allSessionsService.retrieveOneSession({'session': parseInt(this.session_id), 'subject_id': parseInt(this.mouse_id)});
+    this.sessionSubscription = this.allSessionsService.getOneSessionLoadedListener()
     .subscribe((session: any) => {
       this.session = session[0];
     });
