@@ -180,28 +180,7 @@ def handle_q(subpath, args, proj, **kwargs):
     contain_s3fp = False
     if subpath == 'sessionpage':
 
-        sessions = (experiment.Session * lab.WaterRestriction).aggr(
-          ephys.ProbeInsertion, 'water_restriction_number', 'username',
-          session_date="cast(concat(session_date, ' ', session_time) as datetime)",
-          probe_count='count(insertion_number)', keep_all_rows=True)
-
-        sessions = sessions.aggr(ephys.ProbeInsertion.RecordableBrainRegion.proj(
-          brain_region='CONCAT(hemisphere, " ", brain_area)'), ...,
-          insert_locations='GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows=True)
-
-        sessions = sessions.aggr(tracking.Tracking, ..., tracking_avai='count(trial) > 0', keep_all_rows=True)
-
-        unitsessions = experiment.Session.proj().aggr(ephys.Unit.proj(), ..., clustering_methods='GROUP_CONCAT(DISTINCT clustering_method SEPARATOR", ")', keep_all_rows=True)
-        unitsessions = unitsessions.aggr(ephys.ClusteringLabel, ..., quality_control='SUM(quality_control) > 0',
-                                         manual_curation='SUM(manual_curation) > 0', keep_all_rows=True).proj(
-          ..., quality_control='IFNULL(quality_control, false)', manual_curation='IFNULL(manual_curation, false)')
-        unitsessions = unitsessions.aggr(histology.ElectrodeCCFPosition, ..., histology_avai='count(insertion_number) > 0', keep_all_rows=True)
-
-        plotsessions = experiment.Session.proj().aggr(report.SessionLevelReport, ..., behavior_performance_s3fp='behavior_performance', keep_all_rows=True)
-        plotsessions = plotsessions.aggr(report.SessionLevelProbeTrack, ..., session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
-        plotsessions = plotsessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction', keep_all_rows=True)
-
-        sessions = sessions * unitsessions * plotsessions
+        sessions = get_sessions_query()
 
         # handling special GROUPCONCAT attributes: `insert_locations` and `clustering_methods` in args
         insert_locations_restr = make_LIKE_restrictor('insert_locations', args,
@@ -212,9 +191,27 @@ def handle_q(subpath, args, proj, **kwargs):
                                                         (ephys.ClusteringMethod, 'clustering_method'))
         [args.pop(v) for v in ('insert_locations', 'clustering_methods') if v in args]
 
-        contain_s3fp = True
         q = sessions & args & insert_locations_restr & clustering_methods_restr
+
+    elif subpath == 'session':
+        check_is_session_restriction(args)
+
+        sessions = get_sessions_query() & args
+
+        plotsessions = (experiment.Session & args).proj().aggr(report.SessionLevelReport, ...,
+                                                               behavior_performance_s3fp = 'behavior_performance',
+                                                               keep_all_rows = True)
+        plotsessions = plotsessions.aggr(report.SessionLevelProbeTrack, ...,
+                                         session_tracks_plot_s3fp = 'session_tracks_plot', keep_all_rows = True)
+        plotsessions = plotsessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp = 'coding_direction',
+                                         keep_all_rows = True)
+
+        contain_s3fp = True
+        q = sessions * plotsessions
+
     elif subpath == 'probe_insertions':
+        check_is_session_restriction(args)
+
         exclude_attrs = ['-electrode_config_name']
         probe_insertions = (ephys.ProbeInsertion * ephys.ProbeInsertion.InsertionLocation).proj(
           ..., *exclude_attrs).aggr(ephys.ProbeInsertion.RecordableBrainRegion.proj(
@@ -235,6 +232,8 @@ def handle_q(subpath, args, proj, **kwargs):
         contain_s3fp = True
         q = probe_insertions
     elif subpath == 'units':
+        check_is_session_restriction(args)
+
         exclude_attrs = ['-spike_times', '-waveform', '-unit_uid', '-spike_depths', '-spike_sites',
                          '-probe', '-electrode_config_name', '-electrode_group']
         units = (ephys.Unit * ephys.UnitStat
@@ -267,7 +266,41 @@ def handle_q(subpath, args, proj, **kwargs):
     app.logger.info("About to return {} entries".format(len(ret)))
     return dumps(post_process(ret)) if contain_s3fp else dumps(ret)
 
+
+# ----------- More generalized query methods -------------------
+
+def get_sessions_query():
+    sessions = (experiment.Session * lab.WaterRestriction).aggr(
+      ephys.ProbeInsertion, 'water_restriction_number', 'username',
+      session_date = "cast(concat(session_date, ' ', session_time) as datetime)",
+      probe_count = 'count(insertion_number)', keep_all_rows = True)
+
+    sessions = sessions.aggr(ephys.ProbeInsertion.RecordableBrainRegion.proj(
+      brain_region = 'CONCAT(hemisphere, " ", brain_area)'), ...,
+      insert_locations = 'GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows = True)
+
+    sessions = sessions.aggr(tracking.Tracking, ..., tracking_avai = 'count(trial) > 0', keep_all_rows = True)
+
+    unitsessions = experiment.Session.proj().aggr(ephys.Unit.proj(), ...,
+                                                  clustering_methods = 'GROUP_CONCAT(DISTINCT clustering_method SEPARATOR", ")',
+                                                  keep_all_rows = True)
+    unitsessions = unitsessions.aggr(ephys.ClusteringLabel, ..., quality_control = 'SUM(quality_control) > 0',
+                                     manual_curation = 'SUM(manual_curation) > 0', keep_all_rows = True).proj(
+      ..., quality_control = 'IFNULL(quality_control, false)', manual_curation = 'IFNULL(manual_curation, false)')
+    unitsessions = unitsessions.aggr(histology.ElectrodeCCFPosition, ..., histology_avai = 'count(insertion_number) > 0',
+                                     keep_all_rows = True)
+
+    return sessions * unitsessions
+
 # ----------- HELPER METHODS -------------------
+
+
+def check_is_session_restriction(args):
+    is_sess_res = np.all([k in args for k in experiment.Session.primary_key])
+    if not is_sess_res:
+        raise RuntimeError('args has to be a restriction to a session')
+
+    return True
 
 
 def make_presign_url(data_link):
