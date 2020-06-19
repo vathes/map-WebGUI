@@ -127,27 +127,10 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
               this.cellsByProbeIns.push(entry);
             }
           }
-          // console.log('x_data is: ', x_data);
-          // console.log('y_data is: ', y_data);
-          // console.log('id_data is: ', id_data)
-          // console.log('color_data is: ', color_data);
-          // console.log('size_data is: ', size_data);
-          // console.log('max of size is: ', Math.max(...size_data));
-          // console.log('min of size is: ', Math.min(...size_data));
-          // console.log('max of depth(y) is: ', Math.max(...y_data));
-          // console.log('min of depth(y) is: ', Math.min(...y_data));
-          // console.log('max of color is: ', Math.max(...color_data));
-          // console.log('min of color is: ', Math.min(...color_data));
-          // console.log('cellByProbeIns is: ', this.cellsByProbeIns);
-
           this.sortedCellsByProbeIns = this.cellsByProbeIns;
-
-          this.size_data_adjusted = size_data.map(function(el) {
-            return 8 + (12 * (el - Math.min(...size_data))/(Math.max(...size_data)) - Math.min(...size_data));
-          });
+          this.clickedUnitId = 1;
 
           this.makePlotUnitData(x_data, y_data, id_data, color_data, size_data);
-
         }
       });
 
@@ -172,63 +155,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
           this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata);
 
-          this.color_data_adjusted = color_data.map(function(elem) {
-            return `rgba(0, 125, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
-          });
-          this.clickedUnitId = 1;
-          // console.log('adjusted color data:', this.color_data_adjusted);
-          this.plot_data = [{
-            x: x_data,
-            y: y_data,
-            customdata: id_data,
-            text: id_data,
-            mode: 'markers',
-            name: 'size: avg. firing rate',
-            marker: {
-              size: this.size_data_adjusted,
-              color: 'rgba(255, 255, 255, 0.2)',
-              line: {
-                color: this.color_data_adjusted,
-                // color: this.test_color_data,
-                width: 2,
-              },
-              colorbar: {
-                thickness: 10,
-                title: 'Unit Amp (µV)'
-              },
-              cmax: Math.max(...color_data),
-              cmin: Math.min(...color_data),
-              // colorscale: [['0.0', '0'], ['1.0', '1']]
-              colorscale: [['0.0','rgba(0, 125, 0, 0.33)'], ['1.0','rgba(0, 125, 255, 0.33)']]
-            }
-          }];
-
-          this.plot_layout = {
-            // autosize: false,
-            width: 400,
-            height: 600,
-            yaxis: {
-              title: 'Unit Depth (µm)'
-            },
-            xaxis: {
-              title: 'Unit x position (µm)'
-            },
-            hovermode: 'closest',
-            showlegend: true,
-            legend: {
-              x: -0.1,
-              y: -0.2
-            }
-          };
-
-          this.plot_config = {
-            showLink: false,
-            showSendToCloud: false,
-            displaylogo: false,
-            modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d', 'hoverClosestCartesian',
-                            'hoverCompareCartesian', 'toImage', 'toggleSpikelines'],
-          };
-          
         }
       });
 
