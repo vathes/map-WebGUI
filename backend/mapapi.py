@@ -250,71 +250,16 @@ def handle_q(subpath, args, proj, **kwargs):
         args['project_name'] = 'MAP'
         contain_s3fp = True
         q = report.ProjectLevelProbeTrack.proj(tracks_plot_s3fp='tracks_plot') & args
-    elif subpath == 'annotated_electrodes':
-        '''
-        Return color-coded annotated electrode-region data for all the shanks and probes in the specified session
-        "args" has to be a restriction to a session
-        '''
-        is_sess_res = np.all([k in args for k in experiment.Session.primary_key])
-
-        if not is_sess_res:
-            raise RuntimeError('args has to be a restriction to a session')
-
-        probe_insertions, shank_strs = (experiment.Session * ephys.ProbeInsertion & args).aggr(
-            lab.ElectrodeConfig.Electrode * lab.ProbeType.Electrode,
-            shanks='GROUP_CONCAT(DISTINCT shank)').fetch('KEY', 'shanks')
-
-        probe_anno_electrodes = []
-        for probe_insertion, shank_str in zip(probe_insertions, shank_strs):
-            x, y, width, color = [], [], [], []
-            for shank_no in np.array(shank_str.split(',')).astype(int):
-                units = (ephys.Unit * lab.ElectrodeConfig.Electrode * ephys.ProbeInsertion
-                         * lab.ProbeType.Electrode.proj('shank')
-                         & probe_insertion & {'shank': shank_no})
-
-                ymax, ymin = ephys.ProbeInsertion.proj().aggr(
-                  units, ymax='max(unit_posy)', ymin='min(unit_posy)').fetch1('ymax', 'ymin')
-
-                dv_loc = float((ephys.ProbeInsertion.InsertionLocation & probe_insertion).fetch1('depth'))
-
-                annotated_electrodes = (lab.ElectrodeConfig.Electrode * lab.ProbeType.Electrode
-                                        * ephys.ProbeInsertion
-                                        * histology.ElectrodeCCFPosition.ElectrodePosition
-                                        * ccf.CCFAnnotation * ccf.CCFBrainRegion.proj(..., annotation='region_name')
-                                        & probe_insertion & {'shank': shank_no})
-                pos_x, pos_y, color_code = annotated_electrodes.fetch(
-                  'x_coord', 'y_coord', 'color_code', order_by='y_coord DESC')
-
-                # region colorcode, by depths
-                y_spacing = np.abs(np.nanmedian(np.where(np.diff(pos_y) == 0, np.nan, np.diff(pos_y))))
-                anno_depth_bins = np.arange(ymin, ymax, y_spacing)
-                binned_hexcodes = []
-                for s, e in zip(anno_depth_bins[:-1], anno_depth_bins[1:]):
-                    hexcodes = color_code[np.logical_and(pos_y > s, pos_y <= e)]
-                    if len(hexcodes):
-                        binned_hexcodes.append(Counter(hexcodes).most_common()[0][0])
-                    else:
-                        binned_hexcodes.append('FFFFFF')
-                region_rgba = [f'rgba{ImageColor.getcolor("#" + chex, "RGBA")}' for chex in binned_hexcodes]
-
-                x.extend([np.mean(pos_x)]*len(region_rgba))
-                width.extend([np.ptp(pos_x)*1.5]*len(region_rgba))
-                y.extend(anno_depth_bins[1:] + dv_loc)
-                color.extend(region_rgba)
-
-            probe_anno_electrodes.append(dict(probe_insertion, x=x, y=y, width=width, color=color))
-
-        q = probe_anno_electrodes
     else:
         abort(404)
 
-    if hasattr(q, 'fetch'):
+    if isinstance(q, (list, dict)):
+        ret = q
+    else:
         if proj:
             ret = q.proj(*proj).fetch(**kwargs)
         else:
             ret = q.fetch(**kwargs)
-    else:
-        ret = q
 
     # print('D type', ret.dtype)
     # print(ret)
