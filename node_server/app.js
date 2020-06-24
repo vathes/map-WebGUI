@@ -75,8 +75,7 @@ app.get('/sessions', checkAuth, (req, res) => {
 })
 
 app.post('/sessions', checkAuth, (req, res) => {
-    // request.post(flask_backend + '/v0/_q/sessionpage', { form: req.body }, function (error, httpResponse, body) {
-
+    console.log('requesting for all sessions');
     request.post(flask_backend + '/v0/_q/sessionpage', { form: req.body }, function (error, httpResponse, body) {
         if (error) {
             console.error('error: ', error);
@@ -87,18 +86,17 @@ app.post('/sessions', checkAuth, (req, res) => {
     })
 })
 
-
-// app.post('/mice', checkAuth, (req, res) => {
-//     request.post(flask_backend + '/v0/_q/subjpage', {form: req.body}, function(error, httpResponse, body) {
-//         if (error) {
-//             console.error('error: ', error);
-//         }
-
-//         res.send(body);
-//     })
-// })
-
-
+app.post('/session', checkAuth, (req, res) => {
+    console.log('requesting for one session');
+    request.post(flask_backend + '/v0/_q/session', { form: req.body }, function (error, httpResponse, body) {
+        if (error) {
+            console.error('error: ', error);
+            console.log('httpResponse:', httpResponse)
+        }
+        // console.log(body);
+        res.send(body);
+    })
+})
 
 app.post('/plot/probeInsertions', checkAuth, (req, res) => {
     console.log('requesting for probe insertions');
@@ -111,7 +109,18 @@ app.post('/plot/probeInsertions', checkAuth, (req, res) => {
 })
 
 app.post('/plot/units', checkAuth, (req, res) => {
+    console.log('requesting for session units');
     request.post(flask_backend + '/v0/_q/units', { form: req.body }, function (error, httpResponse, body) {
+        if (error) {
+            console.error('error: ', error);
+        }
+        res.send(body);
+    })
+})
+
+app.post('/plot/annotated_electrodes', checkAuth, (req, res) => {
+    console.log('requesting for color-coded ccf regions');
+    request.post(flask_backend + '/v0/_q/annotated_electrodes', { form: req.body }, function (error, httpResponse, body) {
         if (error) {
             console.error('error: ', error);
         }
@@ -133,6 +142,7 @@ app.post('/plot/cluster', checkAuth, (req, res) => {
 })
 
 app.post('/plot/probeTracks', checkAuth, (req, res) => {
+    console.log('requesting for probe tracks');
     request.post(flask_backend + '/v0/_q/project_probe_tracks', { form: req.body }, function (error, httpResponse, body) {
         if (error) {
             console.error('error: ', error);

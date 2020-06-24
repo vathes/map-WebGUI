@@ -13,14 +13,18 @@ export class AllSessionsService {
   private allSessions;
   private allSessionMenu;
   private sessionMenu;
-  private retrievedSessions;
   private sessionMenuLoaded = new Subject();
   private allSessionMenuLoaded = new Subject();
   private sessionsLoaded = new Subject();
+
+  private retrievedSessions;
   private newSessionsLoaded = new Subject();
 
   private retrievedSessions2;
   private newSessionsLoaded2 = new Subject();
+
+  private retrievedOneSession;
+  private oneSessionLoaded = new Subject();
 
   constructor(private http: HttpClient) { }
 
@@ -96,6 +100,22 @@ export class AllSessionsService {
       );
   }
 
+  retrieveOneSession(sessionsFilter) {
+  // console.log('POSTing for:', sessionsFilter);
+    this.http.post(BACKEND_API_URL + `/session/`, sessionsFilter, { responseType: 'json' })
+      .subscribe(
+        (filteredSessionsData) => {
+          this.retrievedOneSession = filteredSessionsData;
+          this.oneSessionLoaded.next(this.retrievedOneSession);
+        },
+        (err: any) => {
+          console.log('err in fetching requested session');
+          console.error(err);
+        }
+      );
+  }
+
+
   getSessionsLoadedListener() {
     return this.sessionsLoaded.asObservable();
   }
@@ -114,6 +134,10 @@ export class AllSessionsService {
   getNewSessionsLoadedListener2() {
     return this.newSessionsLoaded2.asObservable();
   }
+  getOneSessionLoadedListener() {
+    return this.oneSessionLoaded.asObservable();
+  }
+
 }
 
 
