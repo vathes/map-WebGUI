@@ -256,7 +256,7 @@ def handle_q(subpath, args, proj, **kwargs):
         '''
         check_is_session_restriction(args)
 
-        probe_insertions, shank_strs = (experiment.Session * ephys.ProbeInsertion & args).aggr(
+        probe_insertions, shank_strs = (experiment.Session.proj() * ephys.ProbeInsertion & args).aggr(
           lab.ElectrodeConfig.Electrode * lab.ProbeType.Electrode,
           shanks='GROUP_CONCAT(DISTINCT shank)').fetch('KEY', 'shanks')
 
@@ -278,12 +278,16 @@ def handle_q(subpath, args, proj, **kwargs):
                                         * histology.ElectrodeCCFPosition.ElectrodePosition
                                         * ccf.CCFAnnotation * ccf.CCFBrainRegion.proj(..., annotation='region_name')
                                         & probe_insertion & {'shank': shank_no})
+
+                if not annotated_electrodes:
+                    continue
+
                 pos_x, pos_y, color_code = annotated_electrodes.fetch(
                   'x_coord', 'y_coord', 'color_code', order_by='y_coord DESC')
 
                 # region colorcode, by depths
                 y_spacing = np.abs(np.nanmedian(np.where(np.diff(pos_y) == 0, np.nan, np.diff(pos_y))))
-                anno_depth_bins = np.arange(ymin, ymax, y_spacing)
+                anno_depth_bins = np.arange(ymin - y_spacing, ymax + y_spacing, y_spacing)
                 binned_hexcodes = []
                 for s, e in zip(anno_depth_bins[:-1], anno_depth_bins[1:]):
                     hexcodes = color_code[np.logical_and(pos_y > s, pos_y <= e)]
@@ -293,10 +297,10 @@ def handle_q(subpath, args, proj, **kwargs):
                       binned_hexcodes.append('FFFFFF')
                 region_rgba = [f'rgba{ImageColor.getcolor("#" + chex, "RGBA")}' for chex in binned_hexcodes]
 
-                x.extend([np.mean(pos_x)] * len(region_rgba))
-                width.extend([np.ptp(pos_x) * 1.5] * len(region_rgba))
-                y.extend(anno_depth_bins[1:] + dv_loc)
-                color.extend(region_rgba)
+                x.extend([np.mean(pos_x)] * (len(region_rgba) + 1))
+                width.extend([np.ptp(pos_x) * 3] * (len(region_rgba) + 1))
+                y.extend(np.concatenate([[ymin + dv_loc], np.diff(anno_depth_bins)]))
+                color.extend([f'rgba{ImageColor.getcolor("#FFFFFF", "RGBA")}'] + region_rgba)
 
             probe_anno_electrodes.append(dict(probe_insertion, x=x, y=y, width=width, color=color))
 
@@ -312,10 +316,8 @@ def handle_q(subpath, args, proj, **kwargs):
         else:
             ret = q.fetch(**kwargs)
 
-    # print('D type', ret.dtype)
-    # print(ret)
-    print('About to return ', len(ret), 'entries')
-    app.logger.info("About to return {} entries".format(len(ret)))
+    print('{} - Returning: {} entries'.format(subpath, len(ret)))
+    app.logger.info('{} - Returning: {} entries'.format(subpath, len(ret)))
     return dumps(post_process(ret)) if contain_s3fp else dumps(ret)
 
 
