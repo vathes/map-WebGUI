@@ -205,6 +205,19 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           }]
     }
 
+  get_probe_unit(probeInsNum) {
+    let cellsQuery = this.session;
+    cellsQuery['is_all'] = 0;
+    cellsQuery['insertion_number'] = probeInsNum;
+    // this.cellListService.retrieveCellList(this.sessionInfo);
+    this.cellListService.retrieveCellList(cellsQuery);
+    this.cellListSubscription = this.cellListService.getCellListLoadedListener()
+      .subscribe((cellListData) => {
+        if (Object.entries(cellListData).length > 0) {
+          this.cells.push(...cellListData);
+        }
+      });
+  }
 
   probe_selected(probeInsNum) {
     this.unitBehaviorLoading = true;
