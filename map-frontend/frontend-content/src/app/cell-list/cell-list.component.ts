@@ -15,11 +15,16 @@ import { Sort } from '@angular/material/sort';
 
 export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   cells: any;
+  annotatedElectrodes: any;
   session: any;
   clickedUnitId: number;
   clickedUnitIndex: number;
   cellsByProbeIns = [];
   sortedCellsByProbeIns = [];
+
+  plot_unit_data;
+  plot_region_data;
+
   plot_data;
   plot_layout;
   plot_config;
@@ -65,26 +70,30 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       this.probeInsertions.push(probeCount + 1);
       probeCount++;
     }
-    // === Define static plot_layout and plot_config
 
+    // === Define static plot_layout and plot_config
     this.plot_layout = {
       // autosize: false,
       width: 400,
       height: 600,
       yaxis: {
-        title: 'Unit Depth (µm)'
+        title: 'Unit Depth (µm)',
+        autorange: false,
+        range: [-1000, 0]
       },
       xaxis: {
-        title: 'Unit x position (µm)'
+        title: 'Unit x position (µm)',
+        autorange: false,
+        range: [0, 100]
       },
       hovermode: 'closest',
       showlegend: true,
       legend: {
         x: -0.1,
         y: -0.2
-      }
+      },
+      barmode: 'stack'
     };
-
     this.plot_config = {
       showLink: false,
       showSendToCloud: false,
@@ -92,9 +101,9 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d', 'hoverClosestCartesian',
                       'hoverCompareCartesian', 'toImage', 'toggleSpikelines'],
     };
+    console.log('Setup plot_layout: ', this.plot_layout);
 
     // === Query unit data to build plot data
-
     let cellsQuery = this.session;
     cellsQuery['is_all'] = 0;
     // this.cellListService.retrieveCellList(this.sessionInfo);
@@ -122,23 +131,43 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
               this.cellsByProbeIns.push(entry);
             }
           }
-
           this.sortedCellsByProbeIns = this.cellsByProbeIns;
-
           this.clickedUnitId = 1;
-          // console.log('adjusted color data:', this.color_data_adjusted);
+          this.makePlotUnitData(x_data, y_data, id_data, color_data, size_data);
+          this.makePlotData();
+        }
+      });
 
-          this.makePlotData(x_data, y_data, id_data, color_data, size_data);
+    this.cellListService.retrieveRegionColor(cellsQuery);
+    this.cellListSubscription = this.cellListService.getRegionColorLoadedListener()
+      .subscribe((annotatedElectrodes) => {
+        // console.log('logging retrieved region color data: ', annotatedElectrodes);
+        if (Object.entries(annotatedElectrodes).length > 0) {
+          this.annotatedElectrodes = annotatedElectrodes;
+          let x_rdata = [];
+          let y_rdata = [];
+          let width_rdata = [];
+          let color_rdata = [];
 
+          for (let entry of Object.values(annotatedElectrodes)) {
+            if (entry['insertion_number'] == 1) {
+              x_rdata= entry['x'];
+              y_rdata= entry['y'];
+              width_rdata= entry['width'];
+              color_rdata= entry['color'];
+            }
+          }
+          this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata);
+          this.makePlotData();
         }
       });
   }
 
   ngDoCheck() {
     const markerColors = [];
-    if (this.plot_data) {
-      if (this.plot_data[0]['x'] && this.clickedUnitIndex > -1) {
-        for (let i = 0; i < this.plot_data[0]['x'].length; i++) {
+    if (this.plot_unit_data) {
+      if (this.plot_unit_data['x'] && this.clickedUnitIndex > -1) {
+        for (let i = 0; i < this.plot_unit_data['x'].length; i++) {
           if (this.clickedUnitIndex === i) {
             markerColors.push('rgba(0, 0, 0, 1)'); // black
           } else {
@@ -147,17 +176,14 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           }
         }
       } else {
-        for (let i = 0; i < this.plot_data[0]['x'].length; i++) {
+        for (let i = 0; i < this.plot_unit_data['x'].length; i++) {
           markerColors.push(this.color_data_adjusted[i]);
           // markerColors.push(this.test_color_data[i]); 
         }
       }
-      this.plot_data[0]['marker']['line']['color'] = markerColors;
+      this.plot_unit_data['marker']['line']['color'] = markerColors;
       // console.log('markerColors: ', markerColors);
     }
-
-    
-
   }
 
   ngOnDestroy() {
@@ -167,20 +193,20 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   }
 
-  makePlotData(x_data, y_data, id_data, color_data, size_data) {
+  makePlotUnitData(x_data, y_data, id_data, color_data, size_data) {
       this.size_data_adjusted = size_data.map(function(el) {
         return 8 + (12 * (el - Math.min(...size_data))/(Math.max(...size_data)) - Math.min(...size_data));
       });
 
       this.test_color_data = color_data.map(function(item) {
         return (item - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data));
-      })
+      });
 
       this.color_data_adjusted = color_data.map(function(elem) {
         return `rgba(0, 125, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
       });
 
-      this.plot_data = [{
+      this.plot_unit_data = {
             x: x_data,
             y: y_data,
             customdata: id_data,
@@ -202,8 +228,43 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
               cmin: Math.min(...color_data),
               colorscale: [['0.0','rgba(0, 125, 0, 0.33)'], ['1.0','rgba(0, 125, 255, 0.33)']]
             }
-          }]
+          };
+      console.log('plot_unit_data updated');
     }
+
+  makePlotRegionData(x_data, y_data, width_data, color_data){
+    this.plot_region_data = {
+      x: x_data,
+      y: y_data,
+      width: width_data,
+      marker: {
+        color: color_data,
+        opacity: 0.4
+      },
+      type: 'bar',
+      showlegend: false,
+      hoverinfo: 'none'
+    };
+    console.log('plot_region_data updated');
+  }
+
+  makePlotData(){
+    this.plot_data = [this.plot_unit_data, this.plot_region_data];
+
+    if (this.plot_unit_data){
+      console.log('update axes ranges')
+      var x_min = Math.min(...this.plot_unit_data['x'])
+      var x_max = Math.max(...this.plot_unit_data['x'])
+      var y_min = Math.min(...this.plot_unit_data['y'])
+      var y_max = Math.max(...this.plot_unit_data['y'])
+
+      this.plot_layout['xaxis']['range'] = [x_min - (x_max - x_min)*0.2, x_max + (x_max - x_min)*0.2];
+      this.plot_layout['yaxis']['range'] = [y_min - (y_max - y_min)*0.1, y_max + (y_max - y_min)*0.1];
+    }
+
+    console.log('this.plot_data: ', this.plot_data);
+    console.log('this.plot_layout: ', this.plot_layout);
+  }
 
   get_probe_unit(probeInsNum) {
     let cellsQuery = this.session;
@@ -218,7 +279,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
         }
       });
   }
-
+  
   probe_selected(probeInsNum) {
     this.unitBehaviorLoading = true;
     this.unitPsthLoading = true;
@@ -241,13 +302,30 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       }
     }
 
+    let x_rdata = [];
+    let y_rdata = [];
+    let width_rdata = [];
+    let color_rdata = [];
+
+    for (let entry of Object.values(this.annotatedElectrodes)) {
+      if (entry['insertion_number'] == probeInsNum) {
+        x_rdata= entry['unit_depth'];
+        y_rdata= entry['unit_depth'];
+        width_rdata= entry['unit_depth'];
+        color_rdata= entry['unit_depth'];
+      }
+    }
+
     this.sortedCellsByProbeIns = this.cellsByProbeIns;
 
-    this.makePlotData(x_data, y_data, id_data, color_data, size_data);
+    this.makePlotUnitData(x_data, y_data, id_data, color_data, size_data);
+    this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata);
 
     this.unitBehaviorLoading = false;
     this.unitPsthLoading = false;
     this.clickedUnitId = 1;
+
+    this.makePlotData();
     // console.log('plot data for probe (' + probeInsNum + ') is - ', this.plot_data);
   }
 
