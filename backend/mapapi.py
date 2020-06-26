@@ -200,11 +200,11 @@ def handle_q(subpath, args, proj, **kwargs):
 
         plotsessions = (experiment.Session & args).proj().aggr(report.SessionLevelReport, ...,
                                                                behavior_performance_s3fp = 'behavior_performance',
-                                                               keep_all_rows = True)
+                                                               keep_all_rows=True)
         plotsessions = plotsessions.aggr(report.SessionLevelProbeTrack, ...,
-                                         session_tracks_plot_s3fp = 'session_tracks_plot', keep_all_rows = True)
-        plotsessions = plotsessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp = 'coding_direction',
-                                         keep_all_rows = True)
+                                         session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
+        plotsessions = plotsessions.aggr(report.SessionLevelCDReport, ..., coding_direction_s3fp='coding_direction',
+                                         keep_all_rows=True)
 
         contain_s3fp = True
         q = sessions * plotsessions
@@ -298,7 +298,7 @@ def handle_q(subpath, args, proj, **kwargs):
                 region_rgba = [f'rgba{ImageColor.getcolor("#" + chex, "RGBA")}' for chex in binned_hexcodes]
 
                 x.extend([np.mean(pos_x)] * (len(region_rgba) + 1))
-                width.extend([np.ptp(pos_x) * 3] * (len(region_rgba) + 1))
+                width.extend([np.ptp(pos_x) * 4] * (len(region_rgba) + 1))
                 y.extend(np.concatenate([[ymin + dv_loc], np.diff(anno_depth_bins)]))
                 color.extend([f'rgba{ImageColor.getcolor("#FFFFFF", "RGBA")}'] + region_rgba)
 
