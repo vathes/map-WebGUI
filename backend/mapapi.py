@@ -305,6 +305,10 @@ def handle_q(subpath, args, proj, **kwargs):
             probe_anno_electrodes.append(dict(probe_insertion, x=x, y=y, width=width, color=color))
 
         q = probe_anno_electrodes
+    elif subpath == 'diftmaps':
+        check_is_session_restriction(args)
+        contain_s3fp = True
+        q = report.ProbeLevelDriftMap.proj(driftmap_s3fp='driftmap') & args
     else:
         abort(404)
 
