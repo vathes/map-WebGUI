@@ -114,15 +114,17 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           let y_rdata = [];
           let width_rdata = [];
           let color_rdata = [];
+          let anno_rdata = [];
           for (let entry of Object.values(annotatedElectrodes)) {
             if (entry['insertion_number'] == 1) {
-              x_rdata= entry['x'];
-              y_rdata= entry['y'];
-              width_rdata= entry['width'];
-              color_rdata= entry['color'];
+              x_rdata = entry['x'];
+              y_rdata = entry['y'];
+              width_rdata = entry['width'];
+              color_rdata = entry['color'];
+              anno_rdata = entry['annotation'];
             }
           }
-          this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata);
+          this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata, anno_rdata);
           this.makePlotData();
         }
       });
@@ -237,18 +239,19 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       console.log('plot_unit_data updated');
     }
 
-  makePlotRegionData(x_data, y_data, width_data, color_data){
+  makePlotRegionData(x_data, y_data, width_data, color_data, anno_data){
     this.plot_region_data = {
       x: x_data,
       y: y_data,
       width: width_data,
+      text: anno_data,
       marker: {
         color: color_data,
         opacity: 0.4
       },
       type: 'bar',
       showlegend: false,
-      hoverinfo: 'none'
+      hoverinfo: 'text'
     };
     console.log('plot_region_data updated');
   }
@@ -312,19 +315,21 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     let y_rdata = [];
     let width_rdata = [];
     let color_rdata = [];
+    let anno_rdata = [];
     for (let entry of Object.values(this.annotatedElectrodes)) {
       if (entry['insertion_number'] == probeInsNum) {
-        x_rdata= entry['x'];
-        y_rdata= entry['y'];
-        width_rdata= entry['width'];
-        color_rdata= entry['color'];
+        x_rdata = entry['x'];
+        y_rdata = entry['y'];
+        width_rdata = entry['width'];
+        color_rdata = entry['color'];
+        anno_rdata = entry['annotation'];
       }
     }
 
     this.sortedCellsByProbeIns = this.cellsByProbeIns;
 
     this.makePlotUnitData(x_data, y_data, id_data, color_data, size_data);
-    this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata);
+    this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata, anno_rdata);
 
     this.unitBehaviorLoading = false;
     this.unitPsthLoading = false;
