@@ -324,7 +324,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     console.log('probe insertions selected: ', probeInsNum);
     this.selectedProbeIndex = probeInsNum;
     if (this.driftmapByProbe[this.selectedProbeIndex]) {
-      this.selectedShank = Math.min(...Object.keys(this.driftmapByProbe[this.selectedProbeIndex]))
+      this.selectedShank = Math.min(...Object.keys(Number(this.driftmapByProbe[this.selectedProbeIndex])))
     } else {
       this.selectedShank = null;
     }
