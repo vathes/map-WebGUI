@@ -151,6 +151,16 @@ app.post('/plot/probeTracks', checkAuth, (req, res) => {
     })
 })
 
+app.post('/plot/driftmap', checkAuth, (req, res) => {
+    console.log('requesting for drift map with: ', req.body);
+    request.post(flask_backend + '/v0/_q/driftmaps', { form: req.body }, function (error, httpResponse, body) {
+        if (error) {
+            console.error('driftmap sending error: ', error);
+        }
+        res.send(body);
+    })
+})
+
 
 
 

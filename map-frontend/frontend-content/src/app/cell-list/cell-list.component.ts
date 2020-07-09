@@ -36,7 +36,8 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   eventType;
   sortType;
-  probeIndex;
+  selectedProbeIndex;
+  selectedShank;
 
   showController = true;
 
@@ -46,10 +47,13 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   probeInsertions = [];
 
+  driftmapByProbe;
+
   unitBehaviorLoading = true;
   unitPsthLoading = true;
 
   private cellListSubscription: Subscription;
+  private driftmapSubscription: Subscription;
   @Input() sessionInfo: Object;
   @ViewChild('navTable') el_nav: ElementRef;
 
@@ -70,6 +74,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       this.probeInsertions.push(probeCount + 1);
       probeCount++;
     }
+    this.selectedProbeIndex = this.probeInsertions[0]
 
     // === Define static plot_layout and plot_config
     this.plot_layout = {
@@ -132,6 +137,11 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     // this.cellListService.retrieveCellList(this.sessionInfo);
     console.log('Request units for probe insertion: 1');
     this.cellListService.retrieveCellList(cellsQuery);
+    // let driftmapQuery = {...this.session, 'insertion_number': 1};
+    let driftmapQuery = {'session': this.session['session'], 'subject_id': this.session['subject_id'], 'clustering_method': this.session['clustering_methods'], 'insertion_number': 1};
+    console.log('Request driftmap for probe insertion: 1');
+    this.cellListService.retrieveDriftmap(driftmapQuery);
+
     this.cellListSubscription = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
         this.unitBehaviorLoading = false;
@@ -158,8 +168,27 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           this.makePlotUnitData(x_data, y_data, id_data, color_data, size_data);
           this.makePlotData();
         }
+        
       });
-
+    this.driftmapSubscription = this.cellListService.getDriftmapLoadedListener()
+      .subscribe((driftmapData:[]) => {
+        this.driftmapByProbe = {}
+        // console.log('retrieved driftmap data!')
+        if (driftmapData) {
+          for (let plot of driftmapData) {
+            if (!this.driftmapByProbe[plot['insertion_number']]) {
+              this.driftmapByProbe[plot['insertion_number']] = {};
+              this.driftmapByProbe[plot['insertion_number']][plot['shank']] = plot['driftmap'];
+            } else if (!this.driftmapByProbe[plot['insertion_number']][plot['shank']]) {
+              this.driftmapByProbe[plot['insertion_number']][plot['shank']] = plot['driftmap'];
+            }
+            // this.driftmapByProbe[plot['insertion_number']][plot['shank']].push(plot['driftmap']) 
+          }
+          
+        }
+        console.log('driftmap by probe: ', this.driftmapByProbe);
+        this.selectedShank = Math.min(...Object.keys(this.driftmapByProbe[this.selectedProbeIndex]))
+      })
     // === Query unit data for the remaining probes
     for (let probeInsNum of this.probeInsertions.slice(1, )) {
       console.log('Request units for probe insertion: ', probeInsNum);
@@ -290,6 +319,13 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     this.unitBehaviorLoading = true;
     this.unitPsthLoading = true;
     console.log('probe insertions selected: ', probeInsNum);
+    this.selectedProbeIndex = probeInsNum;
+    if (this.driftmapByProbe[this.selectedProbeIndex]) {
+      this.selectedShank = Math.min(...Object.keys(this.driftmapByProbe[this.selectedProbeIndex]))
+    } else {
+      this.selectedShank = null;
+    }
+    
 
     const x_data = [];
     const y_data = [];
