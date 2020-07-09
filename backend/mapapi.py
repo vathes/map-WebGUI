@@ -262,14 +262,13 @@ def handle_q(subpath, args, proj, **kwargs):
 
         probe_anno_electrodes = []
         for probe_insertion, shank_str in zip(probe_insertions, shank_strs):
-            x, y, width, color = [], [], [], []
+            x, y, width, color, anno = [], [], [], [], []
             for shank_no in np.array(shank_str.split(',')).astype(int):
                 units = (ephys.Unit * lab.ElectrodeConfig.Electrode * ephys.ProbeInsertion
                          * lab.ProbeType.Electrode.proj('shank')
                          & probe_insertion & {'shank': shank_no})
 
-                ymax, ymin = ephys.ProbeInsertion.proj().aggr(
-                  units, ymax='max(unit_posy)', ymin='min(unit_posy)').fetch1('ymax', 'ymin')
+                ymax, ymin = dj.U().aggr(units, ymax='max(unit_posy)', ymin='0').fetch1('ymax', 'ymin')
 
                 dv_loc = float((ephys.ProbeInsertion.InsertionLocation & probe_insertion).fetch1('depth'))
 
@@ -282,29 +281,41 @@ def handle_q(subpath, args, proj, **kwargs):
                 if not annotated_electrodes:
                     continue
 
-                pos_x, pos_y, color_code = annotated_electrodes.fetch(
-                  'x_coord', 'y_coord', 'color_code', order_by='y_coord DESC')
+                pos_x, pos_y, color_code, annotation = annotated_electrodes.fetch(
+                  'x_coord', 'y_coord', 'color_code', 'annotation', order_by='y_coord DESC')
+
+                region2color_map = {**{r: c for r, c in zip(annotation, color_code)}, '': 'FFFFFF'}
 
                 # region colorcode, by depths
                 y_spacing = np.abs(np.nanmedian(np.where(np.diff(pos_y) == 0, np.nan, np.diff(pos_y))))
-                anno_depth_bins = np.arange(ymin - y_spacing, ymax + y_spacing, y_spacing)
-                binned_hexcodes = []
+                anno_depth_bins = np.arange(ymin, ymax + y_spacing, y_spacing)
+
+                binned_depths, binned_hexcodes, binned_regions = [], [], []
                 for s, e in zip(anno_depth_bins[:-1], anno_depth_bins[1:]):
-                    hexcodes = color_code[np.logical_and(pos_y > s, pos_y <= e)]
-                    if len(hexcodes):
-                        binned_hexcodes.append(Counter(hexcodes).most_common()[0][0])
+                    regions = annotation[np.logical_and(pos_y > s, pos_y <= e)]
+                    region = Counter(regions).most_common()[0][0] if len(regions) else ''
+                    if binned_regions and region == binned_regions[-1]:
+                        binned_depths[-1] += y_spacing
                     else:
-                      binned_hexcodes.append('FFFFFF')
+                        binned_regions.append(region)
+                        binned_hexcodes.append(region2color_map[region])
+                        binned_depths.append(y_spacing)
+
                 region_rgba = [f'rgba{ImageColor.getcolor("#" + chex, "RGBA")}' for chex in binned_hexcodes]
 
                 x.extend([np.mean(pos_x)] * (len(region_rgba) + 1))
                 width.extend([np.ptp(pos_x) * 4] * (len(region_rgba) + 1))
-                y.extend(np.concatenate([[ymin + dv_loc], np.diff(anno_depth_bins)]))
+                y.extend(np.concatenate([[ymin + dv_loc], binned_depths]))
+                anno.extend([''] + binned_regions)
                 color.extend([f'rgba{ImageColor.getcolor("#FFFFFF", "RGBA")}'] + region_rgba)
 
-            probe_anno_electrodes.append(dict(probe_insertion, x=x, y=y, width=width, color=color))
+            probe_anno_electrodes.append(dict(probe_insertion, x=x, y=y, width=width, color=color, annotation=anno))
 
         q = probe_anno_electrodes
+    elif subpath == 'driftmaps':
+        check_is_session_restriction(args)
+        contain_s3fp = True
+        q = report.ProbeLevelDriftMap.proj(driftmap_s3fp='driftmap') & args
     else:
         abort(404)
 
