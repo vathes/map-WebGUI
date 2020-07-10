@@ -12,6 +12,8 @@ export class CellListService {
   private cellList;
   private cellListLoaded = new Subject();
 
+  private driftmapLoaded = new Subject();
+
   private regionColor;
   private regionColorLoaded = new Subject();
 
@@ -53,6 +55,25 @@ export class CellListService {
 
   getRegionColorLoadedListener() {
     return this.regionColorLoaded.asObservable();
+  }
+
+  retrieveDriftmap(sessionInfo) {
+    console.log('about to retrieve driftmap for: ', sessionInfo);
+    this.http.post(BACKEND_API_URL + `/plot/driftmap`, sessionInfo)
+      .subscribe(
+        (driftmap) => {
+          console.log('retrieved driftmap data!: ', driftmap)
+          this.driftmapLoaded.next(driftmap);
+        },
+        (err: any) => {
+          console.log('error in retrieving driftmap for session');
+          console.error(err);
+        }
+      );
+  }
+
+  getDriftmapLoadedListener() {
+    return this.driftmapLoaded.asObservable();
   }
 
 }

@@ -1,3 +1,7 @@
+.row {
+    margin-left: 0;
+}
+
 h5 {
     font-weight: 300;
 }
@@ -44,6 +48,14 @@ td span.oi {
 
 .plots-navigator-buttons span:hover {
     cursor: pointer;
+}
+
+.driftmap-area {
+    width: 1000px;
+}
+.driftmap-area img.driftmap {
+    width: 910px;
+    margin-top: 38px;
 }
 
 
