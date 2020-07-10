@@ -271,7 +271,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       text: anno_data,
       marker: {
         color: color_data,
-        opacity: 0.4
+        opacity: 0.6
       },
       type: 'bar',
       showlegend: false,
