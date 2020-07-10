@@ -70,8 +70,10 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     this.session = this.sessionInfo;
     this.clickedUnitIndex = 0;
     let probeCount = 0;
+    this.driftmapByProbe = {}
     while (probeCount < this.sessionInfo['probe_count']) {
       this.probeInsertions.push(probeCount + 1);
+      this.driftmapByProbe[probeCount + 1] = {}
       probeCount++;
     }
     this.selectedProbeIndex = this.probeInsertions[0]
@@ -109,10 +111,11 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     console.log('Setup plot_layout: ', this.plot_layout);
 
     // === Query region color data
+    console.log('Request region color data');
     this.cellListService.retrieveRegionColor(this.sessionInfo);
     this.cellListSubscription = this.cellListService.getRegionColorLoadedListener()
       .subscribe((annotatedElectrodes) => {
-        // console.log('logging retrieved region color data: ', annotatedElectrodes);
+        console.log('Retrieve region color data');
         if (Object.entries(annotatedElectrodes).length > 0) {
           this.annotatedElectrodes = annotatedElectrodes;
           let x_rdata = [];
@@ -139,11 +142,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     // this.cellListService.retrieveCellList(this.sessionInfo);
     console.log('Request units for probe insertion: 1');
     this.cellListService.retrieveCellList(cellsQuery);
-    // let driftmapQuery = {...this.session, 'insertion_number': 1};
-    let driftmapQuery = {'session': this.session['session'], 'subject_id': this.session['subject_id'], 'clustering_method': this.session['clustering_methods'], 'insertion_number': 1};
-    console.log('Request driftmap for probe insertion: 1');
-    this.cellListService.retrieveDriftmap(driftmapQuery);
-
     this.cellListSubscription = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
         this.unitBehaviorLoading = false;
@@ -172,25 +170,22 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
         }
         
       });
+
+    // === Query driftmap
+    console.log('Request driftmap data');
+    this.cellListService.retrieveDriftmap(this.sessionInfo);
     this.driftmapSubscription = this.cellListService.getDriftmapLoadedListener()
       .subscribe((driftmapData:[]) => {
-        this.driftmapByProbe = {}
-        // console.log('retrieved driftmap data!')
+        console.log('Retrieve driftmap data')
         if (driftmapData) {
-          for (let plot of driftmapData) {
-            if (!this.driftmapByProbe[plot['insertion_number']]) {
-              this.driftmapByProbe[plot['insertion_number']] = {};
-              this.driftmapByProbe[plot['insertion_number']][plot['shank']] = plot['driftmap'];
-            } else if (!this.driftmapByProbe[plot['insertion_number']][plot['shank']]) {
-              this.driftmapByProbe[plot['insertion_number']][plot['shank']] = plot['driftmap'];
-            }
-            // this.driftmapByProbe[plot['insertion_number']][plot['shank']].push(plot['driftmap']) 
+          for (let entry of driftmapData) {
+            this.driftmapByProbe[entry['insertion_number']][entry['shank']] = entry['driftmap']
           }
-          
         }
         console.log('driftmap by probe: ', this.driftmapByProbe);
-        this.selectedShank = Math.min(...Object.keys(this.driftmapByProbe[this.selectedProbeIndex]))
+        this.selectedShank = 1;
       })
+
     // === Query unit data for the remaining probes
     for (let probeInsNum of this.probeInsertions.slice(1, )) {
       console.log('Request units for probe insertion: ', probeInsNum);
@@ -324,11 +319,10 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     console.log('probe insertions selected: ', probeInsNum);
     this.selectedProbeIndex = probeInsNum;
     if (this.driftmapByProbe[this.selectedProbeIndex]) {
-      this.selectedShank = Math.min(...Object.keys(Number(this.driftmapByProbe[this.selectedProbeIndex])))
+      this.selectedShank = 1;
     } else {
       this.selectedShank = null;
     }
-    
 
     const x_data = [];
     const y_data = [];
