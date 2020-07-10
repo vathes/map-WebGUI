@@ -69,13 +69,12 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   ngOnInit() {
     this.session = this.sessionInfo;
     this.clickedUnitIndex = 0;
-    let probeCount = 0;
     this.driftmapByProbe = {}
-    while (probeCount < this.sessionInfo['probe_count']) {
-      this.probeInsertions.push(probeCount + 1);
-      this.driftmapByProbe[probeCount + 1] = {}
-      probeCount++;
+    for (let insert_str of this.sessionInfo['probe_insertions'].split(',')){
+      this.probeInsertions.push(parseInt(insert_str));
+      this.driftmapByProbe[parseInt(insert_str)] = {}
     }
+
     this.selectedProbeIndex = this.probeInsertions[0]
 
     // === Define static plot_layout and plot_config
@@ -124,7 +123,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           let color_rdata = [];
           let anno_rdata = [];
           for (let entry of Object.values(annotatedElectrodes)) {
-            if (entry['insertion_number'] == 1) {
+            if (entry['insertion_number'] == this.selectedProbeIndex) {
               x_rdata = entry['x'];
               y_rdata = entry['y'];
               width_rdata = entry['width'];
@@ -138,9 +137,9 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       });
 
     // === Query unit data to build plot data for probe 1
-    let cellsQuery = {...this.session, 'is_all': 0, 'insertion_number': 1};
+    let cellsQuery = {...this.session, 'is_all': 0, 'insertion_number': this.selectedProbeIndex};
     // this.cellListService.retrieveCellList(this.sessionInfo);
-    console.log('Request units for probe insertion: 1');
+    console.log('Request units for probe insertion: ', this.selectedProbeIndex);
     this.cellListService.retrieveCellList(cellsQuery);
     this.cellListSubscription = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
@@ -289,7 +288,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       var y_max = Math.max(...this.plot_unit_data['y']);
 
       this.plot_layout['xaxis']['range'] = [x_min - (x_max - x_min)*0.2, x_max + (x_max - x_min)*0.2];
-      this.plot_layout['yaxis']['range'] = [y_min - (y_max - y_min)*0.1, y_max + (y_max - y_min)*0.1];
+      this.plot_layout['yaxis']['range'] = [y_min - (y_max - y_min)*0.09, y_max + (y_max - y_min)*0.11];
 
       this.plot_data = [this.plot_unit_data, this.plot_region_data];
 
