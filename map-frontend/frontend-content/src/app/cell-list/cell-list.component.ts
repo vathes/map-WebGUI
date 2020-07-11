@@ -41,6 +41,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   showController = true;
 
+  color_data_adjusted_old;
   color_data_adjusted;
   size_data_adjusted;
   test_color_data;
@@ -166,6 +167,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           this.clickedUnitId = 1;
           this.makePlotUnitData(x_data, y_data, id_data, color_data, size_data);
           this.makePlotData();
+
         }
         
       });
@@ -232,10 +234,19 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
         return (item - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data));
       });
 
-      this.color_data_adjusted = color_data.map(function(elem) {
+      this.color_data_adjusted_old = color_data.map(function(elem) {
         return `rgba(0, 125, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
-      });
 
+      });
+      this.color_data_adjusted = color_data.map(function(elem) {
+        // return `rgba(0, 125, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
+        return `rgba(255, ${130 + (125 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data)))}, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.53)`
+
+      });
+      console.log('min_color_data: ', Math.min(...color_data));
+      console.log('max_color_data: ', Math.max(...color_data));
+      console.log('color_data_adjusted_old: ', this.color_data_adjusted_old);
+      console.log('color_data_adjusted: ', this.color_data_adjusted);
       this.plot_unit_data = {
             x: x_data,
             y: y_data,
@@ -256,7 +267,8 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
               },
               cmax: Math.max(...color_data),
               cmin: Math.min(...color_data),
-              colorscale: [['0.0','rgba(0, 125, 0, 0.33)'], ['1.0','rgba(0, 125, 255, 0.33)']]
+              // colorscale: [['0.0','rgba(0, 125, 0, 0.33)'], ['1.0','rgba(0, 125, 255, 0.33)']] // green-blue scale
+              colorscale: [['0.0','rgba(255, 130, 0, 0.33)'], ['1.0','rgba(255, 255, 0, 0.33)']] // orange-yellow scale
             }
           };
       console.log('plot_unit_data updated');
@@ -359,7 +371,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
     this.makePlotUnitData(x_data, y_data, id_data, color_data, size_data);
     this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata, anno_rdata);
-
     this.unitBehaviorLoading = false;
     this.unitPsthLoading = false;
     this.clickedUnitId = 1;
