@@ -41,7 +41,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   showController = true;
 
-  color_data_adjusted_old;
+  // color_data_adjusted_old;
   color_data_adjusted;
   size_data_adjusted;
   test_color_data;
@@ -234,19 +234,18 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
         return (item - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data));
       });
 
-      this.color_data_adjusted_old = color_data.map(function(elem) {
-        return `rgba(0, 125, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
+      // this.color_data_adjusted_old = color_data.map(function(elem) {
+      //   return `rgba(0, 125, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
 
-      });
+      // });
       this.color_data_adjusted = color_data.map(function(elem) {
-        // return `rgba(0, 125, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.33)`
         return `rgba(255, ${130 + (125 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data)))}, ${255 * (elem - Math.min(...color_data)) / (Math.max(...color_data) - Math.min(...color_data))}, 0.53)`
 
       });
-      console.log('min_color_data: ', Math.min(...color_data));
-      console.log('max_color_data: ', Math.max(...color_data));
-      console.log('color_data_adjusted_old: ', this.color_data_adjusted_old);
-      console.log('color_data_adjusted: ', this.color_data_adjusted);
+      // console.log('min_color_data: ', Math.min(...color_data));
+      // console.log('max_color_data: ', Math.max(...color_data));
+      // console.log('color_data_adjusted_old: ', this.color_data_adjusted_old);
+      // console.log('color_data_adjusted: ', this.color_data_adjusted);
       this.plot_unit_data = {
             x: x_data,
             y: y_data,
