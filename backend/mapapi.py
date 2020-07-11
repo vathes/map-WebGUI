@@ -288,7 +288,7 @@ def handle_q(subpath, args, proj, **kwargs):
 
                 # region colorcode, by depths
                 y_spacing = np.abs(np.nanmedian(np.where(np.diff(pos_y) == 0, np.nan, np.diff(pos_y))))
-                anno_depth_bins = np.arange(ymin, ymax + y_spacing, y_spacing)
+                anno_depth_bins = np.arange(ymin, ymax, y_spacing)
 
                 binned_depths, binned_hexcodes, binned_regions = [], [], []
                 for s, e in zip(anno_depth_bins[:-1], anno_depth_bins[1:]):
@@ -304,7 +304,7 @@ def handle_q(subpath, args, proj, **kwargs):
                 region_rgba = [f'rgba{ImageColor.getcolor("#" + chex, "RGBA")}' for chex in binned_hexcodes]
 
                 x.extend([np.mean(pos_x)] * (len(region_rgba) + 1))
-                width.extend([np.ptp(pos_x) * 4] * (len(region_rgba) + 1))
+                width.extend([np.ptp(pos_x) * 5.5] * (len(region_rgba) + 1))
                 y.extend(np.concatenate([[ymin + dv_loc], binned_depths]))
                 anno.extend([''] + binned_regions)
                 color.extend([f'rgba{ImageColor.getcolor("#FFFFFF", "RGBA")}'] + region_rgba)
@@ -337,23 +337,24 @@ def handle_q(subpath, args, proj, **kwargs):
 def get_sessions_query():
     sessions = (experiment.Session * lab.WaterRestriction).aggr(
       ephys.ProbeInsertion, 'water_restriction_number', 'username',
-      session_date = "cast(concat(session_date, ' ', session_time) as datetime)",
-      probe_count = 'count(insertion_number)', keep_all_rows = True)
+      session_date="cast(concat(session_date, ' ', session_time) as datetime)",
+      probe_count='count(insertion_number)',
+      probe_insertions='GROUP_CONCAT(insertion_number ORDER BY insertion_number)', keep_all_rows=True)
 
     sessions = sessions.aggr(ephys.ProbeInsertion.RecordableBrainRegion.proj(
-      brain_region = 'CONCAT(hemisphere, " ", brain_area)'), ...,
-      insert_locations = 'GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows = True)
+      brain_region='CONCAT(hemisphere, " ", brain_area)'), ...,
+      insert_locations='GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows=True)
 
-    sessions = sessions.aggr(tracking.Tracking, ..., tracking_avai = 'count(trial) > 0', keep_all_rows = True)
+    sessions = sessions.aggr(tracking.Tracking, ..., tracking_avai='count(trial) > 0', keep_all_rows=True)
 
     unitsessions = experiment.Session.proj().aggr(ephys.Unit.proj(), ...,
-                                                  clustering_methods = 'GROUP_CONCAT(DISTINCT clustering_method SEPARATOR", ")',
-                                                  keep_all_rows = True)
-    unitsessions = unitsessions.aggr(ephys.ClusteringLabel, ..., quality_control = 'SUM(quality_control) > 0',
-                                     manual_curation = 'SUM(manual_curation) > 0', keep_all_rows = True).proj(
-      ..., quality_control = 'IFNULL(quality_control, false)', manual_curation = 'IFNULL(manual_curation, false)')
-    unitsessions = unitsessions.aggr(histology.ElectrodeCCFPosition, ..., histology_avai = 'count(insertion_number) > 0',
-                                     keep_all_rows = True)
+                                                  clustering_methods='GROUP_CONCAT(DISTINCT clustering_method SEPARATOR", ")',
+                                                  keep_all_rows=True)
+    unitsessions = unitsessions.aggr(ephys.ClusteringLabel, ..., quality_control='SUM(quality_control) > 0',
+                                     manual_curation='SUM(manual_curation) > 0', keep_all_rows=True).proj(
+      ..., quality_control='IFNULL(quality_control, false)', manual_curation='IFNULL(manual_curation, false)')
+    unitsessions = unitsessions.aggr(histology.ElectrodeCCFPosition, ..., histology_avai='count(insertion_number) > 0',
+                                     keep_all_rows=True)
 
     return sessions * unitsessions
 
