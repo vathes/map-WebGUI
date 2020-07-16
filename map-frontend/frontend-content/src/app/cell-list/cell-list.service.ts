@@ -23,7 +23,7 @@ export class CellListService {
     this.http.post(BACKEND_API_URL + `/plot/units`, sessionInfo)
       .subscribe(
         (sessionCellData) => {
-          console.log('retrieved cell Data!: ', Object.entries(sessionCellData))
+          console.log('retrieved cell data: ', Object.entries(sessionCellData))
           this.cellList = sessionCellData;
           this.cellListLoaded.next(this.cellList);
         },
@@ -42,7 +42,7 @@ export class CellListService {
     this.http.post(BACKEND_API_URL + `/plot/annotated_electrodes`, sessionInfo)
       .subscribe(
         (probeRegionColor) => {
-          console.log('retrieved region color data!: ', Object.entries(probeRegionColor))
+          console.log('retrieved region color data: ', Object.entries(probeRegionColor))
           this.regionColor = probeRegionColor;
           this.regionColorLoaded.next(this.regionColor);
         },
@@ -58,11 +58,11 @@ export class CellListService {
   }
 
   retrieveDriftmap(sessionInfo) {
-    console.log('about to retrieve driftmap for: ', sessionInfo);
+    // console.log('about to retrieve driftmap for: ', sessionInfo);
     this.http.post(BACKEND_API_URL + `/plot/driftmap`, sessionInfo)
       .subscribe(
         (driftmap) => {
-          console.log('retrieved driftmap data!: ', driftmap)
+          console.log('retrieved driftmap data: ', driftmap)
           this.driftmapLoaded.next(driftmap);
         },
         (err: any) => {
