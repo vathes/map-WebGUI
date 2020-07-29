@@ -29,13 +29,11 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   plot_layout;
   plot_config;
 
-  targetClusterRowInfo = [];
-  targetClusterDepth;
-  targetClusterAmp;
-  targetProbeIndex;
+  init_plot_unit_ready = false;
+  init_plot_region_ready = false;
+  init_plot_rendered = false;
 
   eventType;
-  sortType;
   selectedProbeIndex;
   selectedShank;
 
@@ -54,6 +52,9 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   unitPsthLoading = true;
 
   private cellListSubscription: Subscription;
+  private cellListSubscription2: Subscription;
+  private cellListSubscription3: Subscription;
+  private regionColorSubscription: Subscription;
   private driftmapSubscription: Subscription;
   @Input() sessionInfo: Object;
   @ViewChild('navTable') el_nav: ElementRef;
@@ -113,7 +114,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     // === Query region color data
     console.log('Request region color data');
     this.cellListService.retrieveRegionColor(this.sessionInfo);
-    this.cellListSubscription = this.cellListService.getRegionColorLoadedListener()
+    this.regionColorSubscription = this.cellListService.getRegionColorLoadedListener()
       .subscribe((annotatedElectrodes) => {
         console.log('Retrieve region color data');
         if (Object.entries(annotatedElectrodes).length > 0) {
@@ -133,11 +134,12 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             }
           }
           this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata, anno_rdata);
+          this.init_plot_region_ready = true;
           this.makePlotData();
         }
       });
 
-    // === Query unit data to build plot data for probe 1
+    // === Query unit data to build plot data for first available probe
     let cellsQuery = {...this.session, 'is_all': 0, 'insertion_number': this.selectedProbeIndex};
     // this.cellListService.retrieveCellList(this.sessionInfo);
     console.log('Request units for probe insertion: ', this.selectedProbeIndex);
@@ -146,7 +148,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       .subscribe((cellListData) => {
         this.unitBehaviorLoading = false;
         this.unitPsthLoading = false;
-        console.log('Retrieve units for probe insertion: 1');
+        console.log('Retrieve units for probe insertion: ', this.selectedProbeIndex);
         if (Object.entries(cellListData).length > 0) {
           this.cells.push(...Object.values(cellListData));
           const x_data = [];
@@ -166,8 +168,8 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           this.sortedCellsByProbeIns = this.cellsByProbeIns;
           this.clickedUnitId = 1;
           this.makePlotUnitData(x_data, y_data, id_data, color_data, size_data);
+          this.init_plot_unit_ready = true;
           this.makePlotData();
-
         }
         
       });
@@ -196,6 +198,15 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngDoCheck() {
+
+    // Make the first unit interactive plot (ONCE)
+    // if (!this.init_plot_rendered) {
+    //   if (this.init_plot_unit_ready && this.init_plot_region_ready) {
+    //     this.makePlotData();
+    //     this.init_plot_rendered = true;
+    //   }
+    // }
+
     const markerColors = [];
     if (this.plot_unit_data) {
       if (this.plot_unit_data['x'] && this.clickedUnitIndex > -1) {
@@ -221,6 +232,9 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   ngOnDestroy() {
     if (this.cellListSubscription) {
       this.cellListSubscription.unsubscribe();
+    }
+    if (this.regionColorSubscription) {
+      this.regionColorSubscription.unsubscribe();
     }
 
   }
@@ -292,7 +306,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   makePlotData(){
     if (this.plot_unit_data){
-      console.log('update axes ranges');
+      console.log('Build interactive plot');
       var x_min = Math.min(...this.plot_unit_data['x']);
       var x_max = Math.max(...this.plot_unit_data['x']);
       var y_min = Math.min(...this.plot_unit_data['y']);
@@ -314,7 +328,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     cellsQuery['insertion_number'] = probeInsNum;
     // this.cellListService.retrieveCellList(this.sessionInfo);
     this.cellListService.retrieveCellList(cellsQuery);
-    this.cellListSubscription = this.cellListService.getCellListLoadedListener()
+    this[`cellListSubscription${probeInsNum}`] = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
         console.log('Retrieve units for probe insertion: ', probeInsNum);
         if (Object.entries(cellListData).length > 0) {
