@@ -52,6 +52,9 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   unitPsthLoading = true;
 
   private cellListSubscription: Subscription;
+  private cellListSubscription2: Subscription;
+  private cellListSubscription3: Subscription;
+  private regionColorSubscription: Subscription;
   private driftmapSubscription: Subscription;
   @Input() sessionInfo: Object;
   @ViewChild('navTable') el_nav: ElementRef;
@@ -111,7 +114,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     // === Query region color data
     console.log('Request region color data');
     this.cellListService.retrieveRegionColor(this.sessionInfo);
-    this.cellListSubscription = this.cellListService.getRegionColorLoadedListener()
+    this.regionColorSubscription = this.cellListService.getRegionColorLoadedListener()
       .subscribe((annotatedElectrodes) => {
         console.log('Retrieve region color data');
         if (Object.entries(annotatedElectrodes).length > 0) {
@@ -132,6 +135,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           }
           this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata, anno_rdata);
           this.init_plot_region_ready = true;
+          this.makePlotData();
         }
       });
 
@@ -165,6 +169,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           this.clickedUnitId = 1;
           this.makePlotUnitData(x_data, y_data, id_data, color_data, size_data);
           this.init_plot_unit_ready = true;
+          this.makePlotData();
         }
         
       });
@@ -195,12 +200,12 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   ngDoCheck() {
 
     // Make the first unit interactive plot (ONCE)
-    if (!this.init_plot_rendered) {
-      if (this.init_plot_unit_ready && this.init_plot_region_ready) {
-        this.makePlotData();
-        this.init_plot_rendered = true;
-      }
-    }
+    // if (!this.init_plot_rendered) {
+    //   if (this.init_plot_unit_ready && this.init_plot_region_ready) {
+    //     this.makePlotData();
+    //     this.init_plot_rendered = true;
+    //   }
+    // }
 
     const markerColors = [];
     if (this.plot_unit_data) {
@@ -227,6 +232,9 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   ngOnDestroy() {
     if (this.cellListSubscription) {
       this.cellListSubscription.unsubscribe();
+    }
+    if (this.regionColorSubscription) {
+      this.regionColorSubscription.unsubscribe();
     }
 
   }
@@ -320,7 +328,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     cellsQuery['insertion_number'] = probeInsNum;
     // this.cellListService.retrieveCellList(this.sessionInfo);
     this.cellListService.retrieveCellList(cellsQuery);
-    this.cellListSubscription = this.cellListService.getCellListLoadedListener()
+    this[`cellListSubscription${probeInsNum}`] = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
         console.log('Retrieve units for probe insertion: ', probeInsNum);
         if (Object.entries(cellListData).length > 0) {
