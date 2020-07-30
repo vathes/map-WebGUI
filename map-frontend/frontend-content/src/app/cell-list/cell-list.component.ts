@@ -319,7 +319,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     let cellsQuery = this.session;
     cellsQuery['is_all'] = 0;
     cellsQuery['insertion_number'] = probeInsNum;
-    // this.cellListService.retrieveCellList(this.sessionInfo);
     this.cellListService.retrieveCellList(cellsQuery);
     this.cellListSubscriptions[probeInsNum] = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
