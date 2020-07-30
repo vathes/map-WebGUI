@@ -139,7 +139,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     // this.cellListService.retrieveCellList(this.sessionInfo);
     console.log('Request units for probe insertion: ', this.selectedProbeIndex);
     this.cellListService.retrieveCellList(cellsQuery);
-    this.cellListSubscriptions[this.selectedProbeIndex] = this.cellListService.getCellListLoadedListener()
+    this.cellListSubscriptions[this.selectedProbeIndex] = this.cellListService.getCellListLoadedListener(this.selectedProbeIndex)
       .subscribe((cellListData) => {
         this.unitBehaviorLoading = false;
         this.unitPsthLoading = false;
@@ -319,8 +319,9 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     let cellsQuery = this.session;
     cellsQuery['is_all'] = 0;
     cellsQuery['insertion_number'] = probeInsNum;
+
     this.cellListService.retrieveCellList(cellsQuery);
-    this.cellListSubscriptions[probeInsNum] = this.cellListService.getCellListLoadedListener()
+    this.cellListSubscriptions[probeInsNum] = this.cellListService.getCellListLoadedListener(probeInsNum)
       .subscribe((cellListData) => {
         console.log('Retrieve units for probe insertion: ', probeInsNum);
         if (Object.entries(cellListData).length > 0) {
