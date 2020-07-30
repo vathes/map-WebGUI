@@ -29,10 +29,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   plot_layout;
   plot_config;
 
-  init_plot_unit_ready = false;
-  init_plot_region_ready = false;
-  init_plot_rendered = false;
-
   eventType;
   selectedProbeIndex;
   selectedShank;
@@ -51,9 +47,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   unitBehaviorLoading = true;
   unitPsthLoading = true;
 
-  private cellListSubscription: Subscription;
-  private cellListSubscription2: Subscription;
-  private cellListSubscription3: Subscription;
+  private cellListSubscriptions;
   private regionColorSubscription: Subscription;
   private driftmapSubscription: Subscription;
   @Input() sessionInfo: Object;
@@ -71,10 +65,12 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   ngOnInit() {
     this.session = this.sessionInfo;
     this.clickedUnitIndex = 0;
-    this.driftmapByProbe = {}
+    this.driftmapByProbe = {};
+    this.cellListSubscriptions = {};
     for (let insert_str of this.sessionInfo['probe_insertions'].split(',')){
       this.probeInsertions.push(parseInt(insert_str));
-      this.driftmapByProbe[parseInt(insert_str)] = {}
+      this.driftmapByProbe[parseInt(insert_str)] = {};
+      this.cellListSubscriptions[parseInt(insert_str)] = Subscription;
     }
 
     this.selectedProbeIndex = this.probeInsertions[0]
@@ -134,7 +130,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             }
           }
           this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata, anno_rdata);
-          this.init_plot_region_ready = true;
           this.makePlotData();
         }
       });
@@ -144,7 +139,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     // this.cellListService.retrieveCellList(this.sessionInfo);
     console.log('Request units for probe insertion: ', this.selectedProbeIndex);
     this.cellListService.retrieveCellList(cellsQuery);
-    this.cellListSubscription = this.cellListService.getCellListLoadedListener()
+    this.cellListSubscriptions[this.selectedProbeIndex] = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
         this.unitBehaviorLoading = false;
         this.unitPsthLoading = false;
@@ -168,7 +163,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           this.sortedCellsByProbeIns = this.cellsByProbeIns;
           this.clickedUnitId = 1;
           this.makePlotUnitData(x_data, y_data, id_data, color_data, size_data);
-          this.init_plot_unit_ready = true;
           this.makePlotData();
         }
         
@@ -199,14 +193,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
   ngDoCheck() {
 
-    // Make the first unit interactive plot (ONCE)
-    // if (!this.init_plot_rendered) {
-    //   if (this.init_plot_unit_ready && this.init_plot_region_ready) {
-    //     this.makePlotData();
-    //     this.init_plot_rendered = true;
-    //   }
-    // }
-
     const markerColors = [];
     if (this.plot_unit_data) {
       if (this.plot_unit_data['x'] && this.clickedUnitIndex > -1) {
@@ -230,11 +216,18 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngOnDestroy() {
-    if (this.cellListSubscription) {
-      this.cellListSubscription.unsubscribe();
+    for (let key in this.cellListSubscriptions) {
+          if (this.cellListSubscriptions[key]) {
+            this.cellListSubscriptions[key].unsubscribe();
+          }
     }
+
     if (this.regionColorSubscription) {
       this.regionColorSubscription.unsubscribe();
+    }
+
+    if (this.driftmapSubscription) {
+      this.driftmapSubscription.unsubscribe();
     }
 
   }
@@ -328,7 +321,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     cellsQuery['insertion_number'] = probeInsNum;
     // this.cellListService.retrieveCellList(this.sessionInfo);
     this.cellListService.retrieveCellList(cellsQuery);
-    this[`cellListSubscription${probeInsNum}`] = this.cellListService.getCellListLoadedListener()
+    this.cellListSubscriptions[probeInsNum] = this.cellListService.getCellListLoadedListener()
       .subscribe((cellListData) => {
         console.log('Retrieve units for probe insertion: ', probeInsNum);
         if (Object.entries(cellListData).length > 0) {
