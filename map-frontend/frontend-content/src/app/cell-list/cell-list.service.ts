@@ -11,6 +11,9 @@ const BACKEND_API_URL = environment.backend_url;
 export class CellListService {
   private cellList;
   private cellListLoaded = new Subject();
+  private cellListLoaded1 = new Subject();
+  private cellListLoaded2 = new Subject();
+  private cellListLoaded3 = new Subject();
 
   private driftmapLoaded = new Subject();
 
@@ -23,9 +26,11 @@ export class CellListService {
     this.http.post(BACKEND_API_URL + `/plot/units`, sessionInfo)
       .subscribe(
         (sessionCellData) => {
-          console.log('retrieved cell data: ', Object.entries(sessionCellData))
+          console.log('loggin sessionInfo query: ', sessionInfo)
+          console.log('retrieved cell data: ', sessionCellData)
           this.cellList = sessionCellData;
-          this.cellListLoaded.next(this.cellList);
+          this[`cellListLoaded${sessionInfo.insertion_number}`].next(this.cellList);
+          // this.cellListLoaded.next(this.cellList);
         },
         (err: any) => {
           console.log('error in retrieving cell list for session');
@@ -34,8 +39,9 @@ export class CellListService {
       );
   }
 
-  getCellListLoadedListener() {
-    return this.cellListLoaded.asObservable();
+  getCellListLoadedListener(probeIndex) {
+    return this[`cellListLoaded${probeIndex}`].asObservable();
+    // return this.cellListLoaded.asObservable();
   }
 
   retrieveRegionColor(sessionInfo) {
