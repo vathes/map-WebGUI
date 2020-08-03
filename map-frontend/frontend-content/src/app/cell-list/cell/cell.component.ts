@@ -36,7 +36,7 @@ export class CellComponent implements OnInit, OnDestroy {
     this.cellListService.retrieveCellList({'subject_id': this.mouse_id,
                                            'session': this.session_id,
                                            'insertion_number': this.insertion_num});
-    this.cellSubscription = this.cellListService.getCellListLoadedListener()
+    this.cellSubscription = this.cellListService.getCellListLoadedListener(this.insertion_num)
       .subscribe((unitsData) => {
         this.unitsLoading = false;
         if (Object.entries(unitsData).length > 0) {

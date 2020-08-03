@@ -10,22 +10,21 @@ const BACKEND_API_URL = environment.backend_url;
 @Injectable({providedIn: 'root'})
 export class CellListService {
   private cellList;
-  private cellListLoaded = new Subject();
-
+  private cellListLoaded = [];
   private driftmapLoaded = new Subject();
-
   private regionColor;
   private regionColorLoaded = new Subject();
 
   constructor(private http: HttpClient) { }
 
   retrieveCellList(sessionInfo) {
+    this.cellListLoaded[sessionInfo.insertion_number] = new Subject();
     this.http.post(BACKEND_API_URL + `/plot/units`, sessionInfo)
       .subscribe(
         (sessionCellData) => {
           console.log('retrieved cell data: ', Object.entries(sessionCellData))
-          this.cellList = sessionCellData;
-          this.cellListLoaded.next(this.cellList);
+          // this.cellList = sessionCellData;
+          this.cellListLoaded[sessionInfo.insertion_number].next(sessionCellData);
         },
         (err: any) => {
           console.log('error in retrieving cell list for session');
@@ -34,8 +33,8 @@ export class CellListService {
       );
   }
 
-  getCellListLoadedListener() {
-    return this.cellListLoaded.asObservable();
+  getCellListLoadedListener(insertion_number) {
+    return this.cellListLoaded[insertion_number].asObservable();
   }
 
   retrieveRegionColor(sessionInfo) {
