@@ -58,7 +58,6 @@ export class CellListService {
   }
 
   retrieveDriftmap(sessionInfo) {
-    // console.log('about to retrieve driftmap for: ', sessionInfo);
     this.http.post(BACKEND_API_URL + `/plot/driftmap`, sessionInfo)
       .subscribe(
         (driftmap) => {
@@ -77,7 +76,6 @@ export class CellListService {
   }
 
   retrieveCoronalSlice(sessionInfo) {
-    // console.log('about to retrieve driftmap for: ', sessionInfo);
     this.http.post(BACKEND_API_URL + `/plot/coronal_slice`, sessionInfo)
       .subscribe(
         (coronal_slice) => {
