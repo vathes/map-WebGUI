@@ -4,16 +4,20 @@
   <select name="insertion_number" (change)="probe_selected($event.target.value)">
     <option *ngFor="let probeIns of probeInsertions" [value]="probeIns" [selected]="probeIns == probeInsertions[0]">{{ probeIns }}</option>
   </select>
+  <label for="shank_number">Select Shank Number:  </label>
+  <select name="shank_number" (change)="selectedShank = $event.target.value">
+    <option *ngFor="let shank of driftmapByProbe[selectedProbeIndex] | keyvalue" [value]="shank.key" [selected]="shank.key == selectedShank">{{ shank.key }}</option>
+  </select>
 </div>
 <div class="row">
   <div class="driftmap-area" *ngIf="driftmapByProbe">
-    <label for="shank_number">Select Shank Number:  </label>
-    <select name="shank_number" (change)="selectedShank = $event.target.value">
-      <option *ngFor="let shank of driftmapByProbe[selectedProbeIndex] | keyvalue" [value]="shank.key" [selected]="shank.key == selectedShank">{{ shank.key }}</option>
-    </select>
     <img *ngIf="driftmapByProbe[selectedProbeIndex] && driftmapByProbe[selectedProbeIndex][selectedShank]" class="driftmap" [src]="driftmapByProbe[selectedProbeIndex][selectedShank]">
     <p *ngIf="!driftmapByProbe[selectedProbeIndex]">Sorry, no driftmap information can be found for this probe insertion number.</p>
   </div>
+  <div class="coronalslice-area" *ngIf="coronalsliceByProbe">
+    <img *ngIf="coronalsliceByProbe[selectedProbeIndex] && coronalsliceByProbe[selectedProbeIndex][selectedShank]" class="driftmap" [src]="coronalsliceByProbe[selectedProbeIndex][selectedShank]">
+    <p *ngIf="!coronalsliceByProbe[selectedProbeIndex]">Sorry, no coronal slice information can be found for this probe insertion number.</p>
+  </div>  
   <div class="units-nav-area" *ngIf="cells">
     <plotly-plot [data]="plot_data" [layout]="plot_layout" [config]="plot_config" (click)="clusterSelectedPlot($event)"></plotly-plot>
     <div class="plots-navigator" *ngIf="showController">
