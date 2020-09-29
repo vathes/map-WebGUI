@@ -12,6 +12,7 @@ export class CellListService {
   private cellList;
   private cellListLoaded = [];
   private driftmapLoaded = new Subject();
+  private coronalsliceLoaded = new Subject();
   private regionColor;
   private regionColorLoaded = new Subject();
 
@@ -57,7 +58,6 @@ export class CellListService {
   }
 
   retrieveDriftmap(sessionInfo) {
-    // console.log('about to retrieve driftmap for: ', sessionInfo);
     this.http.post(BACKEND_API_URL + `/plot/driftmap`, sessionInfo)
       .subscribe(
         (driftmap) => {
@@ -75,34 +75,22 @@ export class CellListService {
     return this.driftmapLoaded.asObservable();
   }
 
-}
-
-
-@Injectable({providedIn: 'root'})
-export class RegionColorService {
-  private regionColor;
-
-  private regionColorLoaded = new Subject();
-
-  constructor(private http: HttpClient) { }
-
-  retrieveRegionColor(sessionInfo) {
-    this.http.post(BACKEND_API_URL + `/plot/annotated_electrodes`, sessionInfo)
+  retrieveCoronalSlice(sessionInfo) {
+    this.http.post(BACKEND_API_URL + `/plot/coronal_slice`, sessionInfo)
       .subscribe(
-        (probeRegionColor) => {
-          console.log('retrieved region color data!: ', Object.entries(probeRegionColor))
-          this.regionColor = probeRegionColor;
-          this.regionColorLoaded.next(this.regionColor);
+        (coronal_slice) => {
+          console.log('retrieved coronal slice data: ', coronal_slice)
+          this.coronalsliceLoaded.next(coronal_slice);
         },
         (err: any) => {
-          console.log('error in retrieving region color for session');
+          console.log('error in retrieving coronal slice for session');
           console.error(err);
         }
       );
   }
 
-  getRegionColorLoadedListener() {
-    return this.regionColorLoaded.asObservable();
+  getCoronalsliceLoadedListener() {
+    return this.coronalsliceLoaded.asObservable();
   }
 
 }

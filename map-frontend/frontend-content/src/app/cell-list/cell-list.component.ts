@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ElementRef, ViewChild, Input, DoCheck, Ho
 
 import { Subscription } from 'rxjs';
 
-import { CellListService, RegionColorService } from './cell-list.service';
+import { CellListService } from './cell-list.service';
 
 import { Sort } from '@angular/material/sort';
 
@@ -43,6 +43,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   probeInsertions = [];
 
   driftmapByProbe;
+  coronalsliceByProbe;
 
   unitBehaviorLoading = true;
   unitPsthLoading = true;
@@ -50,6 +51,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   private cellListSubscriptions;
   private regionColorSubscription: Subscription;
   private driftmapSubscription: Subscription;
+  private coronalsliceSubscription: Subscription;
   @Input() sessionInfo: Object;
   @ViewChild('navTable') el_nav: ElementRef;
 
@@ -66,10 +68,12 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     this.session = this.sessionInfo;
     this.clickedUnitIndex = 0;
     this.driftmapByProbe = {};
+    this.coronalsliceByProbe = {};
     this.cellListSubscriptions = {};
     for (let insert_str of this.sessionInfo['probe_insertions'].split(',')){
       this.probeInsertions.push(parseInt(insert_str));
       this.driftmapByProbe[parseInt(insert_str)] = {};
+      this.coronalsliceByProbe[parseInt(insert_str)] = {};
       this.cellListSubscriptions[parseInt(insert_str)] = Subscription;
     }
 
@@ -182,6 +186,21 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
         console.log('driftmap by probe: ', this.driftmapByProbe);
         this.selectedShank = 1;
       })
+
+    // === Query coronal slice
+    console.log('Request coronal slice data');
+    this.cellListService.retrieveCoronalSlice(this.sessionInfo);
+    this.coronalsliceSubscription = this.cellListService.getCoronalsliceLoadedListener()
+      .subscribe((coronalsliceData:[]) => {
+        console.log('Retrieve coronal slice data')
+        if (coronalsliceData) {
+          for (let entry of coronalsliceData) {
+            this.coronalsliceByProbe[entry['insertion_number']][entry['shank']] = entry['coronal_slice']
+          }
+        }
+        console.log('coronal slice by probe: ', this.coronalsliceByProbe);
+      })
+
 
     // === Query unit data for the remaining probes
     for (let probeInsNum of this.probeInsertions.slice(1, )) {
