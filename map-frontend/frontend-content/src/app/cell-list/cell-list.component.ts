@@ -147,7 +147,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
       .subscribe((cellListData) => {
         this.unitBehaviorLoading = false;
         this.unitPsthLoading = false;
-        console.log('Retrieve units for probe insertion: ', this.selectedProbeIndex);
+        console.log('Retrieve units for initial probe insertion: ', this.selectedProbeIndex);
         if (Object.entries(cellListData).length > 0) {
           this.cells.push(...Object.values(cellListData));
           const x_data = [];

@@ -51,11 +51,27 @@ td span.oi {
 }
 
 .driftmap-area {
-    width: 1000px;
+    /* width: 1000px; */
+    width: 40%;
+    /* min-width: 700px; */
 }
 .driftmap-area img.driftmap {
-    width: 910px;
+    /* width: 910px; */
+    /* min-width: 650px; */
+    width: 100%;
     margin-top: 38px;
+}
+
+.coronalslice-area {
+    width: 30%;
+}
+
+.coronalslice-area img {
+    width: 100%;
+}
+
+.cluster-selection-plot .plot-container {
+    width: 30%;
 }
 
 .unit-plots-subarea {
@@ -90,5 +106,15 @@ td span.oi {
 .dummy-psth-plot {
     width: 640px;
     height: 480px;
+}
+
+span.brain-region-view-area {
+    display: inline-flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+span.brain-region-view-area {
+
 }
 
