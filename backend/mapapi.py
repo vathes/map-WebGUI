@@ -316,6 +316,10 @@ def handle_q(subpath, args, proj, **kwargs):
         check_is_session_restriction(args)
         contain_s3fp = True
         q = report.ProbeLevelDriftMap.proj(driftmap_s3fp='driftmap') & args
+    elif subpath == 'coronal_slice':
+        check_is_session_restriction(args)
+        contain_s3fp = True
+        q = report.ProbeLevelCoronalSlice.proj(coronal_slice_s3fp='coronal_slice') & args
     else:
         abort(404)
 

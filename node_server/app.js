@@ -161,6 +161,15 @@ app.post('/plot/driftmap', checkAuth, (req, res) => {
     })
 })
 
+app.post('/plot/coronal_slice', checkAuth, (req, res) => {
+    console.log('requesting for coronal slice');
+    request.post(flask_backend + '/v0/_q/coronal_slice', { form: req.body }, function (error, httpResponse, body) {
+        if (error) {
+            console.error('coronal_slice sending error: ', error);
+        }
+        res.send(body);
+    })
+})
 
 
 

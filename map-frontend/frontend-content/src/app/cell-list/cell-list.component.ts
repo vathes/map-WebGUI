@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ElementRef, ViewChild, Input, DoCheck, Ho
 
 import { Subscription } from 'rxjs';
 
-import { CellListService, RegionColorService } from './cell-list.service';
+import { CellListService } from './cell-list.service';
 
 import { Sort } from '@angular/material/sort';
 
@@ -29,10 +29,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   plot_layout;
   plot_config;
 
-  init_plot_unit_ready = false;
-  init_plot_region_ready = false;
-  init_plot_rendered = false;
-
   eventType;
   selectedProbeIndex;
   selectedShank;
@@ -47,15 +43,15 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   probeInsertions = [];
 
   driftmapByProbe;
+  coronalsliceByProbe;
 
   unitBehaviorLoading = true;
   unitPsthLoading = true;
 
-  private cellListSubscription: Subscription;
-  private cellListSubscription2: Subscription;
-  private cellListSubscription3: Subscription;
+  private cellListSubscriptions;
   private regionColorSubscription: Subscription;
   private driftmapSubscription: Subscription;
+  private coronalsliceSubscription: Subscription;
   @Input() sessionInfo: Object;
   @ViewChild('navTable') el_nav: ElementRef;
 
@@ -71,10 +67,14 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   ngOnInit() {
     this.session = this.sessionInfo;
     this.clickedUnitIndex = 0;
-    this.driftmapByProbe = {}
+    this.driftmapByProbe = {};
+    this.coronalsliceByProbe = {};
+    this.cellListSubscriptions = {};
     for (let insert_str of this.sessionInfo['probe_insertions'].split(',')){
       this.probeInsertions.push(parseInt(insert_str));
-      this.driftmapByProbe[parseInt(insert_str)] = {}
+      this.driftmapByProbe[parseInt(insert_str)] = {};
+      this.coronalsliceByProbe[parseInt(insert_str)] = {};
+      this.cellListSubscriptions[parseInt(insert_str)] = Subscription;
     }
 
     this.selectedProbeIndex = this.probeInsertions[0]
@@ -134,6 +134,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             }
           }
           this.makePlotRegionData(x_rdata, y_rdata, width_rdata, color_rdata, anno_rdata);
+<<<<<<< HEAD
           this.init_plot_region_ready = true;
           console.log('region is loaded');
           if (this.init_plot_unit_ready) {
@@ -142,6 +143,9 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             this.makePlotData();
           }
           
+=======
+          this.makePlotData();
+>>>>>>> ece2043e876598e23aba74cf69f0864a54fa2054
         }
       });
 
@@ -150,7 +154,11 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     // this.cellListService.retrieveCellList(this.sessionInfo);
     console.log('Request units for probe insertion: ', this.selectedProbeIndex);
     this.cellListService.retrieveCellList(cellsQuery);
+<<<<<<< HEAD
     this.cellListSubscription = this.cellListService.getCellListLoadedListener(this.selectedProbeIndex)
+=======
+    this.cellListSubscriptions[this.selectedProbeIndex] = this.cellListService.getCellListLoadedListener(this.selectedProbeIndex)
+>>>>>>> ece2043e876598e23aba74cf69f0864a54fa2054
       .subscribe((cellListData) => {
         this.unitBehaviorLoading = false;
         this.unitPsthLoading = false;
@@ -174,6 +182,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
           this.sortedCellsByProbeIns = this.cellsByProbeIns;
           this.clickedUnitId = 1;
           this.makePlotUnitData(x_data, y_data, id_data, color_data, size_data);
+<<<<<<< HEAD
           this.init_plot_unit_ready = true;
           console.log('unit is loaded');
           if (this.init_plot_region_ready) {
@@ -182,6 +191,9 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
             this.makePlotData();
           }
           // this.makePlotData();
+=======
+          this.makePlotData();
+>>>>>>> ece2043e876598e23aba74cf69f0864a54fa2054
         }
         
       });
@@ -201,6 +213,21 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
         this.selectedShank = 1;
       })
 
+    // === Query coronal slice
+    console.log('Request coronal slice data');
+    this.cellListService.retrieveCoronalSlice(this.sessionInfo);
+    this.coronalsliceSubscription = this.cellListService.getCoronalsliceLoadedListener()
+      .subscribe((coronalsliceData:[]) => {
+        console.log('Retrieve coronal slice data')
+        if (coronalsliceData) {
+          for (let entry of coronalsliceData) {
+            this.coronalsliceByProbe[entry['insertion_number']][entry['shank']] = entry['coronal_slice']
+          }
+        }
+        console.log('coronal slice by probe: ', this.coronalsliceByProbe);
+      })
+
+
     // === Query unit data for the remaining probes
     for (let probeInsNum of this.probeInsertions.slice(1, )) {
       console.log('Request units for probe insertion: ', probeInsNum);
@@ -210,14 +237,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngDoCheck() {
-
-    // Make the first unit interactive plot (ONCE)
-    // if (!this.init_plot_rendered) {
-    //   if (this.init_plot_unit_ready && this.init_plot_region_ready) {
-    //     this.makePlotData();
-    //     this.init_plot_rendered = true;
-    //   }
-    // }
 
     const markerColors = [];
     if (this.plot_unit_data) {
@@ -242,18 +261,29 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngOnDestroy() {
-    if (this.cellListSubscription) {
-      this.cellListSubscription.unsubscribe();
+    for (let key in this.cellListSubscriptions) {
+          if (this.cellListSubscriptions[key]) {
+            this.cellListSubscriptions[key].unsubscribe();
+          }
     }
+
     if (this.regionColorSubscription) {
       this.regionColorSubscription.unsubscribe();
     }
+<<<<<<< HEAD
     if (this.cellListSubscription2) {
       this.cellListSubscription2.unsubscribe();
     }
     if (this.cellListSubscription3) {
       this.cellListSubscription3.unsubscribe();
     }
+=======
+
+    if (this.driftmapSubscription) {
+      this.driftmapSubscription.unsubscribe();
+    }
+
+>>>>>>> ece2043e876598e23aba74cf69f0864a54fa2054
   }
 
   makePlotUnitData(x_data, y_data, id_data, color_data, size_data) {
@@ -343,9 +373,13 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
     let cellsQuery = this.session;
     cellsQuery['is_all'] = 0;
     cellsQuery['insertion_number'] = probeInsNum;
-    // this.cellListService.retrieveCellList(this.sessionInfo);
+
     this.cellListService.retrieveCellList(cellsQuery);
+<<<<<<< HEAD
     this[`cellListSubscription${probeInsNum}`] = this.cellListService.getCellListLoadedListener(probeInsNum)
+=======
+    this.cellListSubscriptions[probeInsNum] = this.cellListService.getCellListLoadedListener(probeInsNum)
+>>>>>>> ece2043e876598e23aba74cf69f0864a54fa2054
       .subscribe((cellListData) => {
         console.log('Retrieve units for probe insertion: ', probeInsNum);
         if (Object.entries(cellListData).length > 0) {
