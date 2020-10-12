@@ -1,0 +1,38 @@
+
+<form [formGroup]="fi_filter_form">
+  <div class="selection-area">
+    <mat-form-field>
+      <label>Subject</label>
+      <input matInput type="text" name="subject_id" formControlName="subject_id_control" [matAutocomplete]="autoCompSN">
+      <mat-autocomplete #autoCompSN="matAutocomplete">
+        <mat-option *ngFor="let subjectId of filteredSubjectIdOptions | async" [value]="subjectId" (click)="updateMenu()">
+          {{ subjectId }}</mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field>
+      <label>Session</label>
+      <input matInput type="text" name="session_id" formControlName="session_id_control"
+        [matAutocomplete]="autoCompSL">
+      <mat-autocomplete #autoCompSL="matAutocomplete">
+        <mat-option *ngFor="let sessionId of filteredSessionIdOptions | async" [value]="sessionId"
+          (click)="updateMenu()">
+          {{ sessionId }}</mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+  </div>
+</form> 
+
+<hr>
+
+<div class="plot-area">
+  <div class="plot plotly-plot">
+
+  </div>
+  <div class="plot static-plot1">
+
+  </div>
+  <div class="plot static-plot2">
+
+  </div>
+</div>
