@@ -211,7 +211,6 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngDoCheck() {
-
     const markerColors = [];
     if (this.plot_unit_data) {
       if (this.plot_unit_data['x'] && this.clickedUnitIndex > -1) {
