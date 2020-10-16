@@ -21,6 +21,7 @@ export class ForagingInspectorService {
         (subjForagingData) => {
           console.log('retrieved subject-level foraging data: ', subjForagingData)
           this.foragingInspectorLoaded[subject.subject_id].next(subjForagingData);
+          
         },
         (err: any) => {
           console.log('error in retrieving subject-level foraging data');
@@ -30,6 +31,7 @@ export class ForagingInspectorService {
   }
 
   getForagingInspectorLoadedListener(subject_id) {
+    // console.log('subject_id: ', subject_id)
     return this.foragingInspectorLoaded[subject_id].asObservable();
   }
 

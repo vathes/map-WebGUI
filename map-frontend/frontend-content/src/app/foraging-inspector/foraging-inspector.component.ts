@@ -78,9 +78,10 @@ export class ForagingInspectorComponent implements OnInit {
   getSubjectForagingData(subj_id) {
   let subj_request = {'subject_id': subj_id}
   this.foragingInspectorService.retrieveForagingInspector(subj_request);
-  this.subjectForagingDataSubscriptions[subj_id] = this.foragingInspectorService.getForagingInspectorLoadedListener(subj_request)
+  this.subjectForagingDataSubscriptions[subj_id] = this.foragingInspectorService.getForagingInspectorLoadedListener(subj_id)
     .subscribe((subjForagingData) => {
       console.log('Retrieve subject-level foraging data for: ', subj_id);
+      console.log('inspecting subjForagingData: ', subjForagingData);
       if ('subject_id' in subjForagingData) {
         this.foraging_subjects[subjForagingData['subject_id']]['sessions'] = subjForagingData['session']
         this.plot_data.push(...subjForagingData['traces'])
