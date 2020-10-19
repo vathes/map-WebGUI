@@ -3,9 +3,11 @@
   <div class="selection-area">
     <mat-form-field>
       <label>Subject</label>
-      <input matInput type="text" name="subject_id" formControlName="subject_id_control" [matAutocomplete]="autoCompSN">
+      <input matInput type="text" name="subject_id" formControlName="subject_id_control" 
+      [matAutocomplete]="autoCompSN" [value]="selected_subject">
       <mat-autocomplete #autoCompSN="matAutocomplete">
-        <mat-option *ngFor="let subjectId of filteredSubjectIdOptions | async" [value]="subjectId" (click)="updateMenu()">
+        <mat-option *ngFor="let subjectId of filteredSubjectIdOptions | async" [value]="subjectId" 
+        (click)="updateMenu(subjectId, 'subject')">
           {{ subjectId }}</mat-option>
       </mat-autocomplete>
     </mat-form-field>
@@ -13,26 +15,30 @@
     <mat-form-field>
       <label>Session</label>
       <input matInput type="text" name="session_id" formControlName="session_id_control"
-        [matAutocomplete]="autoCompSL">
+      [matAutocomplete]="autoCompSL" [value]="selected_session">
       <mat-autocomplete #autoCompSL="matAutocomplete">
         <mat-option *ngFor="let sessionId of filteredSessionIdOptions | async" [value]="sessionId"
-          (click)="updateMenu()">
+        (click)="updateMenu(sessionId, 'session')">
           {{ sessionId }}</mat-option>
       </mat-autocomplete>
     </mat-form-field>
   </div>
 </form> 
+<p>selected id: {{ selected_subject }}</p>
+<p>session ids: [<span *ngFor="let session of foraging_subjects[selected_subject]['sessions']">{{ session }}, </span>]</p>
 
 <hr>
 
+<b>clicked session from plot: {{ clicked_session }}</b>
+
 <div class="plot-area">
   <div class="plot plotly-plot">
-      <plotly-plot [data]="plot_data" [layout]="plot_layout" [config]="plot_config"></plotly-plot>
+      <plotly-plot [data]="plot_data" [layout]="plot_layout" [config]="plot_config" (click)="plotClicked($event)"></plotly-plot>
   </div>
-  <div class="plot static-plot1">
+  <div class="plot session-foraging-summary">
 
   </div>
-  <div class="plot static-plot2">
+  <div class="plot session-foraging-licking-psth">
 
   </div>
 </div>

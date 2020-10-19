@@ -1,8 +1,9 @@
 .selection-area,
 .plot-area {
-    display: inline-flex;
+    display: flex;
     flex-direction: row;
     width: 100%;
+    flex-wrap: wrap;
 }
 
 mat-form-field {
@@ -10,9 +11,17 @@ mat-form-field {
 }
 
 
+.plot-area .plotly-plot {
+    width: 100%
+}
+
+.plot-area .session-foraging-summary,
+.plot-area .session-foraging-licking-psth {
+    width: 50%;
+}
+
 .plot-area .plot {
-    width: 30%;
     height: 500px;
     border: 2px solid black;
-    margin: 0 1% 0 1%;
+    margin: 1% 0;
 }
