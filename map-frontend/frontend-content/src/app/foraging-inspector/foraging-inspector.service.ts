@@ -19,8 +19,9 @@ export class ForagingInspectorService {
     this.http.post(BACKEND_API_URL + `/plot/foraging_subject`, subject)
       .subscribe(
         (subjForagingData) => {
-          console.log('retrieved subject-level foraging data: ', subjForagingData)
+          // console.log('retrieved subject-level foraging data: ', subjForagingData)
           this.foragingInspectorLoaded[subject.subject_id].next(subjForagingData);
+          
         },
         (err: any) => {
           console.log('error in retrieving subject-level foraging data');
@@ -30,6 +31,7 @@ export class ForagingInspectorService {
   }
 
   getForagingInspectorLoadedListener(subject_id) {
+    // console.log('subject_id: ', subject_id)
     return this.foragingInspectorLoaded[subject_id].asObservable();
   }
 
@@ -37,7 +39,7 @@ export class ForagingInspectorService {
     this.http.post(BACKEND_API_URL + `/plot/foraging_subject_list`, subject_filter)
       .subscribe(
         (foragingSubjs) => {
-          console.log('retrieved foraging subject list')
+          // console.log('retrieved foraging subject list')
           this.foragingSubjectListLoaded.next(foragingSubjs);
         },
         (err: any) => {
