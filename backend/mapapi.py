@@ -322,7 +322,7 @@ def handle_q(subpath, args, proj, **kwargs):
     elif subpath == 'foraging_subject_list':
         q = (lab.Subject.proj() * lab.WaterRestriction.proj('water_restriction_number')
              & (foraging_analysis.SessionTaskProtocol & 'session_task_protocol=100'))
-    elif subpath == 'foraging_subject':
+    elif subpath == 'foraging_subject_performance':
         check_is_subject_restriction(args)
         q = {}
 
@@ -360,16 +360,23 @@ def handle_q(subpath, args, proj, **kwargs):
             abs_matching_bias = np.array([abs(v) if v is not None else v for v in this_mouse_session_stats['bias']], dtype=float)
 
             # Package into plotly format
+            line_format = {'color': 'rgb(211,211,211)', 'width': 1}
             traces = []
             for trace_data, x_axis_id, y_axis_id in zip(
               (total_trial_num, foraging_eff, abs_matching_bias, early_lick_ratio, double_dip, reward_sum_mean, reward_contrast_mean, block_length_mean),
               ('x', 'x2', 'x', 'x2', 'x', 'x2', 'x', 'x2'),
               ('y', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8')):
                 traces.append({'x': training_day, 'y': [v if not np.isnan(v) else None for v in trace_data],
-                               'xaxis': x_axis_id, 'yaxis': y_axis_id, 'type': 'scatter'})
+                               'xaxis': x_axis_id, 'yaxis': y_axis_id,
+                               'type': 'scatter', 'mode': 'lines', 'line': line_format})
 
-            q = {'subject_id': args['subject_id'], 'session': sessions, 'traces': traces}
-
+            q = {'subject_id': args['subject_id'], 'sessions': sessions, 'traces': traces}
+    elif subpath == 'foraging_session_report':
+        check_is_subject_restriction(args)
+        q = experiment.Session.proj() & args
+        contain_s3fp = True
+        q = q.aggr(report.SessionLevelForagingSummary, ..., session_foraging_summary_s3fp='session_foraging_summary', keep_all_rows=True)
+        q = q.aggr(report.SessionLevelForagingLickingPSTH, ..., session_foraging_licking_psth_s3fp='session_foraging_licking_psth', keep_all_rows=True)
     else:
         abort(404)
 

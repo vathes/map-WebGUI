@@ -9,18 +9,19 @@ const BACKEND_API_URL = environment.backend_url;
 
 @Injectable({providedIn: 'root'})
 export class ForagingInspectorService {
-  private foragingInspectorLoaded = {};
+  private foragingSubjectPerformanceLoaded = {};
+  private foragingSessionReportLoaded = {};
   private foragingSubjectListLoaded = new Subject();
 
   constructor(private http: HttpClient) { }
 
-  retrieveForagingInspector(subject) {
-    this.foragingInspectorLoaded[subject.subject_id] = new Subject();
-    this.http.post(BACKEND_API_URL + `/plot/foraging_subject`, subject)
+  retrieveForagingSubjectPerformance(subject) {
+    this.foragingSubjectPerformanceLoaded[subject.subject_id] = new Subject();
+    this.http.post(BACKEND_API_URL + `/plot/foraging_subject_performance`, subject)
       .subscribe(
-        (subjForagingData) => {
+        (subjForagingPerformance) => {
           // console.log('retrieved subject-level foraging data: ', subjForagingData)
-          this.foragingInspectorLoaded[subject.subject_id].next(subjForagingData);
+          this.foragingSubjectPerformanceLoaded[subject.subject_id].next(subjForagingPerformance);
           
         },
         (err: any) => {
@@ -30,9 +31,27 @@ export class ForagingInspectorService {
       );
   }
 
-  getForagingInspectorLoadedListener(subject_id) {
+  getForagingSubjectPerformanceLoadedListener(subject_id) {
     // console.log('subject_id: ', subject_id)
-    return this.foragingInspectorLoaded[subject_id].asObservable();
+    return this.foragingSubjectPerformanceLoaded[subject_id].asObservable();
+  }
+
+  retrieveForagingSessionReport(subject) {
+    this.foragingSessionReportLoaded[subject.subject_id] = new Subject();
+    this.http.post(BACKEND_API_URL + `/plot/foraging_session_report`, subject)
+      .subscribe(
+        (subjForagingReport) => {
+          this.foragingSessionReportLoaded[subject.subject_id].next(subjForagingReport);
+        },
+        (err: any) => {
+          console.log('error in retrieving subject-level foraging reports');
+          console.error(err);
+        }
+      );
+  }
+
+  getForagingSessionReportLoadedListener(subject_id) {
+    return this.foragingSessionReportLoaded[subject_id].asObservable();
   }
 
   retrieveForagingSubjectList(subject_filter) {
