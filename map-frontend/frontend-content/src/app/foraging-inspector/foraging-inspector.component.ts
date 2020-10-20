@@ -22,6 +22,7 @@ export class ForagingInspectorComponent implements OnInit {
   plot_config;
 
   foraging_subjects = {};
+  foraging_session_reports = [];
   selected_subject;
   selected_session;
   clicked_session;
@@ -29,21 +30,31 @@ export class ForagingInspectorComponent implements OnInit {
 
   // subject_sessions = {}; // made this for menu creation but realized foraging_subject contains that information
 
-  private subjectForagingDataSubscriptions;
+  private subjectForagingPerformanceSubscriptions;
+  private subjectForagingReportSubscriptions;
   private subjectListSubscription: Subscription;
 
   constructor(public foragingInspectorService: ForagingInspectorService) { }
 
   ngOnInit() {
-    this.subjectForagingDataSubscriptions = {};
+    this.subjectForagingPerformanceSubscriptions = {};
+    this.subjectForagingReportSubscriptions = {};
 
     // === Define static plot_layout and plot_config
     this.plot_layout = {
+      margin: {
+        l: 80,
+        r: 20,
+        b: 40,
+        t: 20,
+        pad: 4
+      },
       grid: {
         rows: 4,
         columns: 2,
         subplots:[['xy','x2y2'], ['xy3','x2y4'], ['xy5','x2y6'], ['xy7','x2y8']]
-      }
+      },
+      showlegend: false
     };
 
     this.plot_config = {
@@ -61,7 +72,9 @@ export class ForagingInspectorComponent implements OnInit {
     this.subjectListSubscription = this.foragingInspectorService.getForagingSubjectListLoadedListener()
       .subscribe((foragingSubjectList) => {
         for (let entry of Object.values(foragingSubjectList)) {
-            this.subjectForagingDataSubscriptions[entry['subject_id']] = Subscription;
+            this.subjectForagingPerformanceSubscriptions[entry['subject_id']] = Subscription;
+            this.subjectForagingReportSubscriptions[entry['subject_id']] = Subscription;
+
             this.foraging_subjects[entry['subject_id']] = {'sessions': {}};
             // this.filteredSubjectIdOptions.push({'subject_id': entry['subject_id'], 'water_restriction_number': entry['subject_id']});
         }
@@ -72,26 +85,24 @@ export class ForagingInspectorComponent implements OnInit {
             this.selected_subject = subj_id
           }
           console.log('Request foraging data for subject: ', subj_id);
-          this.getSubjectForagingData(subj_id);
+          this.getSubjectForagingPerformance(subj_id);
+          this.getSubjectForagingReport(subj_id);
           // this.subject_sessions[subj_id] = [];
         }
-
       });
 
-      // making filter menu here
-      this.filteredSessionIdOptions = this.fi_filter_form.controls.session_id_control.valueChanges
-        .pipe(
-          startWith(''),
-          map(value => this._filter(value, 'session'))
-        );
+    // making filter menu here
+    this.filteredSessionIdOptions = this.fi_filter_form.controls.session_id_control.valueChanges
+      .pipe(
+        startWith(''),
+        map(value => this._filter(value, 'session'))
+      );
 
-      this.filteredSubjectIdOptions = this.fi_filter_form.controls.subject_id_control.valueChanges
-        .pipe(
-          startWith(''),
-          map(value => this._filter(value, 'subject'))
-        );
-
-
+    this.filteredSubjectIdOptions = this.fi_filter_form.controls.subject_id_control.valueChanges
+      .pipe(
+        startWith(''),
+        map(value => this._filter(value, 'subject'))
+      );
   }
 
   private _filter(value: string, menuType: string): string[] {
@@ -128,39 +139,49 @@ export class ForagingInspectorComponent implements OnInit {
     console.log('value: ', value)
     if (type == 'subject') {
       this.selected_subject = value;
-      this.selected_session = this.foraging_subjects[value]['sessions'][0]
+      this.selected_session = this.foraging_subjects[value]['sessions'][-1]
     }
     if (type == 'session') {
       this.selected_session = value;
     }
   }
 
-
-  getSubjectForagingData(subj_id) {
+  getSubjectForagingPerformance(subj_id) {
   let subj_request = {'subject_id': subj_id}
-  this.foragingInspectorService.retrieveForagingInspector(subj_request);
-  this.subjectForagingDataSubscriptions[subj_id] = this.foragingInspectorService.getForagingInspectorLoadedListener(subj_id)
-    .subscribe((subjForagingData) => {
+  this.foragingInspectorService.retrieveForagingSubjectPerformance(subj_request);
+  this.subjectForagingPerformanceSubscriptions[subj_id] = this.foragingInspectorService.getForagingSubjectPerformanceLoadedListener(subj_id)
+    .subscribe((subjForagingPerformance) => {
       // console.log('Retrieve subject-level foraging data for: ', subj_id);
-      // console.log('inspecting subjForagingData: ', subjForagingData);
+      // console.log('inspecting subjForagingPerformance: ', subjForagingPerformance);
 
-      if ('subject_id' in subjForagingData) {
-        this.foraging_subjects[subjForagingData['subject_id']]['sessions'] = subjForagingData['session']
-        this.plot_data.push(...subjForagingData['traces'])
-        // this.subject_sessions[subj_id].push(subjForagingData['session'])
+      if ('subject_id' in subjForagingPerformance) {
+        this.foraging_subjects[subjForagingPerformance['subject_id']]['sessions'] = subjForagingPerformance['sessions']
+        this.plot_data.push(...subjForagingPerformance['traces'])
+        // this.subject_sessions[subj_id].push(subjForagingPerformance['session'])
         if (!this.selected_session) {
-          this.selected_session = subjForagingData['session'][0];
+          this.selected_session = subjForagingPerformance['sessions'][-1];
         }
       }
-      // console.log('subjForaging Data: ', subjForagingData)
-      console.log('this.foraging_subjects: ', this.foraging_subjects)
+      // console.log('subjForaging Data: ', subjForagingPerformance)
+      // console.log('this.foraging_subjects: ', this.foraging_subjects)
       // console.log('this.subject-sessions: ', this.subject_sessions)
+    });
+  }
+
+  getSubjectForagingReport(subj_id) {
+  let subj_request = {'subject_id': subj_id}
+  this.foragingInspectorService.retrieveForagingSessionReport(subj_request);
+  this.subjectForagingReportSubscriptions[subj_id] = this.foragingInspectorService.getForagingSessionReportLoadedListener(subj_id)
+    .subscribe((subjForagingReports) => {
+      this.foraging_session_reports.push(...subjForagingReports)
+      // console.log('this.foraging_report: ', this.foraging_session_reports)
     });
   }
 
   plotClicked(event) {
     console.log('plot clicked!!: ', event);
     this.clicked_session = event.points[0]['x'] // of the selected points, all X axis value should match - so just using the first point here
+
   }
 
 }
