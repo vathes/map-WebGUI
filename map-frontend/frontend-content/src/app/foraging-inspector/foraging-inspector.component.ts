@@ -22,7 +22,6 @@ export class ForagingInspectorComponent implements OnInit {
   plot_config;
 
   foraging_subjects = {};
-  foraging_session_reports = [];
   selected_subject;
   selected_session;
   clicked_session; // plotly interaction dev purpose
@@ -77,7 +76,7 @@ export class ForagingInspectorComponent implements OnInit {
             this.subjectForagingPerformanceSubscriptions[entry['subject_id']] = Subscription;
             this.subjectForagingReportSubscriptions[entry['subject_id']] = Subscription;
 
-            this.foraging_subjects[entry['subject_id']] = {'sessions': {}};
+            this.foraging_subjects[entry['subject_id']] = {'sessions': [], 'reports': {}};
             // this.filteredSubjectIdOptions.push({'subject_id': entry['subject_id'], 'water_restriction_number': entry['subject_id']});
         }
         console.log('Subjects: ', Object.keys(this.foraging_subjects))
@@ -85,7 +84,6 @@ export class ForagingInspectorComponent implements OnInit {
         for (let subj_id of Object.keys(this.foraging_subjects)) {
           if (!this.selected_subject) {
             this.selected_subject = subj_id;
-
           }
           console.log('Request foraging data for subject: ', subj_id);
           this.getSubjectForagingPerformance(subj_id);
@@ -142,61 +140,44 @@ export class ForagingInspectorComponent implements OnInit {
     console.log('value: ', value)
     if (type == 'subject') {
       this.selected_subject = value;
-      this.selected_session = this.foraging_subjects[value]['sessions'][this.foraging_subjects[value]['sessions'].length-1]
+      this.selected_session = this.foraging_subjects[value]['sessions'][this.foraging_subjects[value]['sessions'].length-1];
       console.log('plotly_data: ', this.plot_data)
-
-      for (let [index, data] of Object.entries(this.plot_data)) { // recoloring plot
-        console.log('custom_data: ', data['customdata'], ' index: ', index)
-        if (data['mode'] == 'markers') { // removing current markers
-          this.plot_data[index] = {};
-
-        } else if (data['mode'] == 'lines') { // recoloring lines, pushing new marker data
-          if (data['customdata'] == this.selected_subject) {
-            data.line['color'] = "rgb(82, 100, 218)" // royal blue
-            let session_marker = {
-              x: [this.selected_session],
-              y: [data.y[data.y.length - 1]],
-              mode: 'markers',
-              type: 'scatter',
-              customdata: this.selected_subject,
-              xaxis: data.xaxis,
-              yaxis: data.yaxis,
-              marker: {color: "rgb(82, 100, 218)", size: "8"}
-            }
-            this.plot_data.push(session_marker);
-          } else {
-            data.line['color'] = "rgb(211, 211, 211)"
-          }
-        } 
-        
-      }
     }
-    if (type == 'session') {
+    else if (type == 'session') {
       this.selected_session = value;
-      // remove current marker traces and readd new markers for the selected session/subject
-      for (let [index, data] of Object.entries(this.plot_data)) {
-        if (data['mode'] == 'markers') { // removing current markers
-          this.plot_data[index] = {};
+    }
 
-        } else if (data['mode'] == 'lines') { // recoloring lines, pushing new marker data
-          if (data['customdata'] == this.selected_subject) {
-            let session_marker = {
-              x: [this.selected_session],
-              y: [data.y[data.y.length - 1]],
-              mode: 'markers',
-              type: 'scatter',
-              customdata: this.selected_subject,
-              xaxis: data.xaxis,
-              yaxis: data.yaxis,
-              marker: {color: "rgb(82, 100, 218)", size: "8"}
-            }
-            this.plot_data.push(session_marker);
-          } 
-        } 
-        
+    let selected_session_idx = this.foraging_subjects[this.selected_subject]['sessions'].indexOf(this.selected_session)
+    let training_day = this.foraging_subjects[this.selected_subject]['training_days'][selected_session_idx]
+
+    // remove current marker traces and read new markers for the selected session/subject
+    for (let [index, data] of Object.entries(this.plot_data)) {
+      if (data['mode'] == 'markers') { // removing current markers
+        this.plot_data[index] = {};
+      }
+      else if (data['mode'] == 'lines') { // recoloring lines, pushing new marker data
+        if (data['customdata'] == this.selected_subject) {
+          data.line['color'] = "rgb(82, 100, 218)"  // royal blue
+          let session_marker = {
+            x: [training_day],
+            y: [data.y[selected_session_idx]],
+            mode: 'markers',
+            type: 'scatter',
+            customdata: this.selected_subject,
+            xaxis: data.xaxis,
+            yaxis: data.yaxis,
+            marker: {color: "rgb(82, 100, 218)", size: "8"}
+          }
+          this.plot_data.push(session_marker);
+        }
+        else {
+        data.line['color'] = "rgb(211, 211, 211)"
+        }
       }
     }
+
   }
+
 
   getSubjectForagingPerformance(subj_id) {
   let subj_request = {'subject_id': subj_id}
@@ -208,40 +189,23 @@ export class ForagingInspectorComponent implements OnInit {
 
       if ('subject_id' in subjForagingPerformance) {
         this.foraging_subjects[subjForagingPerformance['subject_id']]['sessions'] = subjForagingPerformance['sessions'];
+        this.foraging_subjects[subjForagingPerformance['subject_id']]['training_days'] = subjForagingPerformance['training_days'];
         
         console.log('subjForagingPerformance: ', subjForagingPerformance);
         this.plot_data.push(...subjForagingPerformance['traces'])
         // this.subject_sessions[subj_id].push(subjForagingPerformance['session'])
-        if (!this.selected_session) {
+        if (!this.selected_session && subj_id == this.selected_subject) {
           console.log("last item in subjForagingPerformance['sessions']: ", [...subjForagingPerformance['sessions']].pop());
           console.log("length of subjForagingPerformance['sessions']: ", subjForagingPerformance['sessions'].length);
           this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][subjForagingPerformance['sessions'].length-1]; // making sure that the selected session is taken from the selected subject
-          
-        }
-        for (let trace of subjForagingPerformance['traces']) {
-          trace['customdata'] = subjForagingPerformance['subject_id'];
-          trace['name'] = subjForagingPerformance['subject_id']
-          if (subj_id == this.selected_subject) {
-            trace.line['color'] = "rgb(82, 100, 218)" //royalblue
-            console.log('y value at ', subjForagingPerformance['sessions'].length - 1, 'is ', trace.y[subjForagingPerformance['sessions'].length - 1])
-            let session_marker = {
-              x: [this.selected_session],
-              y: [trace.y[subjForagingPerformance['sessions'].length - 1]],
-              mode: 'markers',
-              type: 'scatter',
-              customdata: this.selected_subject,
-              xaxis: trace.xaxis,
-              yaxis: trace.yaxis,
-              marker: {color: "rgb(82, 100, 218)", size: "8"}
-            }
-            this.plot_data.push(session_marker)
-          }
+          this.updateMenu(this.selected_session, 'session');
         }
       }
+
       // console.log('subjForaging Data: ', subjForagingPerformance)
       console.log('this.foraging_subjects: ', this.foraging_subjects)
       // console.log('this.subject-sessions: ', this.subject_sessions)
-      console.log('this.plot_data: ', this.plot_data)
+      // console.log('this.plot_data: ', this.plot_data)
     });
   }
 
@@ -250,8 +214,9 @@ export class ForagingInspectorComponent implements OnInit {
   this.foragingInspectorService.retrieveForagingSessionReport(subj_request);
   this.subjectForagingReportSubscriptions[subj_id] = this.foragingInspectorService.getForagingSessionReportLoadedListener(subj_id)
     .subscribe((subjForagingReports) => {
-      this.foraging_session_reports.push(...subjForagingReports)
-      // console.log('this.foraging_report: ', this.foraging_session_reports)
+      for (let entry of subjForagingReports) {
+        this.foraging_subjects[subj_id]['reports'][entry['session']] = entry;
+      }
     });
   }
 
@@ -259,11 +224,17 @@ export class ForagingInspectorComponent implements OnInit {
     console.log('plot clicked!!: ', event);
     if (event['points']){
       console.log('selected_subject: ', event.points[0]['data']['customdata']);
-      this.clicked_subject = event.points[0]['data']['customdata'];
-      this.updateMenu(event.points[0]['data']['customdata'], 'subject'); // updating the menu with subject defaults to selecting the latest session - do not reverse the order of update menu here
 
-      this.clicked_session = event.points[0]['x'];
-      this.updateMenu(event.points[0]['x'], 'session');
+      // subject
+      this.clicked_subject = event.points[0]['data']['customdata'];
+      this.selected_subject = event.points[0]['data']['customdata'];
+      this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][this.foraging_subjects[this.selected_subject]['sessions'].length-1];
+
+      // session
+      let session_idx = this.foraging_subjects[this.selected_subject]['training_days'].indexOf(event.points[0]['x'].toString());
+      let session = this.foraging_subjects[this.selected_subject]['sessions'][session_idx];
+      this.clicked_session = session;
+      this.updateMenu(session, 'session');
     }
     
   }
