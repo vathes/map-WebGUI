@@ -368,9 +368,10 @@ def handle_q(subpath, args, proj, **kwargs):
               ('y', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8')):
                 traces.append({'x': training_day, 'y': [v if not np.isnan(v) else None for v in trace_data],
                                'xaxis': x_axis_id, 'yaxis': y_axis_id,
-                               'type': 'scatter', 'mode': 'lines', 'line': line_format})
+                               'type': 'scatter', 'mode': 'lines', 'line': line_format,
+                               'customdata': args['subject_id'], 'name': args['subject_id']})
 
-            q = {'subject_id': args['subject_id'], 'sessions': sessions, 'traces': traces}
+            q = {'subject_id': args['subject_id'], 'sessions': sessions, 'training_days': training_day, 'traces': traces}
     elif subpath == 'foraging_session_report':
         check_is_subject_restriction(args)
         q = experiment.Session.proj() & args
