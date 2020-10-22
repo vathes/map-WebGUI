@@ -9,6 +9,7 @@ import {ForagingInspectorService} from "../foraging-inspector/foraging-inspector
   templateUrl: './foraging-inspector.component.html',
   styleUrls: ['./foraging-inspector.component.css']
 })
+
 export class ForagingInspectorComponent implements OnInit {
   fi_filter_form = new FormGroup({
     session_id_control : new FormControl(),
@@ -26,6 +27,8 @@ export class ForagingInspectorComponent implements OnInit {
   selected_session;
   clicked_session; // plotly interaction dev purpose
   clicked_subject; // plotly interaction dev purpose
+
+  ss_plot_width; // in percentage 
 
 
   // subject_sessions = {}; // made this for menu creation but realized foraging_subject contains that information
@@ -65,10 +68,12 @@ export class ForagingInspectorComponent implements OnInit {
       modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d', 'hoverClosestCartesian',
                       'hoverCompareCartesian', 'toImage', 'toggleSpikelines'],
     };
-    console.log('Setup plot_layout: ', this.plot_layout);
+
+    this.ss_plot_width = 50; // set initial percentage of static plots to 50:50
+    // console.log('Setup plot_layout: ', this.plot_layout);
 
     // === all Foraging Subjects ===
-    console.log('Request all Foraging Subjects');
+    // console.log('Request all Foraging Subjects');
     this.foragingInspectorService.retrieveForagingSubjectList({'as_dict': true});
     this.subjectListSubscription = this.foragingInspectorService.getForagingSubjectListLoadedListener()
       .subscribe((foragingSubjectList) => {
@@ -203,7 +208,7 @@ export class ForagingInspectorComponent implements OnInit {
       }
 
       // console.log('subjForaging Data: ', subjForagingPerformance)
-      console.log('this.foraging_subjects: ', this.foraging_subjects)
+      // console.log('this.foraging_subjects: ', this.foraging_subjects)
       // console.log('this.subject-sessions: ', this.subject_sessions)
       // console.log('this.plot_data: ', this.plot_data)
     });
@@ -218,6 +223,7 @@ export class ForagingInspectorComponent implements OnInit {
         this.foraging_subjects[subj_id]['reports'][entry['session']] = entry;
       }
     });
+    console.log('foraging_subject: ', this.foraging_subjects)
   }
 
   plotClicked(event) {
@@ -238,5 +244,11 @@ export class ForagingInspectorComponent implements OnInit {
     }
     
   }
+
+ 
+  resizePlot(value) {
+    console.log('user wants to resize plot to: ', value)
+    this.ss_plot_width = value;
+   }
 
 }

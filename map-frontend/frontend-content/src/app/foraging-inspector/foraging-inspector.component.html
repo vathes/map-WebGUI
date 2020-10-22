@@ -24,20 +24,20 @@
     </mat-form-field>
   </div>
 </form> 
-<p>selected id: {{ selected_subject }}</p>
-<p>session ids: [<span *ngFor="let session of foraging_subjects[selected_subject]['sessions']">{{ session }}, </span>]</p>
+<!-- <p>selected id: {{ selected_subject }}</p> -->
+<!-- <p>session ids: [<span *ngFor="let session of foraging_subjects[selected_subject]['sessions']">{{ session }}, </span>]</p> -->
 
 <hr>
-
+<!-- 
 <b>clicked session from plot: {{ clicked_session }}</b>
 <br>
-<b>clicked subject from plot: {{ clicked_subject }}</b>
+<b>clicked subject from plot: {{ clicked_subject }}</b> -->
 
 <div class="plot-area">
   <div class="plot plotly-plot">
       <plotly-plot [data]="plot_data" [layout]="plot_layout" [config]="plot_config" (click)="plotClicked($event)"></plotly-plot>
   </div>
-  <div class="plot session-foraging-summary">
+  <!-- <div class="plot session-foraging-summary">
       <p *ngIf="!foraging_subjects[selected_subject]">Session Summary Plot Loading...</p>
       <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']">
       <img *ngIf="!foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
@@ -46,5 +46,24 @@
       <p *ngIf="!foraging_subjects[selected_subject]">Session Summary Plot Loading...</p>
       <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']">
       <img *ngIf="!foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
+  </div> -->
+  <hr>
+  <hr>
+
+  <div class="plot resizable" [style.width.%]="ss_plot_width"> 
+    <b class="plot-title">Session Foraging Summary</b>
+    <p *ngIf="!foraging_subjects[selected_subject]">Session Summary Plot Loading...</p>
+    <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']">
+    <img *ngIf="!foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
+  </div>
+  <div class="plot resizable" [style.width.%]="98 - ss_plot_width">
+      <b class="plot-title">Session Foraging Licking PSTH</b>
+      <p *ngIf="!foraging_subjects[selected_subject]">Session Lick PSTH Plot Loading...</p>
+      <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']">
+      <img *ngIf="!foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
+  </div>
+  <div class="slider-area" *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary'] && foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']">
+    <p>slide to adjust plot width ratio</p>
+    <mat-slider class="resize-slider" max="98" step="2" [value]="ss_plot_width" (change)="resizePlot($event.value)"></mat-slider>
   </div>
 </div>
