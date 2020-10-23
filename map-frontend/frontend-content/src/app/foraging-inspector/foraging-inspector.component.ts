@@ -31,7 +31,7 @@ export class ForagingInspectorComponent implements OnInit {
   ss_plot_width; // in percentage 
 
 
-  // subject_sessions = {}; // made this for menu creation but realized foraging_subject contains that information
+  subject_sessions = {}; // made this for menu creation but realized foraging_subject contains that information
 
   private subjectForagingPerformanceSubscriptions;
   private subjectForagingReportSubscriptions;
@@ -82,18 +82,19 @@ export class ForagingInspectorComponent implements OnInit {
             this.subjectForagingReportSubscriptions[entry['subject_id']] = Subscription;
 
             this.foraging_subjects[entry['subject_id']] = {'sessions': [], 'reports': {}};
+            this.subject_sessions[entry['subject_id']] = {subj_name: `${entry["water_restriction_number"]} (${entry["subject_id"]})`, sessions: []}
             // this.filteredSubjectIdOptions.push({'subject_id': entry['subject_id'], 'water_restriction_number': entry['subject_id']});
         }
-        console.log('Subjects: ', Object.keys(this.foraging_subjects))
+        // console.log('Subjects: ', Object.keys(this.foraging_subjects))
 
         for (let subj_id of Object.keys(this.foraging_subjects)) {
           if (!this.selected_subject) {
             this.selected_subject = subj_id;
           }
-          console.log('Request foraging data for subject: ', subj_id);
+          // console.log('Request foraging data for subject: ', subj_id);
           this.getSubjectForagingPerformance(subj_id);
           this.getSubjectForagingReport(subj_id);
-          // this.subject_sessions[subj_id] = [];
+          
         }
       });
 
@@ -129,24 +130,32 @@ export class ForagingInspectorComponent implements OnInit {
     } else if (menuType == 'subject') {
 
       // console.log('Object.kyes(foraging_subj): ',Object.keys(this.foraging_subjects))
-      const result =  Object.keys(this.foraging_subjects).filter(menu_items => {
+      let nicknames = []
+      Object.values(this.subject_sessions).forEach(subject => {
+        // console.log('subject nickname: ', subject['subj_name'])
+        nicknames.push(subject['subj_name']);
+      });
+      
+      // const result =  Object.keys(this.foraging_subjects).filter(menu_items => {
+      const result =  nicknames.filter(menu_items => {
         if (menu_items && menu_items.toLowerCase().includes(filterValue)) {
           return true;
         }
       });
-      console.log('result: ', result);
+      // console.log('result: ', result);
       return result;
     }
 
   }
 
   updateMenu(value, type) {
-    console.log('updateMenu ran');
-    console.log('value: ', value)
+    // console.log('updateMenu ran');
+    // console.log('value: ', value)
     if (type == 'subject') {
-      this.selected_subject = value;
-      this.selected_session = this.foraging_subjects[value]['sessions'][this.foraging_subjects[value]['sessions'].length-1];
-      console.log('plotly_data: ', this.plot_data)
+      
+      this.selected_subject = value.split("(")[1].split(")")[0]; // gets the subject id between the parenthesis from HH04 (473611)
+      this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][this.foraging_subjects[this.selected_subject]['sessions'].length-1];
+      // console.log('plotly_data: ', this.plot_data)
     }
     else if (type == 'session') {
       this.selected_session = value;
@@ -196,12 +205,12 @@ export class ForagingInspectorComponent implements OnInit {
         this.foraging_subjects[subjForagingPerformance['subject_id']]['sessions'] = subjForagingPerformance['sessions'];
         this.foraging_subjects[subjForagingPerformance['subject_id']]['training_days'] = subjForagingPerformance['training_days'];
         
-        console.log('subjForagingPerformance: ', subjForagingPerformance);
+        // console.log('subjForagingPerformance: ', subjForagingPerformance);
         this.plot_data.push(...subjForagingPerformance['traces'])
-        // this.subject_sessions[subj_id].push(subjForagingPerformance['session'])
+        this.subject_sessions[subj_id]['sessions'].push(subjForagingPerformance['sessions'])
         if (!this.selected_session && subj_id == this.selected_subject) {
-          console.log("last item in subjForagingPerformance['sessions']: ", [...subjForagingPerformance['sessions']].pop());
-          console.log("length of subjForagingPerformance['sessions']: ", subjForagingPerformance['sessions'].length);
+          // console.log("last item in subjForagingPerformance['sessions']: ", [...subjForagingPerformance['sessions']].pop());
+          // console.log("length of subjForagingPerformance['sessions']: ", subjForagingPerformance['sessions'].length);
           this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][subjForagingPerformance['sessions'].length-1]; // making sure that the selected session is taken from the selected subject
           this.updateMenu(this.selected_session, 'session');
         }
@@ -209,7 +218,7 @@ export class ForagingInspectorComponent implements OnInit {
 
       // console.log('subjForaging Data: ', subjForagingPerformance)
       // console.log('this.foraging_subjects: ', this.foraging_subjects)
-      // console.log('this.subject-sessions: ', this.subject_sessions)
+      // console.log('this.subject_sessions: ', this.subject_sessions)
       // console.log('this.plot_data: ', this.plot_data)
     });
   }
@@ -223,7 +232,7 @@ export class ForagingInspectorComponent implements OnInit {
         this.foraging_subjects[subj_id]['reports'][entry['session']] = entry;
       }
     });
-    console.log('foraging_subject: ', this.foraging_subjects)
+    // console.log('foraging_subject: ', this.foraging_subjects)
   }
 
   plotClicked(event) {
