@@ -49,7 +49,7 @@ export class ForagingInspectorComponent implements OnInit {
         l: 80,
         r: 20,
         b: 40,
-        t: 20,
+        t: 35,
         pad: 4
       },
       grid: {
@@ -57,6 +57,104 @@ export class ForagingInspectorComponent implements OnInit {
         columns: 2,
         subplots:[['xy','x2y2'], ['xy3','x2y4'], ['xy5','x2y6'], ['xy7','x2y8']]
       },
+      annotations: [
+        {
+          text: "Total finished trials",
+          font: {size: 16, color: 'black'},
+          showarrow: false,
+          align: 'center',
+          x: 0.20, //position in x domain
+          y: 1.07, //position in y domain
+          xref: 'paper',
+          yref: 'paper',
+          xanchor: 'center',
+          yanchor: 'center'
+        },
+        {
+          text: "Foraging efficiency (optimal) %",
+          font: {size: 16, color: 'black'},
+          showarrow: false,
+          align: 'center',
+          x: 0.80, //position in x domain
+          y: 1.07, //position in y domain
+          xref: 'paper',
+          yref: 'paper',
+          xanchor: 'center',
+          yanchor: 'center'
+        },
+        {
+          text: "Absolute matching bias",
+          font: {size: 16, color: 'black'},
+          showarrow: false,
+          align: 'center',
+          x: 0.20, //position in x domain
+          y: 0.80, //position in y domain
+          xref: 'paper',
+          yref: 'paper',
+          xanchor: 'center',
+          yanchor: 'center'
+        },
+        {
+          text: "Early lick trials %",
+          font: {size: 16, color: 'black'},
+          showarrow: false,
+          align: 'center',
+          x: 0.80, //position in x domain
+          y: 0.80, //position in y domain
+          xref: 'paper',
+          yref: 'paper',
+          xanchor: 'center',
+          yanchor: 'center'
+        },
+        {
+          text: "Double dipping all (%)",
+          font: {size: 16, color: 'black'},
+          showarrow: false,
+          align: 'center',
+          x: 0.20, //position in x domain
+          y: 0.5, //position in y domain
+          xref: 'paper',
+          yref: 'paper',
+          xanchor: 'center',
+          yanchor: 'center'
+        },
+        {
+          text: "Mean reward prob sum",
+          font: {size: 16, color: 'black'},
+          showarrow: false,
+          align: 'center',
+          x: 0.80, //position in x domain
+          y: 0.5, //position in y domain
+          xref: 'paper',
+          yref: 'paper',
+          xanchor: 'center',
+          yanchor: 'center'
+        },
+        {
+          text: "Mean reward prob contrast",
+          font: {size: 16, color: 'black'},
+          showarrow: false,
+          align: 'center',
+          x: 0.20, //position in x domain
+          y: 0.20, //position in y domain
+          xref: 'paper',
+          yref: 'paper',
+          xanchor: 'center',
+          yanchor: 'center'
+        },
+        {
+          text: "Mean block length",
+          font: {size: 16, color: 'black'},
+          showarrow: false,
+          align: 'center',
+          x: 0.80, //position in x domain
+          y: 0.20, //position in y domain
+          xref: 'paper',
+          yref: 'paper',
+          xanchor: 'center',
+          yanchor: 'center'
+        }
+      ],
       showlegend: false,
       hovermode: 'closest'
     };
