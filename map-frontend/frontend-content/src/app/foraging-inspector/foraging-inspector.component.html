@@ -35,18 +35,12 @@
 
 <div class="plot-area">
   <div class="plot plotly-plot">
-      <plotly-plot [data]="plot_data" [layout]="plot_layout" [config]="plot_config" (click)="plotClicked($event)"></plotly-plot>
+      <plotly-plot [data]="plot_data_session" [layout]="plot_layout" [config]="plot_config" (click)="plotClicked($event)"></plotly-plot>
   </div>
-  <!-- <div class="plot session-foraging-summary">
-      <p *ngIf="!foraging_subjects[selected_subject]">Session Summary Plot Loading...</p>
-      <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']">
-      <img *ngIf="!foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
+  <div class="plot plotly-plot">
+      <plotly-plot [data]="plot_data_training_day" [layout]="plot_layout" [config]="plot_config" (click)="plotClicked($event)"></plotly-plot>
   </div>
-  <div class="plot session-foraging-licking-psth">
-      <p *ngIf="!foraging_subjects[selected_subject]">Session Summary Plot Loading...</p>
-      <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']">
-      <img *ngIf="!foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
-  </div> -->
+
   <hr>
   <hr>
 
