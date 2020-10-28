@@ -328,7 +328,7 @@ export class CellListComponent implements OnInit, OnDestroy, DoCheck {
 
       this.plot_data = [this.plot_unit_data, this.plot_region_data];
 
-      console.log('this.plot_data: ', this.plot_data);
+      console.log('this.plot_data_training_day: ', this.plot_data);
       console.log('this.plot_layout: ', this.plot_layout);
     }
   }
