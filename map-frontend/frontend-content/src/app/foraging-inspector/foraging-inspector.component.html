@@ -1,4 +1,11 @@
 
+<app-modal [showModal]="showModal" [customClass]="'custom-modal-class'" [closeModalCallback]="toggleStaticPlotsModal">
+  <div class="zoomedPlotContainer">
+    <img class="zoomedPlot" [src]="zoomPlotURL">
+  </div>
+</app-modal>
+
+
 <form [formGroup]="fi_filter_form">
   <div class="selection-area">
     <mat-form-field>
@@ -32,32 +39,33 @@
 <b>clicked session from plot: {{ clicked_session }}</b>
 <br>
 <b>clicked subject from plot: {{ clicked_subject }}</b> -->
-
+<div class="toggle-switch">
+  <label>x-axis options: </label><br>
+  By session (default) <mat-slide-toggle (change)="toggleXaxis($event)">By Training Day</mat-slide-toggle>
+</div>
 <div class="plot-area">
-  <div class="plot plotly-plot">
+  <div class="plot plotly-plot" *ngIf="!view_by_training_date">
       <plotly-plot [data]="plot_data_session" [layout]="plot_layout" [config]="plot_config" (click)="plotClicked($event)"></plotly-plot>
   </div>
-  <div class="plot plotly-plot">
+  <div class="plot plotly-plot" *ngIf="view_by_training_date">
       <plotly-plot [data]="plot_data_training_day" [layout]="plot_layout" [config]="plot_config" (click)="plotClicked($event)"></plotly-plot>
   </div>
 
-  <hr>
-  <hr>
-
-  <div class="plot resizable" [style.width.%]="ss_plot_width" *ngIf="foraging_subjects[selected_subject] && foraging_subjects[selected_subject]['reports'][selected_session]"> 
+  
+</div>
+<hr>
+<div class="plot-area">
+  <div class="plot expandable" *ngIf="foraging_subjects[selected_subject] && foraging_subjects[selected_subject]['reports'][selected_session]"> 
     <b class="plot-title">Session Foraging Summary</b>
     <p *ngIf="!foraging_subjects[selected_subject]">Session Summary Plot Loading...</p>
-    <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']">
+    <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" (click)="toggleStaticPlotsModal(foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary'])">
     <img *ngIf="!foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
   </div>
-  <div class="plot resizable" [style.width.%]="98 - ss_plot_width" *ngIf="foraging_subjects[selected_subject] && foraging_subjects[selected_subject]['reports'][selected_session]">
+  <div class="plot expandable" *ngIf="foraging_subjects[selected_subject] && foraging_subjects[selected_subject]['reports'][selected_session]">
       <b class="plot-title">Session Foraging Licking PSTH</b>
       <p *ngIf="!foraging_subjects[selected_subject]">Session Lick PSTH Plot Loading...</p>
-      <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']">
+      <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" (click)="toggleStaticPlotsModal(foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth'])">
       <img *ngIf="!foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
   </div>
-  <div class="slider-area" *ngIf="foraging_subjects[selected_subject] && foraging_subjects[selected_subject]['reports'][selected_session] && foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary'] && foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']">
-    <p>slide to adjust plot width ratio</p>
-    <mat-slider class="resize-slider" max="98" step="2" [value]="ss_plot_width" (change)="resizePlot($event.value)"></mat-slider>
-  </div>
+ 
 </div>

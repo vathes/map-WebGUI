@@ -26,13 +26,13 @@ export class ForagingInspectorComponent implements OnInit {
   foraging_subjects = {};
   selected_subject;
   selected_session;
-  clicked_session; // plotly interaction dev purpose
-  clicked_subject; // plotly interaction dev purpose
+  selected_training_day;
 
-  ss_plot_width; // in percentage 
+  subject_sessions = {}; 
+  view_by_training_date = false; // default the view of plot by session number
 
-
-  subject_sessions = {}; // made this for menu creation but realized foraging_subject contains that information
+  zoomPlotURL: string;
+  showModal = false;
 
   private subjectForagingPerformanceSubscriptions;
   private subjectForagingReportSubscriptions;
@@ -46,6 +46,7 @@ export class ForagingInspectorComponent implements OnInit {
 
     // === Define static plot_layout and plot_config
     this.plot_layout = {
+      height: 680,
       margin: {
         l: 80,
         r: 20,
@@ -168,8 +169,6 @@ export class ForagingInspectorComponent implements OnInit {
                       'hoverCompareCartesian', 'toImage', 'toggleSpikelines'],
     };
 
-    this.ss_plot_width = 50; // set initial percentage of static plots to 50:50
-    // console.log('Setup plot_layout: ', this.plot_layout);
 
     // === all Foraging Subjects ===
     // console.log('Request all Foraging Subjects');
@@ -263,8 +262,16 @@ export class ForagingInspectorComponent implements OnInit {
     let selected_session_idx = this.foraging_subjects[this.selected_subject]['sessions'].indexOf(this.selected_session)
     let training_day = this.foraging_subjects[this.selected_subject]['training_days'][selected_session_idx]
 
+    // console.log('selected_session: ', this.selected_session);
+    // console.log('selected_session_idx: ', selected_session_idx);
+    // console.log("this.foraging_subjects[this.selected_subject]['training_days']: ", this.foraging_subjects[this.selected_subject]['training_days']);
+    // console.log('training_day: ', training_day);
+    // console.log("this.foraging_subjects[this.selected_subject]['sessions']: ", this.foraging_subjects[this.selected_subject]['sessions'])
+    // console.log("this.foraging_subjects[this.selected_subject]['training_days']: ", this.foraging_subjects[this.selected_subject]['training_days']);
     // update highlighted marker traces and the selected session/subject
-
+    console.log('plot_data_training_day: ', this.plot_data_training_day);
+    console.log('plot_data_session: ', this.plot_data_session)
+    // console.log('subject_session: ', this.subject_sessions[this.selected_subject])
     // for training-day data
     for (let [index, data] of Object.entries(this.plot_data_training_day)) {
       if (data['mode'] == 'markers') { // removing current markers
@@ -275,13 +282,15 @@ export class ForagingInspectorComponent implements OnInit {
           data.line['color'] = "rgb(82, 100, 218)"  // royal blue
           let session_marker = {
             x: [training_day],
-            y: [data.y[selected_session_idx]],
+            y: [data.y[training_day - 1]],
             mode: 'markers',
             type: 'scatter',
             customdata: this.selected_subject,
+            name: this.subject_sessions[this.selected_subject]['subj_name'],
             xaxis: data.xaxis,
             yaxis: data.yaxis,
             marker: {color: "rgb(82, 100, 218)", size: "8"}
+            // marker: {color: "rgb(82, 20, 18)", size: "8"} // for debug - purple marker color
           }
           this.plot_data_training_day.push(session_marker);
         }
@@ -305,6 +314,7 @@ export class ForagingInspectorComponent implements OnInit {
             mode: 'markers',
             type: 'scatter',
             customdata: this.selected_subject,
+            name: this.subject_sessions[this.selected_subject]['subj_name'],
             xaxis: data.xaxis,
             yaxis: data.yaxis,
             marker: {color: "rgb(82, 100, 218)", size: "8"}
@@ -312,7 +322,7 @@ export class ForagingInspectorComponent implements OnInit {
           this.plot_data_session.push(session_marker);
         }
         else {
-        data.line['color'] = "rgb(211, 211, 211)"
+          data.line['color'] = "rgb(211, 211, 211)"
         }
       }
     }
@@ -343,10 +353,14 @@ export class ForagingInspectorComponent implements OnInit {
         }
       }
 
-      // console.log('subjForaging Data: ', subjForagingPerformance)
-      // console.log('this.foraging_subjects: ', this.foraging_subjects)
-      // console.log('this.subject_sessions: ', this.subject_sessions)
-      // console.log('this.plot_data_training_day: ', this.plot_data_training_day)
+      if (subjForagingPerformance['subject_id'] == this.selected_subject) {
+        console.log('subjForaging Data: ', subjForagingPerformance)
+        // console.log('this.foraging_subjects: ', this.foraging_subjects)
+        // console.log('this.subject_sessions: ', this.subject_sessions)
+        console.log('this.plot_data_session: ', this.plot_data_session)
+        console.log('this.plot_data_training_day: ', this.plot_data_training_day)
+      }
+      
     });
   }
 
@@ -366,24 +380,34 @@ export class ForagingInspectorComponent implements OnInit {
     console.log('plot clicked!!: ', event);
     if (event['points']){
       console.log('selected_subject: ', event.points[0]['data']['customdata']);
+      console.log(event.points[0])
 
       // subject
-      this.clicked_subject = event.points[0]['data']['customdata'];
       this.selected_subject = event.points[0]['data']['customdata'];
-      this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][this.foraging_subjects[this.selected_subject]['sessions'].length-1];
-
+      // this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][this.foraging_subjects[this.selected_subject]['sessions'].length-1];
+      console.log('this.selected_session (expecting latest here): ', this.selected_session)
       // session
-      let session_idx = this.foraging_subjects[this.selected_subject]['training_days'].indexOf(event.points[0]['x'].toString());
-      let session = this.foraging_subjects[this.selected_subject]['sessions'][session_idx];
-      this.clicked_session = session;
-      this.updateMenu(session, 'session');
+      console.log("this.foraging_subjects[this.selected_subject]['training_days']:", this.foraging_subjects[this.selected_subject]['training_days'])
+  
+      // let session_idx = this.foraging_subjects[this.selected_subject]['training_days'].indexOf(event.points[0]['x'].toString());
+      let clicked_index = event.points[0]['pointIndex'];
+      this.selected_training_day = this.foraging_subjects[this.selected_subject]['training_days'][event.points[0]['pointIndex']];
+      console.log('selected trainind_day: ', this.selected_training_day)
+      this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][clicked_index];
+      this.updateMenu(this.selected_session, 'session');
     }
     
   }
  
-  resizePlot(value) {
-    console.log('user wants to resize plot to: ', value)
-    this.ss_plot_width = value;
-   }
+
+
+  toggleXaxis(event) {
+    this.view_by_training_date = event.checked;
+  }
+
+  toggleStaticPlotsModal = (plotURL) => {
+    this.zoomPlotURL = plotURL;
+    this.showModal = !this.showModal;
+  }
 
 }
