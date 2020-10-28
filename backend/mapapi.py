@@ -343,9 +343,9 @@ def handle_q(subpath, args, proj, **kwargs):
               * (foraging_analysis.SessionMatching.WaterPortMatching.proj('bias') & 'water_port="right"')
               & q_two_lp_foraging_sessions).fetch(order_by='session_date, session_time', format='frame').reset_index()
 
-            training_day = (experiment.Session & q_two_lp_foraging_sessions).fetch('session_date')
-            training_day = ((training_day - min(training_day)) / timedelta(days=1)).astype(int) + 1
-            this_mouse_session_stats['training_day'] = training_day
+            training_days = (experiment.Session & q_two_lp_foraging_sessions).fetch('session_date')
+            training_days = ((training_days - min(training_days)) / timedelta(days=1)).astype(int) + 1
+            this_mouse_session_stats['training_day'] = training_days
 
             # Extract data of interest
             sessions = this_mouse_session_stats['session'].values.astype(int)
@@ -360,18 +360,29 @@ def handle_q(subpath, args, proj, **kwargs):
             abs_matching_bias = np.array([abs(v) if v is not None else v for v in this_mouse_session_stats['bias']], dtype=float)
 
             # Package into plotly format
-            line_format = {'color': 'rgb(211,211,211)', 'width': 1}
-            traces = []
+            trace_format = {'type': 'scatter', 'mode': 'lines', 'line': {'color': 'rgb(211,211,211)', 'width': 1},
+                            'customdata': args['subject_id'], 'name': args['subject_id']}
+
+            session_traces, training_day_traces = [], []
             for trace_data, x_axis_id, y_axis_id in zip(
               (total_trial_num, foraging_eff, abs_matching_bias, early_lick_ratio, double_dip, reward_sum_mean, reward_contrast_mean, block_length_mean),
               ('x', 'x2', 'x', 'x2', 'x', 'x2', 'x', 'x2'),
               ('y', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8')):
-                traces.append({'x': training_day, 'y': [v if not np.isnan(v) else None for v in trace_data],
-                               'xaxis': x_axis_id, 'yaxis': y_axis_id,
-                               'type': 'scatter', 'mode': 'lines', 'line': line_format,
-                               'customdata': args['subject_id'], 'name': args['subject_id']})
+                # session version
+                session_traces.append({'x': sessions,
+                                       'y': [v if not np.isnan(v) else None for v in trace_data],
+                                       'xaxis': x_axis_id, 'yaxis': y_axis_id, **trace_format})
+                # training day version
+                ydata = np.full(max(training_days), None)
+                ydata[training_days - 1] = trace_data
+                training_day_traces.append({'x': np.arange(len(ydata)) + 1,
+                                            'y': [v if v and not np.isnan(v) else None for v in ydata],
+                                            'xaxis': x_axis_id, 'yaxis': y_axis_id, **trace_format})
 
-            q = {'subject_id': args['subject_id'], 'sessions': sessions, 'training_days': training_day, 'traces': traces}
+            q = {'subject_id': args['subject_id'],
+                 'sessions': sessions, 'session_traces': session_traces,
+                 'training_days': training_days, 'training_day_traces': training_day_traces}
+
     elif subpath == 'foraging_session_report':
         check_is_subject_restriction(args)
         q = experiment.Session.proj() & args

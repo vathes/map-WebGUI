@@ -18,7 +18,8 @@ export class ForagingInspectorComponent implements OnInit {
   filteredSubjectIdOptions: Observable<string[]>;
   filteredSessionIdOptions: Observable<string[]>;
 
-  plot_data = [];
+  plot_data_session = [];
+  plot_data_training_day = [];
   plot_layout;
   plot_config;
 
@@ -253,7 +254,7 @@ export class ForagingInspectorComponent implements OnInit {
       
       this.selected_subject = value.split("(")[1].split(")")[0]; // gets the subject id between the parenthesis from HH04 (473611)
       this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][this.foraging_subjects[this.selected_subject]['sessions'].length-1];
-      // console.log('plotly_data: ', this.plot_data)
+      // console.log('plotly_data: ', this.plot_data_training_day)
     }
     else if (type == 'session') {
       this.selected_session = value;
@@ -262,10 +263,12 @@ export class ForagingInspectorComponent implements OnInit {
     let selected_session_idx = this.foraging_subjects[this.selected_subject]['sessions'].indexOf(this.selected_session)
     let training_day = this.foraging_subjects[this.selected_subject]['training_days'][selected_session_idx]
 
-    // remove current marker traces and read new markers for the selected session/subject
-    for (let [index, data] of Object.entries(this.plot_data)) {
+    // update highlighted marker traces and the selected session/subject
+
+    // for training-day data
+    for (let [index, data] of Object.entries(this.plot_data_training_day)) {
       if (data['mode'] == 'markers') { // removing current markers
-        this.plot_data[index] = {};
+        this.plot_data_training_day[index] = {};
       }
       else if (data['mode'] == 'lines') { // recoloring lines, pushing new marker data
         if (data['customdata'] == this.selected_subject) {
@@ -280,7 +283,33 @@ export class ForagingInspectorComponent implements OnInit {
             yaxis: data.yaxis,
             marker: {color: "rgb(82, 100, 218)", size: "8"}
           }
-          this.plot_data.push(session_marker);
+          this.plot_data_training_day.push(session_marker);
+        }
+        else {
+        data.line['color'] = "rgb(211, 211, 211)"
+        }
+      }
+    }
+
+    // for session data
+    for (let [index, data] of Object.entries(this.plot_data_session)) {
+      if (data['mode'] == 'markers') { // removing current markers
+        this.plot_data_session[index] = {};
+      }
+      else if (data['mode'] == 'lines') { // recoloring lines, pushing new marker data
+        if (data['customdata'] == this.selected_subject) {
+          data.line['color'] = "rgb(82, 100, 218)"  // royal blue
+          let session_marker = {
+            x: [this.selected_session],
+            y: [data.y[selected_session_idx]],
+            mode: 'markers',
+            type: 'scatter',
+            customdata: this.selected_subject,
+            xaxis: data.xaxis,
+            yaxis: data.yaxis,
+            marker: {color: "rgb(82, 100, 218)", size: "8"}
+          }
+          this.plot_data_session.push(session_marker);
         }
         else {
         data.line['color'] = "rgb(211, 211, 211)"
@@ -289,7 +318,6 @@ export class ForagingInspectorComponent implements OnInit {
     }
 
   }
-
 
   getSubjectForagingPerformance(subj_id) {
   let subj_request = {'subject_id': subj_id}
@@ -304,7 +332,8 @@ export class ForagingInspectorComponent implements OnInit {
         this.foraging_subjects[subjForagingPerformance['subject_id']]['training_days'] = subjForagingPerformance['training_days'];
         
         // console.log('subjForagingPerformance: ', subjForagingPerformance);
-        this.plot_data.push(...subjForagingPerformance['traces'])
+        this.plot_data_session.push(...subjForagingPerformance['session_traces'])
+        this.plot_data_training_day.push(...subjForagingPerformance['training_day_traces'])
         this.subject_sessions[subj_id]['sessions'].push(subjForagingPerformance['sessions'])
         if (!this.selected_session && subj_id == this.selected_subject) {
           // console.log("last item in subjForagingPerformance['sessions']: ", [...subjForagingPerformance['sessions']].pop());
@@ -317,7 +346,7 @@ export class ForagingInspectorComponent implements OnInit {
       // console.log('subjForaging Data: ', subjForagingPerformance)
       // console.log('this.foraging_subjects: ', this.foraging_subjects)
       // console.log('this.subject_sessions: ', this.subject_sessions)
-      // console.log('this.plot_data: ', this.plot_data)
+      // console.log('this.plot_data_training_day: ', this.plot_data_training_day)
     });
   }
 
@@ -351,7 +380,6 @@ export class ForagingInspectorComponent implements OnInit {
     }
     
   }
-
  
   resizePlot(value) {
     console.log('user wants to resize plot to: ', value)
