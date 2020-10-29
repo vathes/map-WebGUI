@@ -15,17 +15,17 @@ mat-form-field {
     width: 100%
 }
 
-.plot-area .session-foraging-summary,
+/* .plot-area .session-foraging-summary,
 .plot-area .session-foraging-licking-psth {
     width: 50%;
-}
+} */
 
 .session-foraging-summary img,
 .session-foraging-licking-psth img {
     width: 100%;
 }
 
-.resizable img {
+.expandable img {
     width: 100%;
 }
 
@@ -36,23 +36,10 @@ mat-form-field {
     
 }
 
-.plot.resizable {
+.plot.expandable {
     box-shadow: 1px 2px 10px rgb(233, 233, 233);
     text-align: center;
     padding-top: 15px;
+    width: 25%;
 }
 
-
-.slider-area {
-    display: flex;
-    align-items: center;
-    height: 20px;
-}
-
-.slider-area p {
-    margin: 0;
-    line-height: normal;
-}
-.resize-slider {
-    width: 300px;
-}
