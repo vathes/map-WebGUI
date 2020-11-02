@@ -41,5 +41,6 @@ mat-form-field {
     text-align: center;
     padding-top: 15px;
     width: 25%;
+    cursor: pointer;
 }
 

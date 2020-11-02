@@ -66,7 +66,7 @@ export class ForagingInspectorComponent implements OnInit {
           showarrow: false,
           align: 'center',
           x: 0.20, //position in x domain
-          y: 1.07, //position in y domain
+          y: 1.05, //position in y domain
           xref: 'paper',
           yref: 'paper',
           xanchor: 'center',
@@ -78,7 +78,7 @@ export class ForagingInspectorComponent implements OnInit {
           showarrow: false,
           align: 'center',
           x: 0.80, //position in x domain
-          y: 1.07, //position in y domain
+          y: 1.05, //position in y domain
           xref: 'paper',
           yref: 'paper',
           xanchor: 'center',
@@ -90,7 +90,7 @@ export class ForagingInspectorComponent implements OnInit {
           showarrow: false,
           align: 'center',
           x: 0.20, //position in x domain
-          y: 0.80, //position in y domain
+          y: 0.77, //position in y domain
           xref: 'paper',
           yref: 'paper',
           xanchor: 'center',
@@ -102,7 +102,7 @@ export class ForagingInspectorComponent implements OnInit {
           showarrow: false,
           align: 'center',
           x: 0.80, //position in x domain
-          y: 0.80, //position in y domain
+          y: 0.78, //position in y domain
           xref: 'paper',
           yref: 'paper',
           xanchor: 'center',
@@ -262,16 +262,8 @@ export class ForagingInspectorComponent implements OnInit {
     let selected_session_idx = this.foraging_subjects[this.selected_subject]['sessions'].indexOf(this.selected_session)
     let training_day = this.foraging_subjects[this.selected_subject]['training_days'][selected_session_idx]
 
-    // console.log('selected_session: ', this.selected_session);
-    // console.log('selected_session_idx: ', selected_session_idx);
-    // console.log("this.foraging_subjects[this.selected_subject]['training_days']: ", this.foraging_subjects[this.selected_subject]['training_days']);
-    // console.log('training_day: ', training_day);
-    // console.log("this.foraging_subjects[this.selected_subject]['sessions']: ", this.foraging_subjects[this.selected_subject]['sessions'])
-    // console.log("this.foraging_subjects[this.selected_subject]['training_days']: ", this.foraging_subjects[this.selected_subject]['training_days']);
-    // update highlighted marker traces and the selected session/subject
-    console.log('plot_data_training_day: ', this.plot_data_training_day);
-    console.log('plot_data_session: ', this.plot_data_session)
-    // console.log('subject_session: ', this.subject_sessions[this.selected_subject])
+    // ---- Update highlighted marker traces and the selected session/subject ----
+
     // for training-day data
     for (let [index, data] of Object.entries(this.plot_data_training_day)) {
       if (data['mode'] == 'markers') { // removing current markers
@@ -352,14 +344,6 @@ export class ForagingInspectorComponent implements OnInit {
           this.updateMenu(this.selected_session, 'session');
         }
       }
-
-      if (subjForagingPerformance['subject_id'] == this.selected_subject) {
-        console.log('subjForaging Data: ', subjForagingPerformance)
-        // console.log('this.foraging_subjects: ', this.foraging_subjects)
-        // console.log('this.subject_sessions: ', this.subject_sessions)
-        console.log('this.plot_data_session: ', this.plot_data_session)
-        console.log('this.plot_data_training_day: ', this.plot_data_training_day)
-      }
       
     });
   }
@@ -379,21 +363,19 @@ export class ForagingInspectorComponent implements OnInit {
   plotClicked(event) {
     console.log('plot clicked!!: ', event);
     if (event['points']){
-      console.log('selected_subject: ', event.points[0]['data']['customdata']);
-      console.log(event.points[0])
-
       // subject
       this.selected_subject = event.points[0]['data']['customdata'];
-      // this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][this.foraging_subjects[this.selected_subject]['sessions'].length-1];
-      console.log('this.selected_session (expecting latest here): ', this.selected_session)
-      // session
-      console.log("this.foraging_subjects[this.selected_subject]['training_days']:", this.foraging_subjects[this.selected_subject]['training_days'])
-  
-      // let session_idx = this.foraging_subjects[this.selected_subject]['training_days'].indexOf(event.points[0]['x'].toString());
-      let clicked_index = event.points[0]['pointIndex'];
-      this.selected_training_day = this.foraging_subjects[this.selected_subject]['training_days'][event.points[0]['pointIndex']];
-      console.log('selected trainind_day: ', this.selected_training_day)
-      this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][clicked_index];
+
+      // session / training-day
+      if (this.view_by_training_date) {
+        this.selected_training_day = event.points[0]['x'].toString();
+        let selected_trday_idx = this.foraging_subjects[this.selected_subject]['training_days'].indexOf(this.selected_training_day)
+        this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][selected_trday_idx]
+      }
+      else {
+        this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][event.points[0]['pointIndex']];
+      }
+
       this.updateMenu(this.selected_session, 'session');
     }
     
