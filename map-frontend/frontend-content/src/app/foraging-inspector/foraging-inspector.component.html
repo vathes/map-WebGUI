@@ -1,0 +1,74 @@
+
+<app-modal [showModal]="showModal" [customClass]="'custom-modal-class'" [closeModalCallback]="toggleStaticPlotsModal">
+  <div class="zoomedPlotContainer">
+    <img class="zoomedPlot" [src]="zoomPlotURL">
+  </div>
+</app-modal>
+
+
+<form [formGroup]="fi_filter_form">
+  <div class="selection-area">
+    <mat-form-field>
+      <label>Subject</label>
+      <input matInput type="text" name="subject_id" formControlName="subject_id_control"
+      [matAutocomplete]="autoCompSN" [value]="subject_sessions[selected_subject] ? subject_sessions[selected_subject]['subj_name']: ''">
+      <mat-autocomplete #autoCompSN="matAutocomplete">
+        <mat-option *ngFor="let subjectId of filteredSubjectIdOptions | async" [value]="subjectId" 
+        (click)="updateMenu(subjectId, 'subject')">
+          {{ subjectId }}</mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field>
+      <label>Session</label>
+      <input matInput type="text" name="session_id" formControlName="session_id_control"
+      [matAutocomplete]="autoCompSL" [value]="selected_session">
+      <mat-autocomplete #autoCompSL="matAutocomplete">
+        <mat-option *ngFor="let sessionId of filteredSessionIdOptions | async" [value]="sessionId"
+        (click)="updateMenu(sessionId, 'session')">
+          {{ sessionId }}</mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+  </div>
+</form> 
+<!-- <p>selected id: {{ selected_subject }}</p> -->
+<!-- <p>session ids: [<span *ngFor="let session of foraging_subjects[selected_subject]['sessions']">{{ session }}, </span>]</p> -->
+
+<div class="toggle-switch">
+  <label>View x-axis by:&nbsp;&nbsp;</label>
+  Session<mat-slide-toggle (change)="toggleXaxis($event)">Training Day</mat-slide-toggle>
+</div>
+
+<hr>
+
+<!-- 
+<b>clicked session from plot: {{ clicked_session }}</b>
+<br>
+<b>clicked subject from plot: {{ clicked_subject }}</b> -->
+<div class="plot-area">
+  <div class="plot plotly-plot" *ngIf="!view_by_training_date">
+      <plotly-plot [data]="plot_data_session" [layout]="plot_layout" [config]="plot_config" (click)="plotClicked($event)"></plotly-plot>
+  </div>
+  <div class="plot plotly-plot" *ngIf="view_by_training_date">
+      <plotly-plot [data]="plot_data_training_day" [layout]="plot_layout" [config]="plot_config" (click)="plotClicked($event)"></plotly-plot>
+  </div>
+
+  
+</div>
+<hr>
+<div class="plot-area">
+  <div class="plot expandable" *ngIf="foraging_subjects[selected_subject] && foraging_subjects[selected_subject]['reports'][selected_session]"> 
+    <b class="plot-title">Session Foraging Summary</b>
+    <p *ngIf="!foraging_subjects[selected_subject]">Session Summary Plot Loading...</p>
+    <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" (click)="toggleStaticPlotsModal(foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary'])">
+    <img *ngIf="!foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
+  </div>
+  <div class="plot expandable" *ngIf="foraging_subjects[selected_subject] && foraging_subjects[selected_subject]['reports'][selected_session]">
+      <b class="plot-title">Session Foraging Licking PSTH</b>
+      <p *ngIf="!foraging_subjects[selected_subject]">Session Lick PSTH Plot Loading...</p>
+      <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" (click)="toggleStaticPlotsModal(foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth'])">
+      <img *ngIf="!foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
+  </div>
+ 
+</div>

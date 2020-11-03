@@ -1,0 +1,46 @@
+.selection-area,
+.plot-area {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+mat-form-field {
+    margin: 0 1% 0 1%;
+}
+
+
+.plot-area .plotly-plot {
+    width: 100%
+}
+
+/* .plot-area .session-foraging-summary,
+.plot-area .session-foraging-licking-psth {
+    width: 50%;
+} */
+
+.session-foraging-summary img,
+.session-foraging-licking-psth img {
+    width: 100%;
+}
+
+.expandable img {
+    width: 100%;
+}
+
+.plot-area .plot {
+    height: fit-content;
+    /* border: 2px solid black; */
+    margin: 1% 0.5%;
+    
+}
+
+.plot.expandable {
+    box-shadow: 1px 2px 10px rgb(233, 233, 233);
+    text-align: center;
+    padding-top: 15px;
+    width: 25%;
+    cursor: pointer;
+}
+

@@ -172,6 +172,38 @@ app.post('/plot/coronal_slice', checkAuth, (req, res) => {
 })
 
 
+app.post('/plot/foraging_subject_list', checkAuth, (req, res) => {
+    console.log('requesting for all foraging subjects');
+    request.post(flask_backend + '/v0/_q/foraging_subject_list', { form: req.body }, function (error, httpResponse, body) {
+        if (error) {
+            console.error('foraging_subject_list sending error: ', error);
+        }
+        res.send(body);
+    })
+})
+
+
+app.post('/plot/foraging_subject_performance', checkAuth, (req, res) => {
+    console.log('requesting for subject-level foraging performance data');
+    request.post(flask_backend + '/v0/_q/foraging_subject_performance', { form: req.body }, function (error, httpResponse, body) {
+        if (error) {
+            console.error('foraging_subject_performance sending error: ', error);
+        }
+        res.send(body);
+    })
+})
+
+
+app.post('/plot/foraging_session_report', checkAuth, (req, res) => {
+    console.log('requesting for session-level foraging report figures');
+    request.post(flask_backend + '/v0/_q/foraging_session_report', { form: req.body }, function (error, httpResponse, body) {
+        if (error) {
+            console.error('foraging_session_report sending error: ', error);
+        }
+        res.send(body);
+    })
+})
+
 
 //Docker Healthcheck
 app.get('/version', (req, res, next) => {

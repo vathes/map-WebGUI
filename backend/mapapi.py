@@ -9,10 +9,10 @@ from PIL import ImageColor
 from collections import Counter
 
 from uuid import UUID
-from datetime import date
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 import numpy as np
+import pandas as pd
 import datajoint as dj
 import pathlib
 from decimal import Decimal
@@ -43,6 +43,7 @@ psth = mkvmod('psth')
 report = mkvmod('report')
 tracking = mkvmod('tracking')
 histology = mkvmod('histology')
+foraging_analysis = mkvmod('foraging_analysis')
 ccf = mkvmod('ccf')
 
 map_s3_bucket = os.environ.get('MAP_S3_BUCKET')
@@ -192,7 +193,6 @@ def handle_q(subpath, args, proj, **kwargs):
         [args.pop(v) for v in ('insert_locations', 'clustering_methods') if v in args]
 
         q = sessions & args & insert_locations_restr & clustering_methods_restr
-
     elif subpath == 'session':
         check_is_session_restriction(args)
 
@@ -208,7 +208,6 @@ def handle_q(subpath, args, proj, **kwargs):
 
         contain_s3fp = True
         q = sessions * plotsessions
-
     elif subpath == 'probe_insertions':
         check_is_session_restriction(args)
 
@@ -320,6 +319,76 @@ def handle_q(subpath, args, proj, **kwargs):
         check_is_session_restriction(args)
         contain_s3fp = True
         q = report.ProbeLevelCoronalSlice.proj(coronal_slice_s3fp='coronal_slice') & args
+    elif subpath == 'foraging_subject_list':
+        q = (lab.Subject.proj() * lab.WaterRestriction.proj('water_restriction_number')
+             & (foraging_analysis.SessionTaskProtocol & 'session_task_protocol=100'))
+    elif subpath == 'foraging_subject_performance':
+        check_is_subject_restriction(args)
+        q = {}
+
+        q_two_lp_foraging_sessions = (foraging_analysis.SessionTaskProtocol * lab.WaterRestriction
+                                      & 'session_task_protocol=100' & args)
+
+        # Skip this mice if it did not started with 2lp task
+        first_protocol = (q_two_lp_foraging_sessions * experiment.Session).fetch(
+            'session_task_protocol', order_by='session_date, session_time', limit=1)
+
+        stat_attrs = ['session_pure_choices_num', 'session_foraging_eff_optimal', 'session_early_lick_ratio',
+                      'session_mean_reward_sum', 'session_mean_reward_contrast', 'session_total_trial_num',
+                      'session_block_num', 'session_double_dipping_ratio']
+        if len(first_protocol) and first_protocol[0] == 100:
+            this_mouse_session_stats = (
+              foraging_analysis.SessionStats.proj(*stat_attrs)
+              * experiment.Session.proj('session_date', 'session_time')
+              * (foraging_analysis.SessionMatching.WaterPortMatching.proj('bias') & 'water_port="right"')
+              & q_two_lp_foraging_sessions).fetch(order_by='session_date, session_time', format='frame').reset_index()
+
+            training_days = (experiment.Session & q_two_lp_foraging_sessions).fetch('session_date')
+            training_days = ((training_days - min(training_days)) / timedelta(days=1)).astype(int) + 1
+            this_mouse_session_stats['training_day'] = training_days
+
+            # Extract data of interest
+            sessions = this_mouse_session_stats['session'].values.astype(int)
+
+            total_trial_num = this_mouse_session_stats['session_pure_choices_num'].values.astype(float)
+            foraging_eff = this_mouse_session_stats['session_foraging_eff_optimal'].values.astype(float) * 100
+            early_lick_ratio = this_mouse_session_stats['session_early_lick_ratio'].values.astype(float) * 100
+            reward_sum_mean = this_mouse_session_stats['session_mean_reward_sum'].values.astype(float)
+            reward_contrast_mean = this_mouse_session_stats['session_mean_reward_contrast'].values.astype(float)
+            block_length_mean = (this_mouse_session_stats['session_total_trial_num'] / this_mouse_session_stats['session_block_num']).values.astype(float)
+            double_dip = this_mouse_session_stats['session_double_dipping_ratio'].values.astype(float) * 100
+            abs_matching_bias = np.array([abs(v) if v is not None else v for v in this_mouse_session_stats['bias']], dtype=float)
+
+            # Package into plotly format
+            trace_format = {'type': 'scatter', 'mode': 'lines', 'line': {'color': 'rgb(211,211,211)', 'width': 1},
+                            'customdata': args['subject_id'], 'name': args['subject_id']}
+
+            session_traces, training_day_traces = [], []
+            for trace_data, x_axis_id, y_axis_id in zip(
+              (total_trial_num, foraging_eff, abs_matching_bias, early_lick_ratio, double_dip, reward_sum_mean, reward_contrast_mean, block_length_mean),
+              ('x', 'x2', 'x', 'x2', 'x', 'x2', 'x', 'x2'),
+              ('y', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8')):
+                # session version
+                session_traces.append({'x': sessions,
+                                       'y': [v if not np.isnan(v) else None for v in trace_data],
+                                       'xaxis': x_axis_id, 'yaxis': y_axis_id, **trace_format})
+                # training day version
+                ydata = np.full(max(training_days), None)
+                ydata[training_days - 1] = trace_data
+                training_day_traces.append({'x': np.arange(len(ydata)) + 1,
+                                            'y': [v if v and not np.isnan(v) else None for v in ydata],
+                                            'xaxis': x_axis_id, 'yaxis': y_axis_id, **trace_format})
+
+            q = {'subject_id': args['subject_id'],
+                 'sessions': sessions, 'session_traces': session_traces,
+                 'training_days': training_days, 'training_day_traces': training_day_traces}
+
+    elif subpath == 'foraging_session_report':
+        check_is_subject_restriction(args)
+        q = experiment.Session.proj() & args
+        contain_s3fp = True
+        q = q.aggr(report.SessionLevelForagingSummary, ..., session_foraging_summary_s3fp='session_foraging_summary', keep_all_rows=True)
+        q = q.aggr(report.SessionLevelForagingLickingPSTH, ..., session_foraging_licking_psth_s3fp='session_foraging_licking_psth', keep_all_rows=True)
     else:
         abort(404)
 
@@ -365,11 +434,17 @@ def get_sessions_query():
 # ----------- HELPER METHODS -------------------
 
 
+def check_is_subject_restriction(args):
+    is_subj_res = np.all([k in args for k in lab.Subject.primary_key])
+    if not is_subj_res:
+        raise RuntimeError('args has to be a restriction to a subject')
+    return True
+
+
 def check_is_session_restriction(args):
     is_sess_res = np.all([k in args for k in experiment.Session.primary_key])
     if not is_sess_res:
         raise RuntimeError('args has to be a restriction to a session')
-
     return True
 
 

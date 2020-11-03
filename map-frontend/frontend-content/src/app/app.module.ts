@@ -44,6 +44,7 @@ import { ProbeInsertionListComponent } from './probe-insertion-list/probe-insert
 import { ProbeInsertionComponent } from './probe-insertion-list/probe-insertion/probe-insertion.component';
 import { ProbeTracksComponent } from './probe-tracks/probe-tracks.component';
 import { ModalComponent } from './modal/modal.component';
+import { ForagingInspectorComponent } from './foraging-inspector/foraging-inspector.component';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -94,6 +95,11 @@ const appRoutes: Routes = [
     path: 'project-probe-tracks',
     canActivate: [AuthGuard],
     component: ProbeTracksComponent
+  },
+  {
+    path: 'foraging-inspector',
+    canActivate: [AuthGuard],
+    component: ForagingInspectorComponent
   }
   // { path: 'not-found', component: ErrorPageComponent, data: { message: '404 - Page not found!' } },
   // { path: '**', redirectTo: '/not-found' }
@@ -116,7 +122,8 @@ const appRoutes: Routes = [
     ProbeInsertionListComponent,
     ProbeInsertionComponent,
     ProbeTracksComponent,
-    ModalComponent
+    ModalComponent,
+    ForagingInspectorComponent
   ],
   imports: [
     CommonModule, PlotlyModule,
