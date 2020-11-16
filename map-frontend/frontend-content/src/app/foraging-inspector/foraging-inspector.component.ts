@@ -28,7 +28,7 @@ export class ForagingInspectorComponent implements OnInit {
   selected_session;
   selected_training_day;
 
-  subject_sessions = {}; 
+  subject_sessions = {};
   view_by_training_date = false; // default the view of plot by session number
 
   zoomPlotURL: string;
@@ -192,7 +192,7 @@ export class ForagingInspectorComponent implements OnInit {
           // console.log('Request foraging data for subject: ', subj_id);
           this.getSubjectForagingPerformance(subj_id);
           this.getSubjectForagingReport(subj_id);
-          
+
         }
       });
 
@@ -224,7 +224,7 @@ export class ForagingInspectorComponent implements OnInit {
         });
         return result;
       }
-      
+
     } else if (menuType == 'subject') {
 
       // console.log('Object.kyes(foraging_subj): ',Object.keys(this.foraging_subjects))
@@ -233,7 +233,7 @@ export class ForagingInspectorComponent implements OnInit {
         // console.log('subject nickname: ', subject['subj_name'])
         nicknames.push(subject['subj_name']);
       });
-      
+
       // const result =  Object.keys(this.foraging_subjects).filter(menu_items => {
       const result =  nicknames.filter(menu_items => {
         if (menu_items && menu_items.toLowerCase().includes(filterValue)) {
@@ -250,7 +250,7 @@ export class ForagingInspectorComponent implements OnInit {
     // console.log('updateMenu ran');
     // console.log('value: ', value)
     if (type == 'subject') {
-      
+
       this.selected_subject = value.split("(")[1].split(")")[0]; // gets the subject id between the parenthesis from HH04 (473611)
       this.selected_session = this.foraging_subjects[this.selected_subject]['sessions'][this.foraging_subjects[this.selected_subject]['sessions'].length-1];
       // console.log('plotly_data: ', this.plot_data_training_day)
@@ -332,7 +332,7 @@ export class ForagingInspectorComponent implements OnInit {
       if ('subject_id' in subjForagingPerformance) {
         this.foraging_subjects[subjForagingPerformance['subject_id']]['sessions'] = subjForagingPerformance['sessions'];
         this.foraging_subjects[subjForagingPerformance['subject_id']]['training_days'] = subjForagingPerformance['training_days'];
-        
+
         // console.log('subjForagingPerformance: ', subjForagingPerformance);
         this.plot_data_session.push(...subjForagingPerformance['session_traces'])
         this.plot_data_training_day.push(...subjForagingPerformance['training_day_traces'])
@@ -344,7 +344,7 @@ export class ForagingInspectorComponent implements OnInit {
           this.updateMenu(this.selected_session, 'session');
         }
       }
-      
+
     });
   }
 
@@ -378,10 +378,8 @@ export class ForagingInspectorComponent implements OnInit {
 
       this.updateMenu(this.selected_session, 'session');
     }
-    
-  }
- 
 
+  }
 
   toggleXaxis(event) {
     this.view_by_training_date = event.checked;
