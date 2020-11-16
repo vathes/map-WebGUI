@@ -33,7 +33,7 @@ mat-form-field {
     height: fit-content;
     /* border: 2px solid black; */
     margin: 1% 0.5%;
-    
+
 }
 
 .plot.expandable {
@@ -44,3 +44,9 @@ mat-form-field {
     cursor: pointer;
 }
 
+.labelBeforeSlide {
+  vertical-align: top;
+  line-height: 24px;
+  margin-right:0.5rem;
+  margin-bottom:0.5rem;
+}

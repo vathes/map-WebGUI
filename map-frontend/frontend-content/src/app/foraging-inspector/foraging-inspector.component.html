@@ -13,7 +13,7 @@
       <input matInput type="text" name="subject_id" formControlName="subject_id_control"
       [matAutocomplete]="autoCompSN" [value]="subject_sessions[selected_subject] ? subject_sessions[selected_subject]['subj_name']: ''">
       <mat-autocomplete #autoCompSN="matAutocomplete">
-        <mat-option *ngFor="let subjectId of filteredSubjectIdOptions | async" [value]="subjectId" 
+        <mat-option *ngFor="let subjectId of filteredSubjectIdOptions | async" [value]="subjectId"
         (click)="updateMenu(subjectId, 'subject')">
           {{ subjectId }}</mat-option>
       </mat-autocomplete>
@@ -31,18 +31,19 @@
     </mat-form-field>
 
   </div>
-</form> 
+</form>
 <!-- <p>selected id: {{ selected_subject }}</p> -->
 <!-- <p>session ids: [<span *ngFor="let session of foraging_subjects[selected_subject]['sessions']">{{ session }}, </span>]</p> -->
 
 <div class="toggle-switch">
-  <label>View x-axis by:&nbsp;&nbsp;</label>
-  Session<mat-slide-toggle (change)="toggleXaxis($event)">Training Day</mat-slide-toggle>
+  <mat-label ngClass="labelBeforeSlide">View x-axis by:&nbsp;</mat-label>
+  <mat-label ngClass="labelBeforeSlide">Session</mat-label>
+  <mat-slide-toggle (change)="toggleXaxis($event)">Training Day</mat-slide-toggle>
 </div>
 
 <hr>
 
-<!-- 
+<!--
 <b>clicked session from plot: {{ clicked_session }}</b>
 <br>
 <b>clicked subject from plot: {{ clicked_subject }}</b> -->
@@ -54,11 +55,11 @@
       <plotly-plot [data]="plot_data_training_day" [layout]="plot_layout" [config]="plot_config" (click)="plotClicked($event)"></plotly-plot>
   </div>
 
-  
+
 </div>
 <hr>
 <div class="plot-area">
-  <div class="plot expandable" *ngIf="foraging_subjects[selected_subject] && foraging_subjects[selected_subject]['reports'][selected_session]"> 
+  <div class="plot expandable" *ngIf="foraging_subjects[selected_subject] && foraging_subjects[selected_subject]['reports'][selected_session]">
     <b class="plot-title">Session Foraging Summary</b>
     <p *ngIf="!foraging_subjects[selected_subject]">Session Summary Plot Loading...</p>
     <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary']" (click)="toggleStaticPlotsModal(foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_summary'])">
@@ -70,5 +71,5 @@
       <img *ngIf="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" [src]="foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" (click)="toggleStaticPlotsModal(foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth'])">
       <img *ngIf="!foraging_subjects[selected_subject]['reports'][selected_session]['session_foraging_licking_psth']" class="empty-plot empty-behavior-plot" src="assets/images/unit_behavior_empty.png">
   </div>
- 
+
 </div>

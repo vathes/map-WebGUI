@@ -199,7 +199,7 @@ def handle_q(subpath, args, proj, **kwargs):
         sessions = get_sessions_query() & args
 
         plotsessions = (experiment.Session & args).proj().aggr(report.SessionLevelReport, ...,
-                                                               behavior_performance_s3fp = 'behavior_performance',
+                                                               behavior_performance_s3fp='behavior_performance',
                                                                keep_all_rows=True)
         plotsessions = plotsessions.aggr(report.SessionLevelProbeTrack, ...,
                                          session_tracks_plot_s3fp='session_tracks_plot', keep_all_rows=True)
@@ -419,6 +419,7 @@ def get_sessions_query():
       insert_locations='GROUP_CONCAT(brain_region SEPARATOR", ")', keep_all_rows=True)
 
     sessions = sessions.aggr(tracking.Tracking, ..., tracking_avai='count(trial) > 0', keep_all_rows=True)
+    sessions = sessions.aggr(experiment.BehaviorTrial & 'task LIKE "foraging%"', ..., is_foraging='count(trial) > 0', keep_all_rows=True)
 
     unitsessions = experiment.Session.proj().aggr(ephys.Unit.proj(), ...,
                                                   clustering_methods='GROUP_CONCAT(DISTINCT clustering_method SEPARATOR", ")',
