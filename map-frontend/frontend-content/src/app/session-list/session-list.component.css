@@ -9,14 +9,14 @@ h4 {
     font-weight: 300;
 }
 
-form { 
+form {
     /* margin-bottom: 5px; */
     padding-bottom: 25px;
     border-bottom: 3px solid rgb(209, 209, 209);
     display: inline-block;
     font-size: 80%;
     width: 100%;
-} 
+}
 
 .filterExpand {
     height: auto;
@@ -101,8 +101,8 @@ label {
     background-color: rgba(224, 227, 250, 0.023);
 }
 
-td.mat-cell, 
-td.mat-footer-cell, 
+td.mat-cell,
+td.mat-footer-cell,
 th.mat-header-cell {
     padding-right: 15px;
 }
@@ -173,6 +173,13 @@ mat-checkbox.mouse_gender_menu_chbox {
 }; */
 
 
+.labelBeforeSlide {
+  vertical-align: top;
+  line-height: 24px;
+  margin-right:0.5rem;
+  margin-bottom:0.5rem;
+}
+
 
 /* for different screen sizes */
 /* XS and S (768px and down) */
@@ -180,13 +187,13 @@ mat-checkbox.mouse_gender_menu_chbox {
 
 /* M (768px and up) */
 @media only screen and (min-width: 768px) {
- 
-} 
+
+}
 
 /* L (992px and up) */
 @media only screen and (min-width: 992px) {
 
-} 
+}
 
 /* XL (1200px and up) */
 @media only screen and (min-width: 1200px) {

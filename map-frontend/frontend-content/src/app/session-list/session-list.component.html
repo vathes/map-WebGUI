@@ -46,8 +46,8 @@
         <div class="date-range-toggler">
           <label for="dateRangeToggler">Session Start Date</label>
           <div>
-            On&nbsp;<mat-slide-toggle name="dateRangeToggler" [checked]="dateRangeToggle" (change)="dateRangeToggle=!dateRangeToggle">From/To
-            </mat-slide-toggle>
+            <mat-label ngClass="labelBeforeSlide">On</mat-label>
+            <mat-slide-toggle name="dateRangeToggler" [checked]="dateRangeToggle" (change)="dateRangeToggle=!dateRangeToggle">From/To</mat-slide-toggle>
           </div>
         </div>
         <mat-form-field *ngIf="!dateRangeToggle">
@@ -75,9 +75,9 @@
             <mat-datepicker #datePickerSRE></mat-datepicker>
           </mat-form-field>
         </div>
-        
+
       </div>
-       
+
     </div>
 
     <div class="mouse-field-filters form-section">
@@ -101,7 +101,7 @@
             {{ probeC }}</mat-option>
         </mat-autocomplete>
       </mat-form-field>
-      
+
       <mat-form-field>
         <label>Insertion Location</label>
         <input matInput type="text" name="insert_locations" formControlName="insert_locations_control"
@@ -121,7 +121,7 @@
           </mat-option>
         </mat-autocomplete>
       </mat-form-field>
-      
+
       <!-- <mat-form-field class="short">
         <label>DOB</label>
         <input matInput formControlName="subject_birth_date_control" [matDatepicker]="DOBPicker"
@@ -131,17 +131,17 @@
         <mat-datepicker #DOBPicker></mat-datepicker>
       </mat-form-field> -->
 
-<!-- 
+<!--
       <div class="mouse_gender_filter">
         <label>Gender</label>
-        <div class="mouse_gender_menu" formArrayName="sex_control"> 
+        <div class="mouse_gender_menu" formArrayName="sex_control">
           <mat-checkbox class="mouse_gender_menu_chbox" [name]="session_menu.sex" [formControlName]="i"
             *ngFor="let sex of session_menu.sex | keyvalue ; let i=index" [value]="sex.key" (change)="updateMenu()">
             {{ sex.key }}
           </mat-checkbox>
         </div>
       </div> -->
-      
+
     </div>
   </div>
   <br>
@@ -152,10 +152,19 @@
     <div>
       <button mat-raised-button class="btn btn-reset" (click)="clearControl()">Reset Filter</button>
     </div>
-    <div class="sorted_sessions_filter">
-      <mat-checkbox class="sorted_sessions_chbox" [checked]="showSortedSessions" (change)="toggleSortedSessionViewStatus()">
-        Only show sorted sessions
-      </mat-checkbox>
+  </div>
+
+  <div class="container">
+    <div class="row ">
+      <div class="col-auto">
+          <mat-label ngClass="labelBeforeSlide">Delay-Response Task</mat-label>
+          <mat-slide-toggle [checked]="showForagingSessions" (change)="toggleSessionTaskViewStatus()">Foraging Task</mat-slide-toggle>
+      </div>
+      <div class="col-auto">
+        <mat-checkbox class="sorted_sessions_chbox" [checked]="showSortedSessions" (change)="toggleSortedSessionViewStatus()">
+          Only show sorted sessions
+        </mat-checkbox>
+      </div>
     </div>
   </div>
 
@@ -170,7 +179,7 @@
     <th mat-header-cell *matHeaderCellDef mat-sort-header> Mouse ID </th>
     <td mat-cell *matCellDef="let session"> {{session.subject_id}} </td>
   </ng-container>
-  
+
   <ng-container matColumnDef="water_restriction_number">
     <th mat-header-cell *matHeaderCellDef mat-sort-header> Water Restriction </th>
     <td mat-cell *matCellDef="let session"> {{session.water_restriction_number}} </td>
@@ -180,7 +189,7 @@
     <th mat-header-cell *matHeaderCellDef mat-sort-header> Session Date </th>
     <td mat-cell *matCellDef="let session"> {{session.session_date}} </td>
   </ng-container>
-  
+
   <ng-container matColumnDef="username">
     <th mat-header-cell *matHeaderCellDef mat-sort-header> User </th>
     <td mat-cell *matCellDef="let session"> {{session.username}} </td>

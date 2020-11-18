@@ -39,6 +39,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
   allSessions;
 
   showSortedSessions = false;
+  showForagingSessions = false;
   sessionDateFilter: Function;
   // miceBirthdayFilter: Function;
   sessionMinDate: Date;
@@ -165,6 +166,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
     this.allSessionMenuSubscription = this.allSessionsService.getAllSessionMenuLoadedListener()
       .subscribe((sessions_all: any) => {
         this.allSessions = sessions_all;
+        this.applyToggleFilter();
         this.createMenu(sessions_all);
       });
   }
@@ -203,7 +205,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
       for (const key of keys) {
         if (key !== 'sex' && key !== 'insert_locations' && key !== 'clustering_methods' && (session[key] || session[key] === 0) && !this.session_menu[key].includes(session[key].toString())) {
           this.session_menu[key].push(session[key].toString());
-          
+
         } else if (key === 'sex') {
           // console.log('creating sex menu - looking at ', this.session_menu[key], ' and ', session[key]);
           if (Object.keys(this.session_menu[key]).includes(session[key]) && !this.session_menu[key][session[key]]) {
@@ -388,7 +390,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
             // const mouseDOB = moment.utc(filter[1]);
             // if (mouseDOB.toISOString()) {
             //   requestFilter[filterKey] = mouseDOB.toISOString().split('T')[0];
-            // } 
+            // }
           } else if (filterKey === 'session_date') {
               if (!this.dateRangeToggle) {
                 const sessionST = moment.utc(filter[1].toString());
@@ -474,10 +476,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
           // console.log('response: ', newSessions);
           this.loading = false;
           this.sessions = newSessions;
-          this.dataSource = new MatTableDataSource(newSessions);
-          this.dataSource.sort = this.sort;
-          this.dataSource.paginator = this.paginator;
-
+          this.applyToggleFilter();
         });
     } else {
       this.resetFilter();
@@ -495,19 +494,17 @@ export class SessionListComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.sessions = sessionsAll;
         this.allSessions = sessionsAll;
-        this.dataSource = new MatTableDataSource(this.sessions);
-        this.dataSource.sort = this.sort;
-        this.dataSource.paginator = this.paginator;
+        this.applyToggleFilter();
       });
   }
 
   clearControl() {
     for (const control in this.session_filter_form.controls) {
       const toReset = {}
-      
+
       if (control === 'session_range_filter') {
         toReset[control] = { 'session_range_start_control': null, 'session_range_end_control': null}
-        
+
       } else if (control === 'sex_control') {
         toReset[control] = [false, false, false];
         for (const index in this.session_filter_form.get(control)['controls']) {
@@ -516,12 +513,12 @@ export class SessionListComponent implements OnInit, OnDestroy {
       } else {
         toReset[control] = '';
       }
-      this.session_filter_form.patchValue(toReset); 
+      this.session_filter_form.patchValue(toReset);
     }
     this.filterStoreService.clearSessionTableState();
     this.paginator.pageSize = 25;
     this.paginator.pageIndex = null;
-    // the below sort is to reset the arrow UI that doesn't go away after this.sort.active = '' 
+    // the below sort is to reset the arrow UI that doesn't go away after this.sort.active = ''
     this.sort.sortables.forEach(sortItem => {
       this.sort.sort(sortItem);
     });
@@ -567,23 +564,28 @@ export class SessionListComponent implements OnInit, OnDestroy {
   toggleSortedSessionViewStatus() {
     // console.log('show sorted sessions: ', this.showSortedSessions);
     this.showSortedSessions = !this.showSortedSessions;
-    if (this.showSortedSessions) {
-      const sortedSessions = [];
+    this.applyToggleFilter();
+  }
+
+  toggleSessionTaskViewStatus() {
+    this.showForagingSessions = !this.showForagingSessions;
+    this.applyToggleFilter();
+  }
+
+  applyToggleFilter() {
+    const sortedSessions = [];
       for (const session of this.allSessions) {
-        if (session['clustering_methods'] && session['clustering_methods'].length > 0) {
-          // console.log('session[clustinermethod]: ', session['clustering_methods']);
+        let is_foraging = session['is_foraging'] == this.showForagingSessions;
+        let is_sorted_only = this.showSortedSessions ? (session['clustering_methods'] && session['clustering_methods'].length > 0) : true;
+
+        if (is_foraging && is_sorted_only) {
           sortedSessions.push(session);
         }
       }
-      this.dataSource = new MatTableDataSource(sortedSessions);
-    } else {
-      this.dataSource = new MatTableDataSource(this.allSessions);
-    }
+    this.dataSource = new MatTableDataSource(sortedSessions);
     this.dataSource.sort = this.sort;
     this.dataSource.sortingDataAccessor = (data, header) => data[header];
     this.dataSource.paginator = this.paginator;
-
-    
   }
 
 }
