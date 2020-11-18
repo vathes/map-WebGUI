@@ -50,3 +50,7 @@ mat-form-field {
   margin-right:0.5rem;
   margin-bottom:0.5rem;
 }
+
+img.zoomedPlot {
+    max-width: 100%;
+}
