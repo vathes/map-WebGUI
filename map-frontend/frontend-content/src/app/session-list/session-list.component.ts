@@ -166,6 +166,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
     this.allSessionMenuSubscription = this.allSessionsService.getAllSessionMenuLoadedListener()
       .subscribe((sessions_all: any) => {
         this.allSessions = sessions_all;
+        this.sessions = sessions_all;
         this.applyToggleFilter();
         this.createMenu(sessions_all);
       });
@@ -301,8 +302,6 @@ export class SessionListComponent implements OnInit, OnDestroy {
     //   }
     //   return birthDates.includes(d.toISOString().split('T')[0]);
     // };
-
-
   }
 
   private _filter(value: string, menuType: string): string[] {
@@ -574,7 +573,7 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
   applyToggleFilter() {
     const sortedSessions = [];
-      for (const session of this.allSessions) {
+      for (const session of this.sessions) {
         let is_foraging = session['is_foraging'] == this.showForagingSessions;
         let is_sorted_only = this.showSortedSessions ? (session['clustering_methods'] && session['clustering_methods'].length > 0) : true;
 
