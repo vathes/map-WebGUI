@@ -3,8 +3,6 @@ FROM datajoint/jupyter:python3.6
 # for production builds
 ADD . /src/mapapi
 
-RUN pip install --upgrade --pre datajoint
-
 RUN \
     pip install -e /src/mapapi && \
     chmod +x /src/mapapi/run-map-api.prod.sh && \

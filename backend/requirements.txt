@@ -1,3 +1,4 @@
+datajoint==0.12.9
 flask
 gunicorn
 boto3
