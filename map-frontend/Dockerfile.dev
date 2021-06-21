@@ -1,5 +1,5 @@
 # don't build
-FROM node:10.16-slim
+FROM node:14.17-slim
 
 COPY ./frontend-content /frontend
 
@@ -15,7 +15,7 @@ COPY ./frontend-content/src/assets/addons/map-color-theme.css /frontend/node_mod
 COPY ./frontend-content/src/assets/addons/plotly.js /frontend/node_modules/plotly.js-dist/
 
 HEALTHCHECK       \
-    --timeout=3s \ 
+    --timeout=3s \
     --retries=20  \
     CMD           \
         curl --fail http://localhost:9000 || exit 1

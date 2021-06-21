@@ -198,6 +198,7 @@ def handle_q(subpath, args, proj, **kwargs):
 
         sessions = get_sessions_query() & args
 
+        # get plots from schema `report`
         plotsessions = (experiment.Session & args).proj().aggr(report.SessionLevelReport, ...,
                                                                behavior_performance_s3fp='behavior_performance',
                                                                keep_all_rows=True)
@@ -222,28 +223,56 @@ def handle_q(subpath, args, proj, **kwargs):
           ..., quality_control='IFNULL(quality_control, false)', manual_curation='IFNULL(manual_curation, false)')
 
         probe_insertions = probe_insertions & args
+
+        # get plots from schema `report`
         probe_insertions = probe_insertions.aggr(
           report.ProbeLevelReport, ..., clustering_quality_s3fp='clustering_quality',
-          unit_characteristic_s3fp='unit_characteristic', group_psth_s3fp='group_psth', keep_all_rows=True)
-        probe_insertions = probe_insertions.aggr(report.ProbeLevelPhotostimEffectReport, ...,
-                                                 group_photostim_s3fp='group_photostim', keep_all_rows=True)
+          unit_characteristic_s3fp='unit_characteristic',
+          group_psth_s3fp='group_psth', keep_all_rows=True)
+        probe_insertions = probe_insertions.aggr(
+          report.ProbeLevelPhotostimEffectReport, ...,
+          group_photostim_s3fp='group_photostim', keep_all_rows=True)
 
         contain_s3fp = True
         q = probe_insertions
     elif subpath == 'units':
         check_is_session_restriction(args)
 
-        exclude_attrs = ['-spike_times', '-waveform', '-unit_uid', '-spike_depths', '-spike_sites',
-                         '-probe', '-electrode_config_name', '-electrode_group']
+        exclude_attrs = ['-spike_times', '-waveform', '-unit_uid',
+                         '-spike_depths', '-spike_sites', '-probe']
         units = (ephys.Unit * ephys.UnitStat
-                 * ephys.ProbeInsertion.InsertionLocation.proj('depth') & args).proj(
-          ..., unit_depth='unit_posy + depth', is_all='unit_quality = "all"', *exclude_attrs)
+                 * lab.ElectrodeConfig.Electrode
+                 * lab.ProbeType.Electrode.proj('shank')
+                 & args).proj(..., unit_depth='unit_posy', is_all='unit_quality = "all"', *exclude_attrs)
 
-        units = units.aggr(report.UnitLevelEphysReport, ..., unit_psth_s3fp='unit_psth', keep_all_rows=True)
-        units = units.aggr(report.UnitLevelTrackingReport, ..., unit_behavior_s3fp='unit_behavior', keep_all_rows=True)
+        shank_depths = {}
+        for probe_insertion in ephys.ProbeInsertion & args:
+            shanks = (ephys.ProbeInsertion & probe_insertion).aggr(
+              lab.ElectrodeConfig.Electrode * lab.ProbeType.Electrode,
+              shanks='GROUP_CONCAT(DISTINCT shank SEPARATOR ", ")').fetch1('shanks')
+            for shank_no in np.array(shanks.split(', ')).astype(int):
+                last_electrode_site = np.array(
+                  (histology.InterpolatedShankTrack.DeepestElectrodePoint
+                   & probe_insertion & {'shank': shank_no}).fetch1(
+                    'ccf_x', 'ccf_y', 'ccf_z'))
+                # CCF position of the brain surface where this shank crosses
+                brain_surface_site = np.array(
+                  (histology.InterpolatedShankTrack.BrainSurfacePoint
+                   & probe_insertion & {'shank': shank_no}).fetch1(
+                    'ccf_x', 'ccf_y', 'ccf_z'))
+
+                shank_depths[(probe_insertion['insertion_number'], shank_no)] = -np.linalg.norm(last_electrode_site - brain_surface_site)
+
+        units = units.aggr(report.UnitLevelEphysReport, ..., unit_psth_s3fp='unit_psth',
+                           keep_all_rows=True)
+        units = units.aggr(report.UnitLevelTrackingReport, ...,
+                           unit_behavior_s3fp='unit_behavior', keep_all_rows=True)
 
         contain_s3fp = True
-        q = units
+        q = units.fetch(as_dict=True)
+        for u in q:
+            u['unit_depth'] += shank_depths[(u['insertion_number'], u.pop('shank'))]
+
     elif subpath == 'project_probe_tracks':
         args['project_name'] = 'MAP'
         contain_s3fp = True
@@ -269,8 +298,6 @@ def handle_q(subpath, args, proj, **kwargs):
 
                 ymax, ymin = dj.U().aggr(units, ymax='max(unit_posy)', ymin='0').fetch1('ymax', 'ymin')
 
-                dv_loc = float((ephys.ProbeInsertion.InsertionLocation & probe_insertion).fetch1('depth'))
-
                 annotated_electrodes = (lab.ElectrodeConfig.Electrode * lab.ProbeType.Electrode
                                         * ephys.ProbeInsertion
                                         * histology.ElectrodeCCFPosition.ElectrodePosition
@@ -282,6 +309,17 @@ def handle_q(subpath, args, proj, **kwargs):
 
                 pos_x, pos_y, color_code, annotation = annotated_electrodes.fetch(
                   'x_coord', 'y_coord', 'color_code', 'annotation', order_by='y_coord DESC')
+
+                last_electrode_site = np.array(
+                  (histology.InterpolatedShankTrack.DeepestElectrodePoint
+                   & probe_insertion & {'shank': shank_no}).fetch1(
+                    'ccf_x', 'ccf_y', 'ccf_z'))
+                brain_surface_site = np.array(
+                  (histology.InterpolatedShankTrack.BrainSurfacePoint
+                   & probe_insertion & {'shank': shank_no}).fetch1(
+                    'ccf_x', 'ccf_y', 'ccf_z'))
+
+                y_ref = -np.linalg.norm(last_electrode_site - brain_surface_site)
 
                 region2color_map = {**{r: c for r, c in zip(annotation, color_code)}, '': 'FFFFFF'}
 
@@ -304,7 +342,7 @@ def handle_q(subpath, args, proj, **kwargs):
 
                 x.extend([np.mean(pos_x)] * (len(region_rgba) + 1))
                 width.extend([np.ptp(pos_x) * 5.5] * (len(region_rgba) + 1))
-                y.extend(np.concatenate([[ymin + dv_loc], binned_depths]))
+                y.extend(np.concatenate([[ymin + y_ref], binned_depths]))
                 anno.extend([''] + binned_regions)
                 color.extend([f'rgba{ImageColor.getcolor("#FFFFFF", "RGBA")}'] + region_rgba)
 
@@ -382,7 +420,6 @@ def handle_q(subpath, args, proj, **kwargs):
             q = {'subject_id': args['subject_id'],
                  'sessions': sessions, 'session_traces': session_traces,
                  'training_days': training_days, 'training_day_traces': training_day_traces}
-
     elif subpath == 'foraging_session_report':
         check_is_subject_restriction(args)
         q = experiment.Session.proj() & args
