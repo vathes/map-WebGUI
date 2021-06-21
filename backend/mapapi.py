@@ -307,10 +307,19 @@ def handle_q(subpath, args, proj, **kwargs):
                 if not annotated_electrodes:
                     continue
 
-                pos_x, pos_y, color_code, annotation, ccf_y = annotated_electrodes.fetch(
-                  'x_coord', 'y_coord', 'color_code', 'annotation', 'ccf_y', order_by='y_coord DESC')
+                pos_x, pos_y, color_code, annotation = annotated_electrodes.fetch(
+                  'x_coord', 'y_coord', 'color_code', 'annotation', order_by='y_coord DESC')
 
-                y_ref = -ccf_y.max()  # CCF position of most ventral recording site
+                last_electrode_site = np.array(
+                  (histology.InterpolatedShankTrack.DeepestElectrodePoint
+                   & probe_insertion & {'shank': shank_no}).fetch1(
+                    'ccf_x', 'ccf_y', 'ccf_z'))
+                brain_surface_site = np.array(
+                  (histology.InterpolatedShankTrack.BrainSurfacePoint
+                   & probe_insertion & {'shank': shank_no}).fetch1(
+                    'ccf_x', 'ccf_y', 'ccf_z'))
+
+                y_ref = -np.linalg.norm(last_electrode_site - brain_surface_site)
 
                 region2color_map = {**{r: c for r, c in zip(annotation, color_code)}, '': 'FFFFFF'}
 
