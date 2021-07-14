@@ -1,9 +1,9 @@
 # don't build
-FROM node:10.16-slim
+FROM node:14-slim
 
 COPY ./frontend-content /frontend
 
-RUN apt-get update
+RUN apt-get update && apt-get install -y curl
 
 RUN \
     cd /frontend && \
